@@ -237,6 +237,11 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: ['Admin'],
     }),
 
+    deleteDiscountCode: builder.mutation<void, string>({
+      query: (id) => ({ url: `/discount-codes/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Admin'],
+    }),
+
     // ── Shipments (admin) ──
     getShipmentForOrder: builder.query<Shipment, string>({
       query: (orderId) => `/shipments/order/${orderId}`,
@@ -324,6 +329,7 @@ export const {
   useListDiscountCodesQuery,
   useCreateDiscountCodeMutation,
   useUpdateDiscountCodeMutation,
+  useDeleteDiscountCodeMutation,
   useGetShipmentForOrderQuery,
   useCreateShipmentMutation,
   useAddShipmentEventMutation,

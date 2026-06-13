@@ -42,7 +42,7 @@ export default function UsersPage() {
           <select
             value={roleFilter}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full sm:w-auto px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
           >
             <option value="">All roles</option>
             {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -53,14 +53,14 @@ export default function UsersPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search users…"
-              className="w-full sm:w-48 pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full sm:w-48 pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
           </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-emerald-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-forest-600" /></div>
       ) : users.length === 0 ? (
         <div className="text-center py-16">
           <Users className="h-12 w-12 text-gray-200 mx-auto mb-3" />
@@ -83,7 +83,7 @@ export default function UsersPage() {
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-forest-100 flex items-center justify-center text-forest-700 font-bold text-xs flex-shrink-0">
                         {user.firstName?.[0]?.toUpperCase()}
                       </div>
                       <div>
@@ -100,7 +100,7 @@ export default function UsersPage() {
                   </td>
                   <td className="px-5 py-3.5 hidden md:table-cell">
                     {user.isEmailVerified
-                      ? <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                      ? <ShieldCheck className="h-4 w-4 text-green-500" />
                       : <ShieldOff className="h-4 w-4 text-gray-300" />
                     }
                   </td>
@@ -112,7 +112,7 @@ export default function UsersPage() {
                           value={user.role}
                           onChange={(e) => handleRoleChange(user, e.target.value)}
                           disabled={changing === user.id}
-                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white disabled:opacity-50"
+                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-forest-500 bg-white disabled:opacity-50"
                         >
                           {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                         </select>

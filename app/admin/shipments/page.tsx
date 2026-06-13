@@ -45,17 +45,17 @@ function ShipmentDetail({ orderId }: { orderId: string }) {
     finally { setSaving(false); }
   }
 
-  if (isLoading) return <div className="p-4 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-emerald-600" /></div>;
+  if (isLoading) return <div className="p-4 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-forest-600" /></div>;
 
   if (!shipment) {
     return (
       <div className="p-4 space-y-3 border-t border-gray-100">
         <p className="text-sm font-medium text-gray-600">No shipment yet. Create one:</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="Carrier (e.g. Fargo)" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-          <input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="Tracking number" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          <input value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="Carrier (e.g. Fargo)" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
+          <input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="Tracking number" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
         </div>
-        <button onClick={handleCreate} disabled={saving} className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2">
+        <button onClick={handleCreate} disabled={saving} className="px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-medium hover:bg-forest-700 disabled:opacity-50 flex items-center gap-2">
           {saving && <Loader2 className="h-4 w-4 animate-spin" />} Create Shipment
         </button>
       </div>
@@ -67,7 +67,7 @@ function ShipmentDetail({ orderId }: { orderId: string }) {
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className="text-gray-500">Carrier: <strong className="text-gray-900">{shipment.carrier ?? '—'}</strong></span>
         <span className="text-gray-500">Tracking: <strong className="text-gray-900 font-mono break-all">{shipment.trackingNo ?? '—'}</strong></span>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${shipment.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${shipment.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
           {shipment.status}
         </span>
       </div>
@@ -97,14 +97,14 @@ function ShipmentDetail({ orderId }: { orderId: string }) {
         </div>
       ) : (
         <div className="space-y-2">
-          <select value={eventStatus} onChange={(e) => setEvSt(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+          <select value={eventStatus} onChange={(e) => setEvSt(e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white">
             {['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'failed'].map((s) => (
               <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
             ))}
           </select>
-          <input value={eventDesc} onChange={(e) => setEvDesc(e.target.value)} placeholder="Event description *" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-          <input value={evLocation} onChange={(e) => setEvLoc(e.target.value)} placeholder="Location (optional)" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-          <button onClick={() => handleAddEvent(shipment)} disabled={saving} className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2">
+          <input value={eventDesc} onChange={(e) => setEvDesc(e.target.value)} placeholder="Event description *" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
+          <input value={evLocation} onChange={(e) => setEvLoc(e.target.value)} placeholder="Location (optional)" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
+          <button onClick={() => handleAddEvent(shipment)} disabled={saving} className="px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-medium hover:bg-forest-700 disabled:opacity-50 flex items-center gap-2">
             {saving && <Loader2 className="h-4 w-4 animate-spin" />} <Plus className="h-4 w-4" /> Add Event
           </button>
         </div>
@@ -127,7 +127,7 @@ export default function ShipmentsPage() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+          className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
         >
           {['confirmed', 'processing', 'shipped', 'delivered'].map((s) => (
             <option key={s} value={s}>{s}</option>
@@ -136,7 +136,7 @@ export default function ShipmentsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-emerald-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-forest-600" /></div>
       ) : orders.length === 0 ? (
         <div className="text-center py-16">
           <Truck className="h-12 w-12 text-gray-200 mx-auto mb-3" />

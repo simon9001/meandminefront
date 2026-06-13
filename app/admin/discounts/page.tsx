@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { Tag, Plus, X, Loader2, Check, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Tag, Plus, X, Loader2, Check, ToggleLeft, ToggleRight, Pencil, Trash2 } from 'lucide-react';
 import {
   useListDiscountCodesQuery,
   useCreateDiscountCodeMutation,
   useUpdateDiscountCodeMutation,
+  useDeleteDiscountCodeMutation,
   type DiscountCode,
   type CreateDiscountPayload,
 } from '@/lib/redux/api/adminApi';
@@ -21,34 +22,77 @@ const EMPTY: CreateDiscountPayload = {
   expiresAt: '',
 };
 
+function codeToForm(c: DiscountCode): CreateDiscountPayload {
+  return {
+    code:           c.code,
+    description:    c.description,
+    discountType:   c.discountType,
+    discountValue:  c.discountValue,
+    minOrderAmount: c.minOrderAmount,
+    maxUses:        c.maxUses,
+    expiresAt:      c.expiresAt ? c.expiresAt.slice(0, 10) : '',
+  };
+}
+
 export default function DiscountsPage() {
   const { data: codes = [], isLoading } = useListDiscountCodesQuery();
   const [createCode] = useCreateDiscountCodeMutation();
   const [updateCode] = useUpdateDiscountCodeMutation();
+  const [deleteCode] = useDeleteDiscountCodeMutation();
 
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm]         = useState<CreateDiscountPayload>(EMPTY);
-  const [saving, setSaving]     = useState(false);
+  const [showForm, setShowForm]   = useState(false);
+  const [editing, setEditing]     = useState<DiscountCode | null>(null);
+  const [form, setForm]           = useState<CreateDiscountPayload>(EMPTY);
+  const [saving, setSaving]       = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  function close() { setShowForm(false); setForm(EMPTY); }
+  function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true); }
+  function openEdit(c: DiscountCode) { setEditing(c); setForm(codeToForm(c)); setShowForm(true); }
+  function close() { setShowForm(false); setEditing(null); setForm(EMPTY); }
 
   async function handleSave() {
-    if (!form.code.trim() || !form.description.trim()) { toast.error('Code and description required'); return; }
+    if (!form.code.trim() || !form.description.trim()) {
+      toast.error('Code and description required');
+      return;
+    }
     setSaving(true);
     try {
-      await createCode({ ...form, expiresAt: form.expiresAt || undefined, maxUses: form.maxUses || undefined }).unwrap();
-      toast.success('Discount code created');
+      const payload = { ...form, expiresAt: form.expiresAt || undefined, maxUses: form.maxUses || undefined };
+      if (editing) {
+        await updateCode({ id: editing.id, ...payload }).unwrap();
+        toast.success('Discount code updated');
+      } else {
+        await createCode(payload).unwrap();
+        toast.success('Discount code created');
+      }
       close();
     } catch (e: unknown) {
       toast.error((e as { data?: { message?: string } }).data?.message ?? 'Save failed');
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   }
 
-  async function toggleActive(code: DiscountCode) {
+  async function handleDelete(c: DiscountCode) {
+    if (!confirm(`Delete code "${c.code}"? This cannot be undone.`)) return;
+    setDeletingId(c.id);
     try {
-      await updateCode({ id: code.id, isActive: !code.isActive }).unwrap();
-      toast.success(code.isActive ? 'Code deactivated' : 'Code activated');
-    } catch { toast.error('Failed to update'); }
+      await deleteCode(c.id).unwrap();
+      toast.success('Discount code deleted');
+    } catch {
+      toast.error('Delete failed');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function toggleActive(c: DiscountCode) {
+    try {
+      await updateCode({ id: c.id, isActive: !c.isActive }).unwrap();
+      toast.success(c.isActive ? 'Code deactivated' : 'Code activated');
+    } catch {
+      toast.error('Failed to update');
+    }
   }
 
   return (
@@ -56,20 +100,22 @@ export default function DiscountsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900">Discount Codes</h1>
         <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+          onClick={openCreate}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-semibold hover:bg-forest-700 transition-colors"
         >
           <Plus className="h-4 w-4" /> New Code
         </button>
       </div>
 
-      {/* Form modal */}
+      {/* Create / Edit modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="font-bold text-gray-900">New Discount Code</h2>
-              <button onClick={close} className="p-1.5 rounded-lg hover:bg-gray-100"><X className="h-4 w-4" /></button>
+              <h2 className="font-bold text-gray-900">{editing ? 'Edit Code' : 'New Discount Code'}</h2>
+              <button onClick={close} className="p-1.5 rounded-lg hover:bg-gray-100">
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -79,7 +125,8 @@ export default function DiscountsPage() {
                   value={form.code}
                   onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
                   placeholder="e.g. SAVE20"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm uppercase tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  disabled={!!editing}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm uppercase tracking-widest font-bold focus:outline-none focus:ring-2 focus:ring-forest-500 disabled:bg-gray-50 disabled:text-gray-400"
                 />
               </div>
               <div className="col-span-1 sm:col-span-2">
@@ -88,7 +135,7 @@ export default function DiscountsPage() {
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder="e.g. 20% off all orders"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
               </div>
               <div>
@@ -96,7 +143,7 @@ export default function DiscountsPage() {
                 <select
                   value={form.discountType}
                   onChange={(e) => setForm((f) => ({ ...f, discountType: e.target.value as 'percentage' | 'fixed' }))}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
                 >
                   <option value="percentage">Percentage (%)</option>
                   <option value="fixed">Fixed amount (KES)</option>
@@ -109,7 +156,7 @@ export default function DiscountsPage() {
                   value={form.discountValue}
                   onChange={(e) => setForm((f) => ({ ...f, discountValue: Number(e.target.value) }))}
                   min={0}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
               </div>
               <div>
@@ -119,7 +166,7 @@ export default function DiscountsPage() {
                   value={form.minOrderAmount}
                   onChange={(e) => setForm((f) => ({ ...f, minOrderAmount: Number(e.target.value) }))}
                   min={0}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
               </div>
               <div>
@@ -130,7 +177,7 @@ export default function DiscountsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, maxUses: e.target.value ? Number(e.target.value) : undefined }))}
                   placeholder="Unlimited"
                   min={1}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
               </div>
               <div className="col-span-1 sm:col-span-2">
@@ -139,22 +186,25 @@ export default function DiscountsPage() {
                   type="date"
                   value={form.expiresAt ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
               </div>
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button onClick={close} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+              <button
+                onClick={close}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-forest-900 text-white text-sm font-semibold hover:bg-forest-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                {saving ? 'Creating…' : 'Create Code'}
+                {saving ? 'Saving…' : editing ? 'Save Changes' : 'Create Code'}
               </button>
             </div>
           </div>
@@ -162,7 +212,7 @@ export default function DiscountsPage() {
       )}
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-emerald-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-forest-600" /></div>
       ) : codes.length === 0 ? (
         <div className="text-center py-16">
           <Tag className="h-12 w-12 text-gray-200 mx-auto mb-3" />
@@ -170,7 +220,7 @@ export default function DiscountsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
                 <th className="text-left px-5 py-3 font-semibold">Code</th>
@@ -179,6 +229,7 @@ export default function DiscountsPage() {
                 <th className="text-right px-5 py-3 font-semibold">Uses</th>
                 <th className="text-left px-5 py-3 font-semibold">Expires</th>
                 <th className="text-center px-5 py-3 font-semibold">Active</th>
+                <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -202,10 +253,32 @@ export default function DiscountsPage() {
                   <td className="px-5 py-3.5 text-center">
                     <button onClick={() => toggleActive(code)} className="inline-flex items-center">
                       {code.isActive
-                        ? <ToggleRight className="h-6 w-6 text-emerald-600" />
+                        ? <ToggleRight className="h-6 w-6 text-green-500" />
                         : <ToggleLeft className="h-6 w-6 text-gray-300" />
                       }
                     </button>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openEdit(code)}
+                        className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(code)}
+                        disabled={deletingId === code.id}
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40"
+                        title="Delete"
+                      >
+                        {deletingId === code.id
+                          ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : <Trash2 className="h-4 w-4" />
+                        }
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

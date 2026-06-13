@@ -162,7 +162,7 @@ function PromotionFormModal({
                 required
                 value={form.title}
                 onChange={(e) => setField('title', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 placeholder={isHero ? 'Premium Carpets' : 'Kitchenware Deals'}
               />
             </div>
@@ -172,7 +172,7 @@ function PromotionFormModal({
               <input
                 value={form.ctaText ?? ''}
                 onChange={(e) => setField('ctaText', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 placeholder={isHero ? 'Shop Now' : 'SHOP NOW'}
               />
             </div>
@@ -183,7 +183,7 @@ function PromotionFormModal({
                 required
                 value={form.ctaUrl}
                 onChange={(e) => setField('ctaUrl', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                 placeholder="/products?category=carpets"
               />
             </div>
@@ -194,7 +194,7 @@ function PromotionFormModal({
                 type="number"
                 value={form.displayOrder ?? 0}
                 onChange={(e) => setField('displayOrder', Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
               />
             </div>
 
@@ -204,7 +204,7 @@ function PromotionFormModal({
                   onClick={() => setField('isActive', !form.isActive)}
                   className={cn(
                     'relative w-10 h-6 rounded-full transition-colors',
-                    form.isActive ? 'bg-emerald-500' : 'bg-gray-200'
+                    form.isActive ? 'bg-forest-600' : 'bg-gray-200'
                   )}
                 >
                   <span className={cn(
@@ -280,7 +280,7 @@ function PromotionFormModal({
                   <input
                     value={form.eyebrow ?? ''}
                     onChange={(e) => setField('eyebrow', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="New Collection"
                   />
                 </div>
@@ -290,7 +290,7 @@ function PromotionFormModal({
                   <input
                     value={form.subtitle ?? ''}
                     onChange={(e) => setField('subtitle', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="Geometric & abstract styles"
                   />
                 </div>
@@ -300,7 +300,7 @@ function PromotionFormModal({
                   <input
                     value={form.offerText ?? ''}
                     onChange={(e) => setField('offerText', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="FROM KES 2,500"
                   />
                 </div>
@@ -310,7 +310,7 @@ function PromotionFormModal({
                   <select
                     value={form.offerBg ?? 'bg-earth-500'}
                     onChange={(e) => setField('offerBg', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
                   >
                     {OFFER_BG_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label} ({o.value})</option>
@@ -323,8 +323,8 @@ function PromotionFormModal({
 
           {/* Navbar banner specific fields */}
           {!isHero && (
-            <div className="space-y-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Navbar Banner Fields</p>
+            <div className="space-y-4 p-4 rounded-xl bg-forest-50 border border-forest-100">
+              <p className="text-xs font-bold uppercase tracking-widest text-forest-700">Navbar Banner Fields</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -332,7 +332,7 @@ function PromotionFormModal({
                   <input
                     value={form.bgColor ?? ''}
                     onChange={(e) => setField('bgColor', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="bg-[#0b7a8a] or bg-forest-900"
                   />
                 </div>
@@ -342,7 +342,7 @@ function PromotionFormModal({
                   <input
                     value={form.offerText ?? ''}
                     onChange={(e) => setField('offerText', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="UP TO 40% OFF"
                   />
                 </div>
@@ -354,7 +354,7 @@ function PromotionFormModal({
                   <input
                     value={tagsInput}
                     onChange={(e) => setTagsInput(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="Redberry, Mika, Rashnik, Selven"
                   />
                 </div>
@@ -364,7 +364,7 @@ function PromotionFormModal({
                   <input
                     value={form.offerBadgeStyle ?? ''}
                     onChange={(e) => setField('offerBadgeStyle', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="bg-white text-[#0b7a8a]"
                   />
                 </div>
@@ -374,7 +374,7 @@ function PromotionFormModal({
                   <input
                     value={form.ctaStyle ?? ''}
                     onChange={(e) => setField('ctaStyle', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                     placeholder="bg-[#f5c518] text-black"
                   />
                 </div>
@@ -394,7 +394,7 @@ function PromotionFormModal({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-forest-900 text-white text-sm font-semibold hover:bg-forest-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               {editingId ? 'Save Changes' : 'Create Promotion'}
@@ -468,7 +468,7 @@ function PromotionRow({
       <div className="flex items-center gap-1.5 flex-shrink-0">
         <span className={cn(
           'hidden sm:inline-block text-xs font-medium px-2 py-0.5 rounded-full',
-          promo.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
+          promo.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
         )}>
           {promo.isActive ? 'Active' : 'Off'}
         </span>
@@ -482,7 +482,7 @@ function PromotionRow({
           {toggling
             ? <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
             : promo.isActive
-              ? <ToggleRight className="h-4 w-4 text-emerald-500" />
+              ? <ToggleRight className="h-4 w-4 text-green-500" />
               : <ToggleLeft className="h-4 w-4 text-gray-400" />}
         </button>
 
@@ -643,13 +643,13 @@ export default function PromotionsPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Megaphone className="h-4 w-4 text-emerald-600" />
+            <Megaphone className="h-4 w-4 text-forest-600" />
             <h2 className="text-sm font-bold text-gray-900">Navbar Banners</h2>
             <span className="text-xs text-gray-400">({navbarBanners.length})</span>
           </div>
           <button
             onClick={() => openCreate('navbar_banner')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-forest-700 bg-forest-50 hover:bg-forest-100 rounded-lg transition-colors"
           >
             <Plus className="h-3.5 w-3.5" /> Add Banner
           </button>
@@ -667,7 +667,7 @@ export default function PromotionsPage() {
             <p className="text-sm text-gray-500">No navbar banners yet</p>
             <button
               onClick={() => openCreate('navbar_banner')}
-              className="mt-2 text-xs text-emerald-600 font-semibold hover:underline"
+              className="mt-2 text-xs text-forest-600 font-semibold hover:underline"
             >
               Add your first banner
             </button>

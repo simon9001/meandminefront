@@ -163,7 +163,7 @@ export default function NewProductPage() {
               if (!form.slug) set('slug', autoSlug(e.target.value));
             }}
             placeholder="Product name"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
 
@@ -173,7 +173,7 @@ export default function NewProductPage() {
             value={form.slug}
             onChange={(e) => set('slug', autoSlug(e.target.value))}
             placeholder="url-friendly-slug"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
 
@@ -183,7 +183,7 @@ export default function NewProductPage() {
             value={form.shortDescription ?? ''}
             onChange={(e) => set('shortDescription', e.target.value)}
             placeholder="One-line summary shown in listings"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
 
@@ -194,7 +194,7 @@ export default function NewProductPage() {
             onChange={(e) => set('fullDescription', e.target.value)}
             rows={5}
             placeholder="Detailed product description"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 resize-none"
           />
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function NewProductPage() {
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="w-full h-28 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-emerald-400 hover:text-emerald-600 transition-colors disabled:opacity-50"
+          className="w-full h-28 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-forest-400 hover:text-forest-600 transition-colors disabled:opacity-50"
         >
           {uploading
             ? <><Loader2 className="h-6 w-6 animate-spin" /><span className="text-xs">Uploading…</span></>
@@ -224,7 +224,7 @@ export default function NewProductPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt={`Product ${idx + 1}`} className="w-full h-28 object-cover rounded-xl border border-gray-200" />
                 {img.isPrimary && (
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-emerald-500 text-white text-[10px] font-bold">
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-forest-600 text-white text-[10px] font-bold">
                     Primary
                   </span>
                 )}
@@ -233,7 +233,7 @@ export default function NewProductPage() {
                     <button
                       type="button"
                       onClick={() => setPrimary(idx)}
-                      className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-semibold hover:bg-emerald-600"
+                      className="px-2.5 py-1 rounded-lg bg-forest-600 text-white text-[10px] font-semibold hover:bg-forest-700"
                     >
                       Set Primary
                     </button>
@@ -264,7 +264,7 @@ export default function NewProductPage() {
               value={form.basePrice}
               onChange={(e) => set('basePrice', Number(e.target.value))}
               min={0}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
           </div>
           <div>
@@ -275,7 +275,7 @@ export default function NewProductPage() {
               onChange={(e) => set('salePrice', e.target.value ? Number(e.target.value) : undefined)}
               min={0}
               placeholder="Leave blank if no sale"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
             {form.salePrice !== undefined && (
               <label className="flex items-center gap-2 mt-2 cursor-pointer select-none text-sm">
@@ -283,7 +283,7 @@ export default function NewProductPage() {
                   type="checkbox"
                   checked={Boolean(form.showSalePrice)}
                   onChange={(e) => set('showSalePrice', e.target.checked)}
-                  className="rounded border-gray-300 text-emerald-600"
+                  className="rounded border-gray-300 text-forest-600"
                 />
                 <span className="text-gray-700">Show sale price &amp; savings badge to customers</span>
               </label>
@@ -294,7 +294,7 @@ export default function NewProductPage() {
             <select
               value={form.status ?? 'draft'}
               onChange={(e) => set('status', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
             >
               {['draft', 'active', 'archived', 'out_of_stock'].map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -308,7 +308,7 @@ export default function NewProductPage() {
               value={form.stockWarningThreshold ?? 5}
               onChange={(e) => set('stockWarningThreshold', Number(e.target.value))}
               min={0}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
           </div>
         </div>
@@ -323,7 +323,7 @@ export default function NewProductPage() {
                 type="checkbox"
                 checked={Boolean(form[key])}
                 onChange={(e) => set(key, e.target.checked)}
-                className="rounded border-gray-300 text-emerald-600"
+                className="rounded border-gray-300 text-forest-600"
               />
               {label}
             </label>
@@ -340,7 +340,7 @@ export default function NewProductPage() {
           <select
             value={catId}
             onChange={(e) => setCatId(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white"
           >
             <option value="">None</option>
             {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -355,7 +355,7 @@ export default function NewProductPage() {
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               placeholder="Type a tag and press Enter"
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
             <button type="button" onClick={addTag} className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
               Add
@@ -364,7 +364,7 @@ export default function NewProductPage() {
           {(form.tags ?? []).length > 0 && (
             <div className="flex flex-wrap gap-2">
               {(form.tags ?? []).map((t) => (
-                <span key={t} className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+                <span key={t} className="flex items-center gap-1 px-3 py-1 rounded-full bg-forest-50 text-forest-700 text-xs font-medium">
                   {t}
                   <button type="button" onClick={() => removeTag(t)} className="hover:text-red-500 transition-colors">✕</button>
                 </span>
@@ -381,7 +381,7 @@ export default function NewProductPage() {
         <button
           onClick={handleSave}
           disabled={isLoading || uploading}
-          className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+          className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-forest-900 text-white text-sm font-bold hover:bg-forest-700 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {isLoading ? 'Creating…' : 'Create Product'}

@@ -61,7 +61,7 @@ export default function InventoryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products…"
-            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-48"
+            className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 w-full sm:w-48"
           />
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function InventoryPage() {
                   type="number"
                   value={value}
                   onChange={(e) => setValue(Number(e.target.value))}
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-forest-500"
                 />
                 <button
                   type="button"
@@ -110,7 +110,7 @@ export default function InventoryPage() {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="e.g. Restock, damage, count correction"
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
               />
             </div>
 
@@ -124,7 +124,7 @@ export default function InventoryPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-forest-900 text-white text-sm font-semibold hover:bg-forest-700 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {saving ? 'Saving…' : 'Save'}
@@ -135,7 +135,7 @@ export default function InventoryPage() {
       )}
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-emerald-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-forest-600" /></div>
       ) : items.length === 0 ? (
         <div className="text-center py-16">
           <Boxes className="h-12 w-12 text-gray-200 mx-auto mb-3" />
@@ -182,7 +182,7 @@ export default function InventoryPage() {
                         </button>
                         <button
                           onClick={() => { setModal({ item, mode: 'set' }); setValue(item.availableStock); }}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors"
+                          className="px-3 py-1.5 rounded-lg bg-forest-600 text-white text-xs font-medium hover:bg-forest-700 transition-colors"
                         >
                           Set
                         </button>

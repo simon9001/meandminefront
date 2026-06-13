@@ -248,22 +248,6 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Slide progress dots */}
-          {!scrolled && (
-            <div className="absolute top-[3px] left-1/2 -translate-x-1/2 flex gap-1 z-10">
-              {PROMO_SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setPromoVisible(false); setTimeout(() => { setPromoIndex(i); setPromoVisible(true); }, 200); }}
-                  className={cn(
-                    'h-1 rounded-full transition-all duration-300',
-                    i === promoIndex ? 'w-5 bg-white/80' : 'w-1.5 bg-white/30'
-                  )}
-                  aria-label={`Promotion ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
         </>
       )}
 

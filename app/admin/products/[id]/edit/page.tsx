@@ -87,7 +87,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   if (!ready) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-forest-600" />
       </div>
     );
   }
@@ -96,7 +96,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="text-center py-20 text-gray-400">
         Product not found.{' '}
-        <Link href="/admin/products" className="text-emerald-600 hover:underline">Back to products</Link>
+        <Link href="/admin/products" className="text-forest-600 hover:underline">Back to products</Link>
       </div>
     );
   }
@@ -115,22 +115,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Name *</label>
           <input value={form.name ?? ''} onChange={(e) => { set('name', e.target.value); }} placeholder="Product name"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Slug *</label>
           <input value={form.slug ?? ''} onChange={(e) => set('slug', autoSlug(e.target.value))} placeholder="url-slug"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-forest-500" />
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Short Description</label>
           <input value={form.shortDescription ?? ''} onChange={(e) => set('shortDescription', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Full Description</label>
           <textarea value={form.fullDescription ?? ''} onChange={(e) => set('fullDescription', e.target.value)}
-            rows={5} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+            rows={5} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 resize-none" />
         </div>
       </div>
 
@@ -140,20 +140,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Base Price (KES) *</label>
             <input type="number" value={form.basePrice ?? 0} onChange={(e) => set('basePrice', Number(e.target.value))} min={0}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Sale Price (KES)</label>
             <input type="number" value={form.salePrice ?? ''} onChange={(e) => set('salePrice', e.target.value ? Number(e.target.value) : undefined)}
               placeholder="Leave blank if no sale" min={0}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
             {form.salePrice !== undefined && (
               <label className="flex items-center gap-2 mt-2 cursor-pointer select-none text-sm">
                 <input
                   type="checkbox"
                   checked={Boolean(form.showSalePrice)}
                   onChange={(e) => set('showSalePrice', e.target.checked)}
-                  className="rounded border-gray-300 text-emerald-600"
+                  className="rounded border-gray-300 text-forest-600"
                 />
                 <span className="text-gray-700">Show sale price &amp; savings badge to customers</span>
               </label>
@@ -162,21 +162,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Status</label>
             <select value={form.status ?? 'active'} onChange={(e) => set('status', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white">
               {['active', 'draft', 'archived', 'out_of_stock'].map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Low Stock Threshold</label>
             <input type="number" value={form.stockWarningThreshold ?? 5} onChange={(e) => set('stockWarningThreshold', Number(e.target.value))} min={0}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           </div>
         </div>
         <div className="flex flex-wrap gap-4">
           {([['isFeatured', 'Featured'], ['isNewArrival', 'New Arrival'], ['isBestSeller', 'Best Seller']] as [keyof CreateProductPayload, string][]).map(([key, label]) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer select-none text-sm">
               <input type="checkbox" checked={Boolean(form[key])} onChange={(e) => set(key, e.target.checked)}
-                className="rounded border-gray-300 text-emerald-600" />
+                className="rounded border-gray-300 text-forest-600" />
               {label}
             </label>
           ))}
@@ -188,7 +188,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Category</label>
           <select value={catId} onChange={(e) => setCatId(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 bg-white">
             <option value="">None</option>
             {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -199,12 +199,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               placeholder="Type a tag and press Enter"
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
             <button type="button" onClick={addTag} className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">Add</button>
           </div>
           <div className="flex flex-wrap gap-2">
             {(form.tags ?? []).map((t) => (
-              <span key={t} className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+              <span key={t} className="flex items-center gap-1 px-3 py-1 rounded-full bg-forest-50 text-forest-700 text-xs font-medium">
                 {t}
                 <button type="button" onClick={() => removeTag(t)} className="hover:text-red-500">✕</button>
               </span>
@@ -218,7 +218,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           Cancel
         </Link>
         <button onClick={handleSave} disabled={saving}
-          className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2">
+          className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-forest-900 text-white text-sm font-bold hover:bg-forest-700 disabled:opacity-50 flex items-center justify-center gap-2">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Changes'}
         </button>

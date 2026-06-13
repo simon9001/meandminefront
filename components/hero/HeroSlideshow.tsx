@@ -154,27 +154,6 @@ export function HeroSlideshow() {
         </div>
       </Link>
 
-      {/* Progress dots */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 right-5 flex gap-1.5 z-10">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Slide ${i + 1}`}
-              className={cn(
-                'h-1.5 rounded-full transition-all duration-300',
-                i === index ? 'w-6 bg-white' : 'w-1.5 bg-white/40'
-              )}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Slide counter */}
-      <div className="absolute top-4 right-5 text-white/50 text-xs font-bold tabular-nums z-10">
-        {String(index + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
-      </div>
     </div>
   );
 }

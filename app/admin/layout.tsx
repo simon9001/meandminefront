@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <nav className="flex flex-col h-full">
       <div className="p-4 border-b border-gray-100">
         <Link href="/" className="flex items-center gap-2">
-          <BarChart2 className="h-6 w-6 text-emerald-600" />
+          <BarChart2 className="h-6 w-6 text-forest-600" />
           <span className="font-extrabold text-gray-900 text-sm">Maschon Admin</span>
         </Link>
       </div>
@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               href={href}
               onClick={() => setOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                active ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                active ? 'bg-forest-50 text-forest-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="p-3 border-t border-gray-100">
         <div className="flex items-center gap-2 px-3 py-2 mb-1">
-          <div className="h-7 w-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs flex-shrink-0">
+          <div className="h-7 w-7 rounded-full bg-forest-100 flex items-center justify-center text-forest-700 font-bold text-xs flex-shrink-0">
             {user?.firstName?.[0]?.toUpperCase()}
           </div>
           <div className="min-w-0">
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-forest-600" />
         </div>
       )}
     </div>
