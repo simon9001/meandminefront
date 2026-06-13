@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 155" fill="none">
+
+  <!-- ══ HOUSE MARK ══════════════════════════════════════════════════════════ -->
+
+  <!-- Chimney -->
+  <rect x="97" y="10" width="15" height="33" rx="2" fill="#1a3828"/>
+  <!-- Chimney cap accent -->
+  <rect x="94" y="8" width="21" height="6" rx="2" fill="#c47b2a"/>
+
+  <!-- Roof -->
+  <polygon points="70,14 142,70 0,70" fill="#1a3828"/>
+  <!-- Roof ridge highlight -->
+  <polygon points="70,14 80,22 70,24 60,22" fill="#2d5a40"/>
+
+  <!-- Walls -->
+  <rect x="6" y="70" width="128" height="75" fill="#1a3828"/>
+
+  <!-- Earth-tone accent band at wall top -->
+  <rect x="6" y="70" width="128" height="5" fill="#c47b2a"/>
+
+  <!-- Left window -->
+  <rect x="13" y="84" width="32" height="28" rx="3" fill="#f5ede0"/>
+  <line x1="29" y1="84" x2="29" y2="112" stroke="#1a3828" stroke-width="1.5"/>
+  <line x1="13" y1="98" x2="45" y2="98" stroke="#1a3828" stroke-width="1.5"/>
+
+  <!-- Right window -->
+  <rect x="95" y="84" width="32" height="28" rx="3" fill="#f5ede0"/>
+  <line x1="111" y1="84" x2="111" y2="112" stroke="#1a3828" stroke-width="1.5"/>
+  <line x1="95" y1="98" x2="127" y2="98" stroke="#1a3828" stroke-width="1.5"/>
+
+  <!-- Door with arch (quadratic bezier) -->
+  <path d="M52 145 L52 106 Q70 89 88 106 L88 145 Z" fill="#f5ede0"/>
+  <!-- Door knob -->
+  <circle cx="57" cy="127" r="2.8" fill="#c47b2a"/>
+
+  <!-- ══ DIVIDER ══════════════════════════════════════════════════════════════ -->
+
+  <line x1="162" y1="18" x2="162" y2="145" stroke="#d6c9b6" stroke-width="1.5"/>
+
+  <!-- ══ WORDMARK ════════════════════════════════════════════════════════════ -->
+
+  <text x="182" y="100"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="56"
+    fill="#1a3828"
+    letter-spacing="-2">maschon</text>
+
+  <!-- Gold rule -->
+  <line x1="182" y1="113" x2="516" y2="113" stroke="#c47b2a" stroke-width="1.5"/>
+
+  <!-- Tagline -->
+  <text x="184" y="135"
+    font-family="Arial, Helvetica, sans-serif"
+    font-weight="700"
+    font-size="11"
+    fill="#c47b2a"
+    letter-spacing="5.5">HOME GOODS · KENYA</text>
+
+</svg>
