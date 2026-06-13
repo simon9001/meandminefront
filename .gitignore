@@ -33,7 +33,7 @@ yarn-error.log*
 # env files — local overrides are secret, production values are committed
 .env.local
 .env*.local
-
+.env.production
 # vercel
 .vercel
 
