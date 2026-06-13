@@ -139,7 +139,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Base Price (KES) *</label>
-            <input type="number" value={form.basePrice ?? 0} onChange={(e) => set('basePrice', Number(e.target.value))} min={0}
+            <input type="number" value={form.basePrice ?? 0} onChange={(e) => set('basePrice', Number(e.target.value))}
+              onFocus={(e) => { if (e.target.value === '0') e.target.select(); }} min={0}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           </div>
           <div>

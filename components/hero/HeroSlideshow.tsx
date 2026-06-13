@@ -61,7 +61,7 @@ export function HeroSlideshow() {
   const [index,   setIndex]   = useState(0);
   const [visible, setVisible] = useState(true);
 
-  const { data: apiSlides = [] } = useListPromotionsQuery({ type: 'hero_slide' });
+  const { data: apiSlides = [] } = useListPromotionsQuery({ type: 'hero_slide' }, { pollingInterval: 30_000 });
 
   const slides = apiSlides.length > 0
     ? apiSlides.map((s) => ({

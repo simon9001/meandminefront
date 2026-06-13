@@ -61,7 +61,7 @@ const CATEGORY_EMOJIS: Record<string, string> = {
 // ── Categories Section ─────────────────────────────────────────────────────────
 
 export function CategoriesSection() {
-  const { data: categories = [], isLoading } = useListCategoriesQuery();
+  const { data: categories = [], isLoading } = useListCategoriesQuery(undefined, { pollingInterval: 30_000 });
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14">
@@ -115,7 +115,7 @@ export function CategoriesSection() {
 // ── In Stock Now Section ───────────────────────────────────────────────────────
 
 export function InStockSection() {
-  const { data: apiResponse, isLoading } = useListProductsQuery({ limit: 12, sort: 'popular' });
+  const { data: apiResponse, isLoading } = useListProductsQuery({ limit: 12, sort: 'popular' }, { pollingInterval: 30_000 });
   const products = apiResponse?.data ?? [];
 
   return (
@@ -173,7 +173,7 @@ export function InStockSection() {
 // ── Best Sellers Section ───────────────────────────────────────────────────────
 
 export function BestSellersSection() {
-  const { data: apiResponse, isLoading } = useListProductsQuery({ featured: true, limit: 10 });
+  const { data: apiResponse, isLoading } = useListProductsQuery({ featured: true, limit: 10 }, { pollingInterval: 30_000 });
   const products = apiResponse?.data ?? [];
 
   if (!isLoading && products.length === 0) return null;
@@ -201,7 +201,7 @@ export function BestSellersSection() {
 // ── New Arrivals Section ───────────────────────────────────────────────────────
 
 export function NewArrivalsSection() {
-  const { data: apiResponse, isLoading } = useListProductsQuery({ sort: 'newest', limit: 10 });
+  const { data: apiResponse, isLoading } = useListProductsQuery({ sort: 'newest', limit: 10 }, { pollingInterval: 30_000 });
   const products = apiResponse?.data ?? [];
 
   if (!isLoading && products.length === 0) return null;
@@ -229,8 +229,8 @@ export function NewArrivalsSection() {
 // ── Home Décor & Storage Section ───────────────────────────────────────────────
 
 export function HomeDecorSection() {
-  const { data: decorResponse, isLoading: decorLoading } = useListProductsQuery({ category: 'home-decor', limit: 4 });
-  const { data: storageResponse, isLoading: storageLoading } = useListProductsQuery({ category: 'storage', limit: 4 });
+  const { data: decorResponse, isLoading: decorLoading } = useListProductsQuery({ category: 'home-decor', limit: 4 }, { pollingInterval: 30_000 });
+  const { data: storageResponse, isLoading: storageLoading } = useListProductsQuery({ category: 'storage', limit: 4 }, { pollingInterval: 30_000 });
 
   const products  = [...(decorResponse?.data ?? []), ...(storageResponse?.data ?? [])];
   const isLoading = decorLoading || storageLoading;

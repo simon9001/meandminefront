@@ -56,9 +56,9 @@ function ProductsPageContent() {
     search:   search   || undefined,
     category: category || undefined,
     sort:     sort     || undefined,
-  });
+  }, { pollingInterval: 30_000 });
 
-  const { data: categories = [] } = useListCategoriesQuery();
+  const { data: categories = [] } = useListCategoriesQuery(undefined, { pollingInterval: 30_000 });
 
   const products   = apiResponse?.data ?? [];
   const meta       = apiResponse?.meta;

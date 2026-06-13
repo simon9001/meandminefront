@@ -263,6 +263,7 @@ export default function NewProductPage() {
               type="number"
               value={form.basePrice}
               onChange={(e) => set('basePrice', Number(e.target.value))}
+              onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
               min={0}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />

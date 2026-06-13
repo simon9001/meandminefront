@@ -27,7 +27,7 @@ export default function ProfilePage() {
     if (source) {
       setFirstName(source.firstName ?? '');
       setLastName(source.lastName ?? '');
-      setAvatarUrl((source as { avatarUrl?: string }).avatarUrl ?? user?.avatarUrl);
+      setAvatarUrl(source.avatarUrl ?? undefined);
     }
   }, [profile, user]);
 
@@ -80,7 +80,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-forest-600" />
       </div>
     );
   }
@@ -109,7 +109,7 @@ export default function ProfilePage() {
                 sizes="64px"
               />
             ) : (
-              <div className="h-full w-full rounded-full bg-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
+              <div className="h-full w-full rounded-full bg-forest-600 flex items-center justify-center text-white text-2xl font-bold">
                 {initials}
               </div>
             )}
@@ -127,7 +127,7 @@ export default function ProfilePage() {
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="text-xs text-emerald-600 hover:underline mt-0.5 disabled:opacity-50"
+              className="text-xs text-forest-600 hover:underline mt-0.5 disabled:opacity-50"
             >
               {uploading ? 'Uploading…' : 'Change photo'}
             </button>
@@ -176,7 +176,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <p className="text-xs text-gray-400">
           Your data is processed in accordance with Kenya&apos;s Data Protection Act 2019.
-          Email <a href="mailto:support@maschon.co.ke" className="text-emerald-600 hover:underline">support@maschon.co.ke</a> to request deletion or export.
+          Email <a href="mailto:support@maschon.co.ke" className="text-forest-600 hover:underline">support@maschon.co.ke</a> to request deletion or export.
         </p>
       </div>
     </div>
