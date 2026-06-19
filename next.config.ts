@@ -24,7 +24,7 @@ const securityHeaders = [
       "default-src 'self'",
       // Next.js App Router needs 'unsafe-inline' for style injection;
       // scripts: own origin + Paystack inline SDK
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co https://vercel.live",
       // Allow Paystack popup iframe
       "frame-src https://checkout.paystack.com https://standard.paystack.co",
       // Styles: Next.js injects inline styles
