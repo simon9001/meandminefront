@@ -7,6 +7,7 @@ import {
   useCreateProductMutation,
   useAdminListCategoriesQuery,
   useAddProductMediaMutation,
+  useDeleteUploadedImageMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
 import { toast } from 'sonner';
@@ -38,6 +39,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const [createProduct, { isLoading }] = useCreateProductMutation();
   const [addProductMedia]              = useAddProductMediaMutation();
+  const [deleteUploadedImage]          = useDeleteUploadedImageMutation();
   const { data: cats = [] }            = useAdminListCategoriesQuery();
 
   const [form, setForm]         = useState(INITIAL);
@@ -95,9 +97,11 @@ export default function NewProductPage() {
   }
 
   function removeImage(idx: number) {
+    const img = images[idx];
+    deleteUploadedImage({ publicId: img.publicId }).catch(() => {});
     setImages((prev) => {
       const next = prev.filter((_, i) => i !== idx);
-      if (prev[idx].isPrimary && next.length > 0) return next.map((img, i) => ({ ...img, isPrimary: i === 0 }));
+      if (prev[idx].isPrimary && next.length > 0) return next.map((im, i) => ({ ...im, isPrimary: i === 0 }));
       return next;
     });
   }

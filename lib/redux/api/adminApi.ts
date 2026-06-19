@@ -147,6 +147,15 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
     }),
 
+    deleteProductMedia: builder.mutation<void, { productId: string; mediaId: string }>({
+      query: ({ productId, mediaId }) => ({ url: `/products/${productId}/media/${mediaId}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
+    }),
+
+    deleteUploadedImage: builder.mutation<void, { publicId: string }>({
+      query: (body) => ({ url: '/upload/image', method: 'DELETE', body }),
+    }),
+
     // ── Categories (admin) ──
     adminListCategories: builder.query<Category[], void>({
       query: () => '/categories',
@@ -346,6 +355,8 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useAddProductMediaMutation,
+  useDeleteProductMediaMutation,
+  useDeleteUploadedImageMutation,
   useAdminListCategoriesQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,

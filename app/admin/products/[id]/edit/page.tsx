@@ -1,16 +1,20 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Loader2, Save, Star, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import {
   useAdminListProductsQuery,
   useUpdateProductMutation,
   useAdminListCategoriesQuery,
+  useAddProductMediaMutation,
+  useDeleteProductMediaMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
 import { toast } from 'sonner';
 import type { Product } from '@/lib/types';
+
+const API = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, '');
 
 function autoSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -21,14 +25,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const router     = useRouter();
   const { data: productsPage } = useAdminListProductsQuery({ limit: 200 });
   const { data: cats = [] }    = useAdminListCategoriesQuery();
-  const [updateProduct, { isLoading: saving }] = useUpdateProductMutation();
+  const [updateProduct, { isLoading: saving }]   = useUpdateProductMutation();
+  const [addProductMedia]  = useAddProductMediaMutation();
+  const [deleteProductMedia] = useDeleteProductMediaMutation();
 
   const product: Product | undefined = productsPage?.data.find((p) => p.id === id);
 
-  const [form, setForm]     = useState<Partial<CreateProductPayload>>({});
-  const [catId, setCatId]   = useState('');
+  const [form, setForm]       = useState<Partial<CreateProductPayload>>({});
+  const [catId, setCatId]     = useState('');
   const [tagInput, setTagInput] = useState('');
-  const [ready, setReady]   = useState(false);
+  const [ready, setReady]     = useState(false);
+
+  // Image management
+  type SavedMedia = { id: string; url: string; isPrimary: boolean };
+  const [media, setMedia]         = useState<SavedMedia[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef                   = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (product && !ready) {
@@ -48,9 +60,55 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         tags:                 product.tags ?? [],
       });
       setCatId(product.category?.id ?? '');
+      // Seed image list from product media if available
+      const m = (product as unknown as { media?: SavedMedia[] }).media;
+      if (m?.length) setMedia(m);
+      else if (product.primaryImageUrl) setMedia([{ id: 'primary', url: product.primaryImageUrl, isPrimary: true }]);
       setReady(true);
     }
   }, [product, ready]);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch(`${API}/upload/product`, { method: 'POST', credentials: 'include', body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');
+        const isPrimary = media.length === 0;
+        const saved = await addProductMedia({
+          productId: id, url: json.data.url, isPrimary, mediaType: 'image', displayOrder: media.length,
+        }).unwrap();
+        setMedia((prev) => [...prev, { id: saved.id, url: saved.url, isPrimary }]);
+        // If this became primary, unflag others in local state
+        if (isPrimary) setMedia((prev) => prev.map((m, i) => ({ ...m, isPrimary: i === prev.length - 1 })));
+      }
+      toast.success('Image(s) uploaded');
+    } catch (err) {
+      toast.error((err as Error).message ?? 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  async function handleDeleteMedia(m: SavedMedia) {
+    try {
+      await deleteProductMedia({ productId: id, mediaId: m.id }).unwrap();
+      setMedia((prev) => {
+        const next = prev.filter((x) => x.id !== m.id);
+        if (m.isPrimary && next.length > 0) return next.map((x, i) => ({ ...x, isPrimary: i === 0 }));
+        return next;
+      });
+      toast.success('Image removed');
+    } catch {
+      toast.error('Failed to remove image');
+    }
+  }
 
   function set<K extends keyof CreateProductPayload>(key: K, val: CreateProductPayload[K]) {
     setForm((f) => ({ ...f, [key]: val }));
@@ -132,6 +190,49 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <textarea value={form.fullDescription ?? ''} onChange={(e) => set('fullDescription', e.target.value)}
             rows={5} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 resize-none" />
         </div>
+      </div>
+
+      {/* Images */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Product Images</h2>
+
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-24 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-forest-400 hover:text-forest-600 transition-colors disabled:opacity-50"
+        >
+          {uploading
+            ? <><Loader2 className="h-5 w-5 animate-spin" /><span className="text-xs">Uploading…</span></>
+            : <><ImagePlus className="h-5 w-5" /><span className="text-xs font-medium">Click to add more images</span></>}
+        </button>
+
+        {media.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {media.map((m) => (
+              <div key={m.id} className="relative group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.url} alt="Product" className="w-full h-28 object-cover rounded-xl border border-gray-200" />
+                {m.isPrimary && (
+                  <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-forest-600 text-white text-[10px] font-bold">
+                    <Star className="h-2.5 w-2.5" /> Primary
+                  </span>
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteMedia(m)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500 text-white text-[10px] font-semibold hover:bg-red-600"
+                  >
+                    <Trash2 className="h-3 w-3" /> Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
