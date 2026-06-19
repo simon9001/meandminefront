@@ -174,6 +174,38 @@ export const adminApi = baseApi.injectEndpoints({
     // ── Orders (admin) ──
     adminListOrders: builder.query<Paginated<Order>, { page?: number; limit?: number; status?: string; paymentStatus?: string }>({
       query: (params) => ({ url: '/orders', params }),
+      transformResponse: (res: unknown) => {
+        const raw = res as { success: boolean; data: Record<string, unknown>[]; meta: { total: number; page: number; limit: number } };
+        const orders: Order[] = raw.data.map((o) => ({
+          id:             o.id as string,
+          orderNumber:    (o.order_number ?? o.orderNumber) as string,
+          status:         o.status as Order['status'],
+          paymentStatus:  (o.payment_status ?? o.paymentStatus) as Order['paymentStatus'],
+          subtotal:       Number(o.subtotal ?? 0),
+          shippingFee:    Number(o.shipping_fee ?? o.shippingFee ?? 0),
+          discountAmount: Number(o.discount_amount ?? o.discountAmount ?? 0),
+          totalAmount:    Number(o.total_amount ?? o.totalAmount ?? 0),
+          currency:       (o.currency as string) ?? 'KES',
+          placedAt:       (o.placed_at ?? o.placedAt) as string,
+          customerNote:   (o.customer_note ?? o.customerNote) as string | undefined,
+          shippingAddress: (o.shipping_address ?? o.shippingAddress) as Order['shippingAddress'],
+          orderItems: ((o.order_items ?? o.orderItems) as Record<string, unknown>[] | undefined)?.map((i) => ({
+            id:                i.id as string,
+            productId:         (i.product_id ?? i.productId ?? '') as string,
+            productName:       (i.product_name ?? i.productName) as string,
+            quantity:          Number(i.quantity),
+            unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
+            totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
+            fulfillmentStatus: (i.fulfillment_status ?? i.fulfillmentStatus ?? 'pending') as string,
+          })),
+        }));
+        const { total, page, limit } = raw.meta ?? { total: 0, page: 1, limit: 20 };
+        return {
+          success: true,
+          data: orders,
+          meta: { total, page, limit, totalPages: Math.ceil(total / (limit || 1)) },
+        };
+      },
       providesTags: ['Order'],
     }),
 
@@ -302,7 +334,7 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: ['Admin'],
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {

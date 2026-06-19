@@ -39,7 +39,7 @@ export const cartApi = baseApi.injectEndpoints({
       invalidatesTags: ['Cart'],
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {

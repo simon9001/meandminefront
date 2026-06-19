@@ -14,10 +14,13 @@ export function formatPrice(amount: number, currency = 'KES'): string {
   }).format(amount);
 }
 
-export function formatDate(dateString: string): string {
+export function formatDate(dateString: string | null | undefined): string {
+  if (!dateString) return '—';
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat('en-KE', {
     year: 'numeric', month: 'long', day: 'numeric',
-  }).format(new Date(dateString));
+  }).format(d);
 }
 
 export function discountPercent(original: number, sale: number): number {

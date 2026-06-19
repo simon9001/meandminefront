@@ -58,7 +58,7 @@ export const productsApi = baseApi.injectEndpoints({
       query: ({ reviewId, vote }) => ({ url: `/reviews/${reviewId}/vote`, method: 'POST', body: { vote } }),
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {

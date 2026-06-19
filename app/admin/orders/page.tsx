@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Search, ChevronDown, ChevronRight, Loader2 } from 'lucide-react';
 import {
   useAdminListOrdersQuery,
@@ -110,9 +110,8 @@ export default function AdminOrdersPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((order: Order) => (
-                  <>
+                  <Fragment key={order.id}>
                     <tr
-                      key={order.id}
                       className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                       onClick={() => setExpanded(expanded === order.id ? null : order.id)}
                     >
@@ -217,7 +216,7 @@ export default function AdminOrdersPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>

@@ -76,7 +76,7 @@ export const ordersApi = baseApi.injectEndpoints({
       invalidatesTags: ['Wishlist'],
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {

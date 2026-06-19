@@ -88,7 +88,7 @@ export const authApi = baseApi.injectEndpoints({
       query: (body) => ({ url: '/auth/reset-password', method: 'POST', body }),
     }),
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {
