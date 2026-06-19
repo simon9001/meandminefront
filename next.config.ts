@@ -34,7 +34,7 @@ const securityHeaders = [
       // Fonts: own origin + Google Fonts
       "font-src 'self' https://fonts.gstatic.com",
       // API + Paystack API calls
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"} https://api.paystack.co https://vitals.vercel-insights.com`,
+      `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001").origin} https://api.paystack.co https://vitals.vercel-insights.com`,
       // Only allow form submissions to own origin
       "form-action 'self'",
       // Prevent base tag hijacking
