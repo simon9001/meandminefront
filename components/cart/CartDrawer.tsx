@@ -23,7 +23,30 @@ export function CartDrawer() {
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   function getImg(item: typeof items[0]) {
-    return item.products?.primaryImageUrl ?? (item.products as { primary_image_url?: string })?.primary_image_url ?? null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p = item.products as any;
+    if (!p) return null;
+    // Derive from joined product_media (primary first, then first available)
+    const media = Array.isArray(p.product_media) ? p.product_media as { url: string; is_primary: boolean }[] : [];
+    if (media.length > 0) {
+      const primary = media.find((m) => m.is_primary) ?? media[0];
+      return primary.url ?? null;
+    }
+    return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getUnitPrice(item: typeof items[0]): number {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return item.unitPrice ?? (item as any).unit_price ?? 0;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getProductName(item: typeof items[0]): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p = item.products as any;
+    if (!p) return 'Product';
+    return p.name ?? 'Product';
   }
 
   return (
@@ -80,14 +103,16 @@ export function CartDrawer() {
                   <div key={item.id} className="flex gap-3 pb-4 border-b border-bark-50 last:border-0">
                     <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-cream-50 flex-shrink-0">
                       {img ? (
-                        <Image src={img} alt={item.products.name} fill className="object-cover" sizes="64px" />
+                        <Image src={img} alt={getProductName(item)} fill className="object-cover" sizes="64px" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl">🛍️</div>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingCart className="h-6 w-6 text-bark-300" />
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-forest-900 line-clamp-2 leading-snug">
-                        {item.products.name}
+                        {getProductName(item)}
                       </p>
                       {item.product_variants && (
                         <p className="text-[10px] text-bark-400 mt-0.5">
@@ -95,7 +120,7 @@ export function CartDrawer() {
                         </p>
                       )}
                       <p className="text-sm font-black text-forest-900 mt-1">
-                        {formatPrice(item.unitPrice * item.quantity)}
+                        {formatPrice(getUnitPrice(item) * item.quantity)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center border border-bark-200 rounded-lg overflow-hidden">

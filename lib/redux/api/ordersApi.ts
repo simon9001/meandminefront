@@ -4,11 +4,12 @@ import type { Order, Paginated } from '@/lib/types';
 interface ApiWrap<T> { data: T; success: boolean; }
 
 export interface CreateOrderPayload {
-  items:           { productId: string; variantId?: string | null; supplyId?: string | null; quantity: number }[];
-  shippingFee?:    number;
-  discountCode?:   string;
-  customerNote?:   string;
-  idempotencyKey?: string;
+  items:            { productId: string; variantId?: string; supplyId?: string; quantity: number }[];
+  shippingAddress?: Record<string, string>;
+  shippingFee?:     number;
+  discountCode?:    string;
+  notes?:           string;
+  idempotencyKey?:  string;
 }
 
 export const ordersApi = baseApi.injectEndpoints({
@@ -48,7 +49,7 @@ export const ordersApi = baseApi.injectEndpoints({
     }),
 
     verifyPayment: builder.mutation<{ status: string }, string>({
-      query: (reference) => ({ url: `/payments/verify/${reference}`, method: 'POST' }),
+      query: (reference) => ({ url: `/payments/verify/${reference}`, method: 'GET' }),
       transformResponse: (res: ApiWrap<{ status: string }>) => res.data,
       invalidatesTags: ['Order', 'Cart'],
     }),

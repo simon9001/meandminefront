@@ -227,10 +227,6 @@ export default async function ProductDetailPage({ params }: Props) {
               {product.status === 'out_of_stock' ? 'Out of Stock' : 'In Stock'}
             </p>
           </div>
-          <div className="p-4 rounded-2xl bg-cream-50 border border-bark-100 space-y-1">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-earth-600">Product ID</p>
-            <p className="text-sm font-semibold text-forest-900 uppercase truncate">{product.id}</p>
-          </div>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-4 mt-6">

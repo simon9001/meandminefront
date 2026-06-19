@@ -257,8 +257,16 @@ export function Navbar() {
           <div className="flex items-center gap-3 h-16">
 
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 flex items-center gap-1.5 mr-2">
-              <span className="text-2xl font-black tracking-tighter text-forest-900">maschon</span>
+            <Link href="/" className="flex-shrink-0 flex items-center gap-2 mr-2">
+              <Image
+                src="/images/logoMaschonpo.png"
+                alt="Maschon"
+                width={60}
+                height={40}
+                className="h-10 w-auto object-contain"
+                priority
+              />
+              <span className="text-2xl font-black tracking-tighter text-forest-900">Maschon</span>
             </Link>
 
             {/* Search */}

@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import Script from 'next/script';
 import { ShoppingBag, MapPin, Tag, Loader2, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { selectCurrentUser, selectIsLoggedIn } from '@/lib/redux/slices/authSlice';
@@ -11,28 +10,76 @@ import { useGetCartQuery } from '@/lib/redux/api/cartApi';
 import {
   useCreateOrderMutation,
   useInitializePaymentMutation,
+  useVerifyPaymentMutation,
   useValidateDiscountCodeMutation,
   type CreateOrderPayload,
 } from '@/lib/redux/api/ordersApi';
+
 import { formatPrice } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { CartItem } from '@/lib/types';
+import { useListProductsQuery } from '@/lib/redux/api/productsApi';
+import { ProductCard } from '@/components/product/ProductCard';
 
 declare global {
   interface Window {
     PaystackPop: {
-      setup(opts: Record<string, unknown>): { openIframe(): void };
+      setup: (opts: Record<string, unknown>) => { openIframe: () => void };
     };
   }
 }
 
 const SHIPPING_RATES = {
-  nairobi:   { label: 'Nairobi (Same day / Next day)', fee: 250 },
-  upcountry: { label: 'Upcountry (2–4 business days)',  fee: 450 },
+  nairobi_cbd:     { label: 'Nairobi CBD (Same day)',         fee: 200 },
+  nairobi_suburbs: { label: 'Nairobi Suburbs (Next day)',     fee: 300 },
+  mombasa:         { label: 'Mombasa (2–3 business days)',    fee: 500 },
+  upcountry:       { label: 'Upcountry Kenya (3–5 days)',     fee: 650 },
+  pickup:          { label: 'Pickup – Westlands (Free)',      fee: 0   },
 };
 
 function getImg(item: CartItem) {
-  return item.products?.primaryImageUrl ?? (item.products as { primary_image_url?: string })?.primary_image_url ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p = item.products as any;
+  if (!p) return null;
+  const media = Array.isArray(p.product_media) ? p.product_media as { url: string; is_primary: boolean }[] : [];
+  if (media.length > 0) {
+    const primary = media.find((m) => m.is_primary) ?? media[0];
+    return primary.url ?? null;
+  }
+  return null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getRaw(item: CartItem): any { return item as any; }
+
+function getProductName(item: CartItem): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (item.products as any)?.name ?? 'Product';
+}
+
+function getUnitPrice(item: CartItem): number {
+  const r = getRaw(item);
+  return r.unitPrice ?? r.unit_price ?? 0;
+}
+
+function getProductId(item: CartItem): string {
+  const r = getRaw(item);
+  return r.productId ?? r.product_id ?? '';
+}
+
+function getVariantId(item: CartItem): string | undefined {
+  const r = getRaw(item);
+  return r.variantId ?? r.variant_id ?? undefined;
+}
+
+function getSupplyId(item: CartItem): string | undefined {
+  const r = getRaw(item);
+  return r.supplyId ?? r.supply_id ?? undefined;
+}
+
+function getProductSlug(item: CartItem): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (item.products as any)?.slug ?? '';
 }
 
 export default function CheckoutPage() {
@@ -45,11 +92,13 @@ export default function CheckoutPage() {
   }, [isLoggedIn, router]);
 
   const { data: cart, isLoading: cartLoading } = useGetCartQuery();
+  const { data: productsPage } = useListProductsQuery({ limit: 12 });
   const [createOrder,       { isLoading: ordering }]  = useCreateOrderMutation();
   const [initializePayment, { isLoading: initing }]   = useInitializePaymentMutation();
+  const [verifyPayment,     { isLoading: verifying }] = useVerifyPaymentMutation();
   const [validateDiscount,  { isLoading: validating }] = useValidateDiscountCodeMutation();
 
-  const [zone, setZone]                       = useState<'nairobi' | 'upcountry'>('nairobi');
+  const [zone, setZone]                       = useState<keyof typeof SHIPPING_RATES>('nairobi_cbd');
   const [recipientName, setRecipientName]     = useState('');
   const [phone, setPhone]                     = useState('');
   const [addressLine1, setAddressLine1]       = useState('');
@@ -59,6 +108,17 @@ export default function CheckoutPage() {
   const [discountCode, setDiscountCode]       = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<{ amount: number; description: string } | null>(null);
   const [step, setStep]                       = useState<'form' | 'processing' | 'done'>('form');
+  const [mounted, setMounted]                 = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined' && !window.PaystackPop) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, []);
 
   // Pre-fill name from auth user
   useEffect(() => {
@@ -70,6 +130,11 @@ export default function CheckoutPage() {
   const shipping = SHIPPING_RATES[zone].fee;
   const discount = appliedDiscount?.amount ?? 0;
   const total    = Math.max(0, subtotal + shipping - discount);
+
+  const cartProductIds = new Set(items.map(getProductId));
+  const suggestedProducts = (productsPage?.data ?? [])
+    .filter((p) => !cartProductIds.has(p.id))
+    .slice(0, 6);
 
   async function applyDiscountCode() {
     if (!discountCode.trim()) return;
@@ -89,61 +154,70 @@ export default function CheckoutPage() {
     }
     if (items.length === 0) { toast.error('Your cart is empty'); return; }
 
-    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-    if (!paystackKey) { toast.error('Payment not configured. Contact support.'); return; }
-
     setStep('processing');
     try {
       const payload: CreateOrderPayload = {
         items: items.map((i) => ({
-          productId: i.productId,
-          variantId: i.variantId ?? null,
-          supplyId:  i.supplyId  ?? null,
+          productId: getProductId(i),
+          variantId: getVariantId(i),
+          supplyId:  getSupplyId(i),
           quantity:  i.quantity,
         })),
+        shippingAddress: {
+          recipientName,
+          phone,
+          addressLine1,
+          city,
+          county,
+        },
         shippingFee:    shipping,
         discountCode:   appliedDiscount ? discountCode : undefined,
-        customerNote:   note.trim() || undefined,
+        notes:          note.trim() || undefined,
         idempotencyKey: `${user!.id}-${Date.now()}`,
       };
 
       const order = await createOrder(payload).unwrap();
-      const { authorizationUrl, reference } = await initializePayment(order.id).unwrap();
+      const { reference } = await initializePayment(order.id).unwrap();
 
-      if (typeof window.PaystackPop !== 'undefined') {
-        window.PaystackPop.setup({
-          key:      paystackKey,
-          email:    user!.email,
-          amount:   Math.round(total * 100),
-          currency: 'KES',
-          ref:      reference,
-          metadata: {
-            custom_fields: [
-              { display_name: 'Order Number',   variable_name: 'order_number',   value: order.orderNumber },
-              { display_name: 'Customer Name',  variable_name: 'customer_name',  value: recipientName },
-              { display_name: 'Delivery Zone',  variable_name: 'delivery_zone',  value: zone },
-              { display_name: 'Address',        variable_name: 'address',        value: addressLine1 },
-            ],
-          },
-          callback: () => {
-            setStep('done');
-            toast.success('Payment successful! Order confirmed.');
-            setTimeout(() => router.push(`/account/orders/${order.id}`), 1800);
-          },
-          onClose: () => {
-            setStep('form');
-            toast.info('Payment cancelled — your order is saved. Complete payment from My Orders.');
-            router.push(`/account/orders/${order.id}`);
-          },
-        }).openIframe();
-      } else {
-        window.location.href = authorizationUrl;
+      setStep('form'); // restore form state while popup is open
+
+      if (!window.PaystackPop) {
+        toast.error('Payment system not ready — please refresh and try again');
+        return;
       }
+
+      window.PaystackPop.setup({
+        key:      process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+        email:    user!.email,
+        amount:   total * 100, // kobo
+        ref:      reference,
+        currency: 'KES',
+        label:    'Maschon Order',
+        onSuccess: async (txn: { reference: string }) => {
+          setStep('processing');
+          try {
+            await verifyPayment(txn.reference).unwrap();
+            router.push(`/checkout/confirm?order=${order.orderNumber}`);
+          } catch {
+            toast.error('Payment received but verification failed — contact support with ref: ' + txn.reference);
+            setStep('form');
+          }
+        },
+        onCancel: () => {
+          toast.info('Payment cancelled');
+          setStep('form');
+        },
+      }).openIframe();
     } catch (e: unknown) {
       setStep('form');
-      toast.error((e as { data?: { message?: string } }).data?.message ?? 'Order failed. Please try again.');
+      const err = e as { data?: { error?: string; message?: string } };
+      toast.error(err?.data?.error ?? err?.data?.message ?? 'Order failed. Please try again.');
     }
   }
+
+  // Return null until client hydrates — server also returns null (mounted=false),
+  // so server and client always agree on the initial render. No hydration mismatch.
+  if (!mounted) return null;
 
   if (!isLoggedIn) return null;
 
@@ -151,17 +225,6 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-5xl mx-auto px-4 py-20 flex items-center justify-center">
         <Loader2 className="h-10 w-10 animate-spin text-forest-600" />
-      </div>
-    );
-  }
-
-  if (step === 'done') {
-    return (
-      <div className="max-w-lg mx-auto px-4 py-24 text-center space-y-5">
-        <CheckCircle className="h-20 w-20 text-green-500 mx-auto" />
-        <h1 className="text-2xl font-bold text-forest-900">Order Confirmed!</h1>
-        <p className="text-bark-500">Redirecting to your orders…</p>
-        <Loader2 className="h-6 w-6 animate-spin text-forest-600 mx-auto" />
       </div>
     );
   }
@@ -179,10 +242,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <>
-      <Script src="https://js.paystack.co/v1/inline.js" strategy="afterInteractive" />
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-6">
           <Link href="/cart" className="flex items-center gap-2 text-sm text-bark-500 hover:text-forest-900 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to cart
@@ -262,7 +322,7 @@ export default function CheckoutPage() {
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-2">Delivery Zone *</label>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  {(Object.entries(SHIPPING_RATES) as [keyof typeof SHIPPING_RATES, (typeof SHIPPING_RATES)[keyof typeof SHIPPING_RATES]][]).map(([key, z]) => (
+                  {(Object.entries(SHIPPING_RATES) as [keyof typeof SHIPPING_RATES, { label: string; fee: number }][]).map(([key, z]) => (
                     <button
                       key={key}
                       type="button"
@@ -278,7 +338,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-forest-900">{z.label}</p>
-                        <p className="text-xs text-bark-500 mt-0.5">KES {z.fee}</p>
+                        <p className="text-xs text-bark-500 mt-0.5">{z.fee === 0 ? 'Free' : `KES ${z.fee}`}</p>
                       </div>
                     </button>
                   ))}
@@ -342,21 +402,26 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                 {items.map((item) => {
-                  const img = getImg(item);
+                  const img  = getImg(item);
+                  const slug = getProductSlug(item);
                   return (
-                    <div key={item.id} className="flex gap-3 items-center">
+                    <Link
+                      key={item.id}
+                      href={slug ? `/products/${slug}` : '#'}
+                      className="flex gap-3 items-center group/item"
+                    >
                       <div className="relative h-12 w-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-50">
                         {img
-                          ? <Image src={img} alt={item.products.name} fill className="object-cover" sizes="48px" />
+                          ? <Image src={img} alt={getProductName(item)} fill className="object-cover group-hover/item:scale-105 transition-transform duration-200" sizes="48px" />
                           : <div className="w-full h-full flex items-center justify-center text-gray-300">🛍️</div>
                         }
                         <span className="absolute -top-1 -right-1 h-4 w-4 bg-gray-700 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                           {item.quantity}
                         </span>
                       </div>
-                      <p className="flex-1 text-xs font-medium text-gray-900 line-clamp-2 leading-snug">{item.products.name}</p>
-                      <p className="text-xs font-bold text-gray-900 flex-shrink-0">{formatPrice(item.unitPrice * item.quantity)}</p>
-                    </div>
+                      <p className="flex-1 text-xs font-medium text-gray-900 line-clamp-2 leading-snug group-hover/item:text-forest-700 transition-colors">{getProductName(item)}</p>
+                      <p className="text-xs font-bold text-gray-900 flex-shrink-0">{formatPrice(getUnitPrice(item) * item.quantity)}</p>
+                    </Link>
                   );
                 })}
               </div>
@@ -381,12 +446,12 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handlePay}
-                disabled={step === 'processing' || ordering || initing}
+                disabled={step === 'processing' || ordering || initing || verifying}
                 className="w-full py-4 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                {(step === 'processing' || ordering || initing)
-                  ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</>
-                  : <>Pay {formatPrice(total)} with Paystack</>
+                {(step === 'processing' || ordering || initing || verifying)
+                  ? <><Loader2 className="h-5 w-5 animate-spin" /> {verifying ? 'Verifying…' : 'Processing…'}</>
+                  : <>Pay {formatPrice(total)} — Secure Checkout</>
                 }
               </button>
 
@@ -399,7 +464,29 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
+
+        {/* You may also like */}
+        {suggestedProducts.length > 0 && (
+          <div className="mt-14">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-xl font-bold text-forest-900">You may also like</h2>
+                <p className="text-sm text-bark-500 mt-0.5">Items customers often add before checkout</p>
+              </div>
+              <Link
+                href="/products"
+                className="text-sm font-semibold text-forest-700 hover:text-forest-900 hover:underline transition-colors"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {suggestedProducts.map((product) => (
+                <ProductCard key={product.slug} product={product} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </>
   );
 }
