@@ -7,11 +7,6 @@ export class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  try { return localStorage.getItem('access_token'); } catch { return null; }
-}
-
 function getSessionId(): string {
   if (typeof window === 'undefined') return '';
   let sid = localStorage.getItem('session_id');
@@ -22,28 +17,21 @@ function getSessionId(): string {
 type RequestOptions = {
   method?: string;
   body?: unknown;
-  auth?: boolean;
-  session?: boolean;
   signal?: AbortSignal;
 };
 
 export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-  if (opts.auth !== false) {
-    const token = getToken();
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  if (opts.session !== false) {
-    headers['X-Session-Id'] = getSessionId();
-  }
+  // No manual token injection — httpOnly cookie is sent automatically by the browser.
+  const sid = getSessionId();
+  if (sid) headers['X-Session-Id'] = sid;
 
   const res = await fetch(`${API_BASE}${path}`, {
-    method: opts.method ?? 'GET',
+    method:      opts.method ?? 'GET',
     headers,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-    signal: opts.signal,
+    credentials: 'include', // sends httpOnly auth cookie on every request
+    body:        opts.body ? JSON.stringify(opts.body) : undefined,
+    signal:      opts.signal,
   });
 
   const json = await res.json();

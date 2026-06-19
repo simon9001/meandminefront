@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Loader2, Save, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks';
-import { selectCurrentUser, selectToken, setCredentials } from '@/lib/redux/slices/authSlice';
+import { selectCurrentUser, setCredentials } from '@/lib/redux/slices/authSlice';
 import { useGetProfileQuery, useUpdateProfileMutation } from '@/lib/redux/api/adminApi';
 import { toast } from 'sonner';
 
@@ -11,7 +11,6 @@ const API = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').
 
 export default function ProfilePage() {
   const user     = useAppSelector(selectCurrentUser);
-  const token    = useAppSelector(selectToken);
   const dispatch = useAppDispatch();
   const { data: profile, isLoading } = useGetProfileQuery();
   const [updateProfile, { isLoading: saving }] = useUpdateProfileMutation();
@@ -38,18 +37,17 @@ export default function ProfilePage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       const res = await fetch(`${API}/upload/avatar`, {
-        method:  'POST',
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-        body:    fd,
+        method:      'POST',
+        credentials: 'include',
+        body:        fd,
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');
       const url = json.data.avatarUrl as string;
       setAvatarUrl(url);
-      if (user && token) {
-        dispatch(setCredentials({ user: { ...user, avatarUrl: url }, token }));
+      if (user) {
+        dispatch(setCredentials({ user: { ...user, avatarUrl: url } }));
       }
       toast.success('Avatar updated');
     } catch (err) {
@@ -66,8 +64,8 @@ export default function ProfilePage() {
     if (!first || !last) return;
     try {
       const updated = await updateProfile({ firstName: first, lastName: last }).unwrap();
-      if (user && token) {
-        dispatch(setCredentials({ user: { ...user, ...updated, avatarUrl }, token }));
+      if (user) {
+        dispatch(setCredentials({ user: { ...user, ...updated, avatarUrl } }));
       }
       toast.success('Profile updated!');
     } catch {

@@ -15,20 +15,20 @@ export interface ProductFilters {
 
 export async function listProducts(filters: ProductFilters = {}) {
   const qs = buildQueryString(filters as Record<string, string | number | boolean | undefined>);
-  return apiFetch<Paginated<Product>>(`/products${qs}`, { auth: false });
+  return apiFetch<Paginated<Product>>(`/products${qs}`,);
 }
 
 export async function getProduct(slug: string) {
-  return apiFetch<ApiResponse<Product>>(`/products/${slug}`, { auth: false });
+  return apiFetch<ApiResponse<Product>>(`/products/${slug}`,);
 }
 
 export async function getSupplierComparison(productId: string) {
-  return apiFetch<ApiResponse<SupplierComparison[]>>(`/products/${productId}/suppliers`, { auth: false });
+  return apiFetch<ApiResponse<SupplierComparison[]>>(`/products/${productId}/suppliers`,);
 }
 
 export async function listProductReviews(productId: string, params?: { page?: number; limit?: number; rating?: number }) {
   const qs = buildQueryString((params ?? {}) as Record<string, string | number | boolean | undefined>);
-  return apiFetch<Paginated<Review>>(`/reviews/product/${productId}${qs}`, { auth: false });
+  return apiFetch<Paginated<Review>>(`/reviews/product/${productId}${qs}`,);
 }
 
 export async function createReview(payload: { productId: string; rating: number; title?: string; body: string; orderId?: string }) {
@@ -40,7 +40,7 @@ export async function voteReview(reviewId: string, vote: 'helpful' | 'not_helpfu
 }
 
 export async function listCategories() {
-  return apiFetch<ApiResponse<{ id: string; name: string; slug: string; imageUrl?: string; children?: unknown[] }[]>>('/categories', { auth: false });
+  return apiFetch<ApiResponse<{ id: string; name: string; slug: string; imageUrl?: string; children?: unknown[] }[]>>('/categories',);
 }
 
 export { ApiError };

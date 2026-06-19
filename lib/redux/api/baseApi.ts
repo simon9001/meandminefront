@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import type { RootState } from '../store';
 import { setCredentials, clearCredentials } from '../slices/authSlice';
+import type { AuthUser } from '@/lib/types';
 
 interface ApiWrap<T> { data: T; }
-interface RefreshedSession { access_token: string; refresh_token: string; }
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return '';
@@ -14,17 +13,18 @@ function getSessionId(): string {
 }
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, ''),
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
-    if (token) headers.set('Authorization', `Bearer ${token}`);
+  baseUrl:     (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, ''),
+  credentials: 'include', // sends httpOnly cookies automatically on every request
+  prepareHeaders: (headers) => {
+    // No token injection — auth cookie is sent automatically by the browser.
+    // X-Session-Id is kept for guest cart merging (not a secret).
     const sid = getSessionId();
     if (sid) headers.set('X-Session-Id', sid);
     return headers;
   },
 });
 
-// Prevents concurrent refresh races: only one refresh attempt at a time
+// Prevents concurrent refresh races
 let isRefreshing = false;
 
 const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
@@ -34,35 +34,32 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 ) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
-    const refreshToken = (api.getState() as RootState).auth.refreshToken;
+  if (result.error?.status === 401 && !isRefreshing) {
+    isRefreshing = true;
+    try {
+      // POST /auth/refresh — refresh_token cookie is sent automatically (credentials:'include').
+      // Backend sets a fresh access_token cookie in the response.
+      const refreshResult = await rawBaseQuery(
+        { url: '/auth/refresh', method: 'POST', body: {} },
+        api,
+        extraOptions,
+      );
 
-    if (refreshToken && !isRefreshing) {
-      isRefreshing = true;
-      try {
-        const refreshResult = await rawBaseQuery(
-          { url: '/auth/refresh', method: 'POST', body: { refreshToken } },
-          api,
-          extraOptions,
-        );
-
-        if (refreshResult.data) {
-          const { session } = (refreshResult.data as ApiWrap<{ session: RefreshedSession }>).data;
-          const user = (api.getState() as RootState).auth.user!;
-          api.dispatch(setCredentials({ user, token: session.access_token, refreshToken: session.refresh_token }));
-          // Retry original request with the new token
-          result = await rawBaseQuery(args, api, extraOptions);
-        } else {
-          // Refresh token is invalid or expired — force logout
-          api.dispatch(clearCredentials());
-          setTimeout(() => api.dispatch(baseApi.util.resetApiState()), 0);
+      if (refreshResult.data) {
+        // New cookie is now set. Re-fetch user profile to restore Redux state.
+        const meResult = await rawBaseQuery('/auth/me', api, extraOptions);
+        if (meResult.data) {
+          const user = (meResult.data as ApiWrap<AuthUser>).data;
+          api.dispatch(setCredentials({ user }));
         }
-      } finally {
-        isRefreshing = false;
+        // Retry the original failed request with the new cookie in place.
+        result = await rawBaseQuery(args, api, extraOptions);
+      } else {
+        api.dispatch(clearCredentials());
+        setTimeout(() => api.dispatch(baseApi.util.resetApiState()), 0);
       }
-    } else if (!refreshToken) {
-      api.dispatch(clearCredentials());
-      setTimeout(() => api.dispatch(baseApi.util.resetApiState()), 0);
+    } finally {
+      isRefreshing = false;
     }
   }
 

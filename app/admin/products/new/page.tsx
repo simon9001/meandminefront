@@ -69,11 +69,10 @@ export default function NewProductPage() {
       for (const file of files) {
         const fd = new FormData();
         fd.append('file', file);
-        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         const res = await fetch(`${API}/upload/product`, {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: fd,
+          method:      'POST',
+          credentials: 'include',
+          body:        fd,
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');

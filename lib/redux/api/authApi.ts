@@ -4,45 +4,36 @@ import type { AuthUser } from '@/lib/types';
 import type { BaseQueryApi, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 interface ApiWrap<T> { data: T; success: boolean; }
-// Supabase session shape — user lives inside session, not at the top level of data
-interface Session { access_token: string; refresh_token: string; expires_at: number; }
-interface AuthData { user: AuthUser; session: Session; }
 
-// In queryFn context, baseQuery is already partially applied — takes only the request arg
 type BoundBaseQuery = (arg: string | FetchArgs) => Promise<{ data?: unknown; error?: FetchBaseQueryError; meta?: unknown }>;
 
+// Shared logic for login and verifyOtp:
+// 1. Hit the auth endpoint → backend sets httpOnly cookies in the response.
+// 2. Immediately fetch /auth/me (cookie is now present) to get the user profile.
+// 3. Store user in Redux (no tokens stored in JS land).
 async function authQueryFn(
   loginUrl: string,
   body: unknown,
   api: BaseQueryApi,
   baseQuery: BoundBaseQuery,
-): Promise<{ data: AuthData } | { error: FetchBaseQueryError }> {
-  // Step 1: call login / verify-otp
+): Promise<{ data: { user: AuthUser } } | { error: FetchBaseQueryError }> {
   const res = await baseQuery({ url: loginUrl, method: 'POST', body });
   if (res.error) return { error: res.error as FetchBaseQueryError };
 
-  // Backend returns: { success, data: { session: { access_token, refresh_token, ... } } }
-  // NOTE: there is NO top-level data.user — the Supabase user is inside session.user
-  const { data: loginData } = res.data as ApiWrap<{ session: Session }>;
-  const token = loginData.session.access_token;
-  const refreshToken = loginData.session.refresh_token;
-
-  // Step 2: fetch our DB user profile (with app role) using the new token
-  const meRes = await baseQuery({
-    url: '/auth/me',
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  // Cookie is now set by the backend response.
+  // Fetch user profile — cookie is auto-sent (credentials:'include' on baseQuery).
+  const meRes = await baseQuery({ url: '/auth/me' });
   if (meRes.error) return { error: meRes.error as FetchBaseQueryError };
 
   const user = (meRes.data as ApiWrap<AuthUser>).data;
-  api.dispatch(setCredentials({ user, token, refreshToken }));
-  return { data: { user, session: loginData.session } };
+  api.dispatch(setCredentials({ user }));
+  return { data: { user } };
 }
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
-    login: builder.mutation<AuthData, { email: string; password: string }>({
+    login: builder.mutation<{ user: AuthUser }, { email: string; password: string }>({
       queryFn: (body, api, _extra, baseQuery) =>
         authQueryFn('/auth/login', body, api, baseQuery as unknown as BoundBaseQuery),
       invalidatesTags: ['Cart', 'Order', 'Wishlist'],
@@ -53,7 +44,7 @@ export const authApi = baseApi.injectEndpoints({
       transformResponse: (res: ApiWrap<{ user: AuthUser }>) => res.data,
     }),
 
-    verifyOtp: builder.mutation<AuthData, { email: string; otp: string }>({
+    verifyOtp: builder.mutation<{ user: AuthUser }, { email: string; otp: string }>({
       queryFn: (body, api, _extra, baseQuery) =>
         authQueryFn('/auth/verify-otp', body, api, baseQuery as unknown as BoundBaseQuery),
       invalidatesTags: ['Cart', 'Order', 'Wishlist'],
@@ -65,10 +56,9 @@ export const authApi = baseApi.injectEndpoints({
 
     logout: builder.mutation<null, void>({
       queryFn: async (_args, api, _extra, baseQuery) => {
+        // Backend clears both cookies. Redux state is wiped locally.
         await baseQuery({ url: '/auth/logout', method: 'POST' });
         api.dispatch(clearCredentials());
-        // resetApiState must be deferred — calling it synchronously here wipes
-        // the in-flight mutation entry before RTK Query can process the return value.
         setTimeout(() => api.dispatch(baseApi.util.resetApiState()), 0);
         return { data: null };
       },
@@ -85,7 +75,11 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     resetPassword: builder.mutation<void, { email: string; token: string; newPassword: string }>({
-      query: (body) => ({ url: '/auth/reset-password', method: 'POST', body }),
+      query: ({ email, token, newPassword }) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body: { email, token, password: newPassword },
+      }),
     }),
   }),
   overrideExisting: true,

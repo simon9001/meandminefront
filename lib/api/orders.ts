@@ -37,7 +37,7 @@ export interface GuestOrderResponse {
 
 export async function createGuestOrder(payload: GuestCheckoutPayload) {
   return apiFetch<ApiResponse<GuestOrderResponse>>('/orders/guest', {
-    method: 'POST', body: payload, auth: false,
+    method: 'POST', body: payload,
   });
 }
 
@@ -74,7 +74,6 @@ export interface TrackedOrder {
 export async function trackOrderByNumber(orderNumber: string) {
   return apiFetch<ApiResponse<TrackedOrder>>(
     `/orders/track/${encodeURIComponent(orderNumber)}`,
-    { auth: false }
   );
 }
 
