@@ -19,10 +19,17 @@ type Form = z.infer<typeof schema>;
 
 const CATEGORIES = ['Carpets', 'Bedding', 'Kitchenware', 'Appliances', 'Home Décor', 'Storage'];
 
+function safeRedirect(raw: string | null): string {
+  if (!raw) return '/';
+  // Block absolute URLs, protocol-relative URLs (//evil.com), and data: URIs
+  if (raw.startsWith('/') && !raw.startsWith('//')) return raw;
+  return '/';
+}
+
 function LoginForm() {
   const router   = useRouter();
   const params   = useSearchParams();
-  const redirect = params.get('redirect') ?? '/';
+  const redirect = safeRedirect(params.get('redirect'));
   const [showPw, setShowPw] = useState(false);
 
   const [loginMutation, { isLoading }] = useLoginMutation();
