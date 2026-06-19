@@ -95,7 +95,7 @@ export default function AdminDashboard() {
           {top.length ? (
             <div className="space-y-3">
               {top.map((p, i) => (
-                <div key={p.productId} className="flex items-center gap-3">
+                <div key={p.productId ?? i} className="flex items-center gap-3">
                   <span className="w-6 text-center text-xs font-bold text-gray-400">{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">{p.productName}</p>

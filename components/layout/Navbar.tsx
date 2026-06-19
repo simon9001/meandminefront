@@ -287,13 +287,13 @@ export function Navbar() {
             <div className="flex items-center gap-1 ml-auto flex-shrink-0">
               {/* WhatsApp shortcut */}
               <a
-                href="https://wa.me/254700000000?text=Hi%20Maschon%2C%20I%27d%20like%20to%20order"
+                href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-gray-100 text-xs font-semibold text-bark-600 hover:text-forest-800 transition-colors"
               >
                 <WhatsAppIcon className="h-4 w-4" />
-                WhatsApp
+                Join our WhatsApp group
               </a>
 
               {/* Cart */}
@@ -474,13 +474,13 @@ export function Navbar() {
               View All Products
             </Link>
             <a
-              href="https://wa.me/254700000000?text=Hi%20Maschon%2C%20I%27d%20like%20to%20order"
+              href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-[#25D366] rounded-xl"
             >
               <WhatsAppIcon className="h-4 w-4 text-white" />
-              WhatsApp Order
+              Join our WhatsApp group
             </a>
           </div>
 

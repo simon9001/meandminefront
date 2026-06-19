@@ -6,6 +6,7 @@ import { PRODUCTS, staticToProduct } from '@/lib/static-products';
 import { getReviews } from '@/lib/mock-reviews';
 import { AddToCartSection } from '@/components/product/AddToCartSection';
 import { ProductCard } from '@/components/product/ProductCard';
+import { ShareButtons } from '@/components/product/ShareButtons';
 import type { Product } from '@/lib/types';
 import type { Metadata } from 'next';
 
@@ -207,6 +208,10 @@ export default async function ProductDetailPage({ params }: Props) {
             showSalePrice: product.showSalePrice,
             status:        product.status,
           }} />
+
+          <div className="pt-1 border-t border-bark-100">
+            <ShareButtons productName={product.name} slug={product.slug} />
+          </div>
         </div>
       </div>
 

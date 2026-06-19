@@ -40,7 +40,7 @@ export async function forgotPassword(email: string) {
 }
 
 export async function resetPassword(email: string, token: string, newPassword: string) {
-  return apiFetch('/auth/reset-password', { method: 'POST', body: { email, token, newPassword }, auth: false });
+  return apiFetch('/auth/reset-password', { method: 'POST', body: { email, token, password: newPassword }, auth: false });
 }
 
 export async function getMe() {
