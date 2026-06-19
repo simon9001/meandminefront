@@ -30,7 +30,7 @@ const securityHeaders = [
       // Styles: Next.js injects inline styles
       "style-src 'self' 'unsafe-inline'",
       // Images: own origin + CDN sources
-      "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://*.supabase.co",
+      "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://*.supabase.co https://picsum.photos",
       // Fonts: own origin + Google Fonts
       "font-src 'self' https://fonts.gstatic.com",
       // API + Paystack API calls
@@ -49,6 +49,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "picsum.photos" },
     ],
   },
 
