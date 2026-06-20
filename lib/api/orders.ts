@@ -1,14 +1,45 @@
 import { apiFetch } from '../api';
 import { buildQueryString } from '../utils';
-import type { ApiResponse, Paginated, Order, CheckoutItem } from '../types';
+import type { ApiResponse, Paginated, Order, OrderItem, DeliveryInfo, DispatchInfo, CheckoutItem } from '../types';
 
-export interface CreateOrderPayload {
-  items: CheckoutItem[];
-  addressId?: string;
-  discountCode?: string;
-  shippingFee?: number;
-  notes?: string;
-  idempotencyKey?: string;
+// ─── Snake → camelCase mappers ────────────────────────────────────────────────
+
+function mapOrderItem(i: Record<string, unknown>): OrderItem {
+  return {
+    id:                (i.id ?? '') as string,
+    productId:         ((i.product_id ?? i.productId) ?? '') as string,
+    productName:       ((i.product_name ?? i.productName) ?? '') as string,
+    productSku:        (i.product_sku ?? i.productSku) as string | undefined,
+    variantOptions:    (i.variant_options ?? i.variantOptions) as Record<string, string> | undefined,
+    quantity:          Number(i.quantity ?? 0),
+    unitPrice:         Number((i.unit_price ?? i.unitPrice) ?? 0),
+    totalPrice:        Number((i.total_price ?? i.totalPrice) ?? 0),
+    fulfillmentStatus: ((i.fulfillment_status ?? i.fulfillmentStatus) ?? 'pending') as string,
+  };
+}
+
+function mapOrder(o: Record<string, unknown>): Order {
+  const rawAddr = (o.shipping_address ?? o.shippingAddress) as Record<string, unknown> | undefined;
+  const rawMeta = (o.metadata ?? {}) as Record<string, unknown>;
+  return {
+    id:             (o.id ?? '') as string,
+    orderNumber:    ((o.order_number ?? o.orderNumber) ?? '') as string,
+    status:         (o.status as Order['status']) ?? 'pending_payment',
+    paymentStatus:  ((o.payment_status ?? o.paymentStatus) as Order['paymentStatus']) ?? 'pending',
+    subtotal:       Number(o.subtotal ?? 0),
+    shippingFee:    Number((o.shipping_fee ?? o.shippingFee) ?? 0),
+    discountAmount: Number((o.discount_amount ?? o.discountAmount) ?? 0),
+    totalAmount:    Number((o.total_amount ?? o.totalAmount) ?? 0),
+    currency:       (o.currency as string) ?? 'KES',
+    placedAt:       ((o.placed_at ?? o.placedAt) ?? '') as string,
+    deliveredAt:    (o.delivered_at ?? o.deliveredAt) as string | undefined,
+    customerNote:   ((o.customer_note ?? o.customerNote) as string | undefined),
+    deliveryInfo:   rawAddr as DeliveryInfo | undefined,
+    dispatchInfo:   (rawMeta.dispatchInfo as DispatchInfo | undefined),
+    shippingAddress: rawAddr as Record<string, string> | undefined,
+    orderItems: ((o.order_items ?? o.orderItems) as Record<string, unknown>[] | undefined)
+      ?.map(mapOrderItem),
+  };
 }
 
 // ─── Guest checkout (no auth) ─────────────────────────────────────────────────
@@ -60,15 +91,10 @@ export interface TrackedOrder {
   total_amount:     number;
   currency:         string;
   placed_at:        string;
-  metadata:         { payment_method?: string; zone?: string; [key: string]: unknown };
-  shipping_address: {
-    recipient_name?: string;
-    phone?:          string;
-    address_line1?:  string;
-    city?:           string;
-  };
-  order_items:           TrackedOrderItem[];
-  order_status_history:  { from_status: string | null; to_status: string; changed_at: string }[];
+  metadata:         { payment_method?: string; zone?: string; dispatchInfo?: DispatchInfo; [key: string]: unknown };
+  shipping_address: Record<string, string>;
+  order_items:          TrackedOrderItem[];
+  order_status_history: { from_status: string | null; to_status: string; changed_at: string }[];
 }
 
 export async function trackOrderByNumber(orderNumber: string) {
@@ -77,13 +103,32 @@ export async function trackOrderByNumber(orderNumber: string) {
   );
 }
 
+// ─── Authenticated order endpoints ────────────────────────────────────────────
+
 export async function listMyOrders(params?: { page?: number; limit?: number; status?: string }) {
   const qs = buildQueryString((params ?? {}) as Record<string, string | number | boolean | undefined>);
-  return apiFetch<Paginated<Order>>(`/orders/my${qs}`);
+  const raw = await apiFetch<{ success: boolean; data: Record<string, unknown>[]; meta: { total: number; page: number; limit: number } }>(`/orders/my${qs}`);
+  return {
+    ...raw,
+    data: (raw.data ?? []).map(mapOrder),
+  } as Paginated<Order>;
 }
 
 export async function getMyOrder(orderId: string) {
-  return apiFetch<ApiResponse<Order>>(`/orders/my/${orderId}`);
+  const raw = await apiFetch<ApiResponse<Record<string, unknown>>>(`/orders/my/${orderId}`);
+  return {
+    ...raw,
+    data: mapOrder(raw.data),
+  } as ApiResponse<Order>;
+}
+
+export interface CreateOrderPayload {
+  items: CheckoutItem[];
+  addressId?: string;
+  discountCode?: string;
+  shippingFee?: number;
+  notes?: string;
+  idempotencyKey?: string;
 }
 
 export async function createOrder(payload: CreateOrderPayload) {

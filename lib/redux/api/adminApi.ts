@@ -91,6 +91,13 @@ export interface CreateShipmentPayload {
   trackingNo?:  string;
 }
 
+export interface DispatchOrderPayload {
+  parcelRef?:       string;
+  trackingNo?:      string;
+  collectionPoint?: string;
+  dispatchNotes?:   string;
+}
+
 // ─── Admin API ────────────────────────────────────────────────────────────────
 
 export const adminApi = baseApi.injectEndpoints({
@@ -185,29 +192,35 @@ export const adminApi = baseApi.injectEndpoints({
       query: (params) => ({ url: '/orders', params }),
       transformResponse: (res: unknown) => {
         const raw = res as { success: boolean; data: Record<string, unknown>[]; meta: { total: number; page: number; limit: number } };
-        const orders: Order[] = raw.data.map((o) => ({
-          id:             o.id as string,
-          orderNumber:    (o.order_number ?? o.orderNumber) as string,
-          status:         o.status as Order['status'],
-          paymentStatus:  (o.payment_status ?? o.paymentStatus) as Order['paymentStatus'],
-          subtotal:       Number(o.subtotal ?? 0),
-          shippingFee:    Number(o.shipping_fee ?? o.shippingFee ?? 0),
-          discountAmount: Number(o.discount_amount ?? o.discountAmount ?? 0),
-          totalAmount:    Number(o.total_amount ?? o.totalAmount ?? 0),
-          currency:       (o.currency as string) ?? 'KES',
-          placedAt:       (o.placed_at ?? o.placedAt) as string,
-          customerNote:   (o.customer_note ?? o.customerNote) as string | undefined,
-          shippingAddress: (o.shipping_address ?? o.shippingAddress) as Order['shippingAddress'],
-          orderItems: ((o.order_items ?? o.orderItems) as Record<string, unknown>[] | undefined)?.map((i) => ({
-            id:                i.id as string,
-            productId:         (i.product_id ?? i.productId ?? '') as string,
-            productName:       (i.product_name ?? i.productName) as string,
-            quantity:          Number(i.quantity),
-            unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
-            totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
-            fulfillmentStatus: (i.fulfillment_status ?? i.fulfillmentStatus ?? 'pending') as string,
-          })),
-        }));
+        const orders: Order[] = raw.data.map((o) => {
+          const rawAddr = (o.shipping_address ?? o.shippingAddress) as Record<string, unknown> | undefined;
+          const rawMeta = (o.metadata ?? {}) as Record<string, unknown>;
+          return {
+            id:             o.id as string,
+            orderNumber:    (o.order_number ?? o.orderNumber) as string,
+            status:         o.status as Order['status'],
+            paymentStatus:  (o.payment_status ?? o.paymentStatus) as Order['paymentStatus'],
+            subtotal:       Number(o.subtotal ?? 0),
+            shippingFee:    Number(o.shipping_fee ?? o.shippingFee ?? 0),
+            discountAmount: Number(o.discount_amount ?? o.discountAmount ?? 0),
+            totalAmount:    Number(o.total_amount ?? o.totalAmount ?? 0),
+            currency:       (o.currency as string) ?? 'KES',
+            placedAt:       (o.placed_at ?? o.placedAt) as string,
+            customerNote:   (o.customer_note ?? o.customerNote) as string | undefined,
+            shippingAddress: rawAddr as Order['shippingAddress'],
+            deliveryInfo:   rawAddr as Order['deliveryInfo'],
+            dispatchInfo:   rawMeta.dispatchInfo as Order['dispatchInfo'],
+            orderItems: ((o.order_items ?? o.orderItems) as Record<string, unknown>[] | undefined)?.map((i) => ({
+              id:                i.id as string,
+              productId:         (i.product_id ?? i.productId ?? '') as string,
+              productName:       (i.product_name ?? i.productName) as string,
+              quantity:          Number(i.quantity),
+              unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
+              totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
+              fulfillmentStatus: (i.fulfillment_status ?? i.fulfillmentStatus ?? 'pending') as string,
+            })),
+          };
+        });
         const { total, page, limit } = raw.meta ?? { total: 0, page: 1, limit: 20 };
         return {
           success: true,
@@ -220,6 +233,12 @@ export const adminApi = baseApi.injectEndpoints({
 
     updateOrderStatus: builder.mutation<Order, { orderId: string; status: string; adminNote?: string }>({
       query: ({ orderId, ...body }) => ({ url: `/orders/${orderId}/status`, method: 'PATCH', body }),
+      transformResponse: (res: ApiWrap<Order>) => res.data,
+      invalidatesTags: (_r, _e, { orderId }) => [{ type: 'Order', id: orderId }, 'Order', 'Admin'],
+    }),
+
+    dispatchOrder: builder.mutation<Order, { orderId: string } & DispatchOrderPayload>({
+      query: ({ orderId, ...body }) => ({ url: `/orders/${orderId}/dispatch`, method: 'PATCH', body }),
       transformResponse: (res: ApiWrap<Order>) => res.data,
       invalidatesTags: (_r, _e, { orderId }) => [{ type: 'Order', id: orderId }, 'Order', 'Admin'],
     }),
@@ -363,6 +382,7 @@ export const {
   useDeleteCategoryMutation,
   useAdminListOrdersQuery,
   useUpdateOrderStatusMutation,
+  useDispatchOrderMutation,
   useListInventoryQuery,
   useListLowStockQuery,
   useAdjustInventoryMutation,

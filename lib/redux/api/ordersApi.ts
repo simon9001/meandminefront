@@ -1,15 +1,14 @@
 import { baseApi } from './baseApi';
-import type { Order, Paginated } from '@/lib/types';
+import type { Order, Paginated, DeliveryInfo } from '@/lib/types';
 
 interface ApiWrap<T> { data: T; success: boolean; }
 
 export interface CreateOrderPayload {
-  items:            { productId: string; variantId?: string; supplyId?: string; quantity: number }[];
-  shippingAddress?: Record<string, string>;
-  shippingFee?:     number;
-  discountCode?:    string;
-  notes?:           string;
-  idempotencyKey?:  string;
+  items:           { productId: string; variantId?: string; supplyId?: string; quantity: number }[];
+  deliveryInfo:    DeliveryInfo;
+  discountCode?:   string;
+  notes?:          string;
+  idempotencyKey?: string;
 }
 
 export const ordersApi = baseApi.injectEndpoints({

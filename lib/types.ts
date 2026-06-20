@@ -1,7 +1,7 @@
 // ─── Shared enums ─────────────────────────────────────────────────────────────
 
 export type UserRole = 'customer' | 'admin' | 'superadmin' | 'supplier_rep';
-export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+export type OrderStatus = 'pending_payment' | 'paid' | 'awaiting_dispatch' | 'dispatched' | 'delivered' | 'cancelled';
 export type PaymentStatus = 'pending' | 'initiated' | 'paid' | 'failed' | 'refunded';
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 
@@ -162,18 +162,43 @@ export interface OrderItem {
   fulfillmentStatus: string;
 }
 
+export interface DeliveryInfo {
+  recipientName?:    string;
+  phone?:            string;
+  county?:           string;
+  town?:             string;
+  stage?:            string;
+  deliveryMethod?:   'home_delivery' | 'pickup';
+  preferredProvider?: string;
+  instructions?:     string;
+  // Legacy fields from old format
+  addressLine1?: string;
+  city?:         string;
+}
+
+export interface DispatchInfo {
+  parcelRef?:       string;
+  trackingNo?:      string;
+  collectionPoint?: string;
+  dispatchNotes?:   string;
+  dispatchedAt?:    string;
+  provider?:        string;
+}
+
 export interface Order {
   id: string;
   orderNumber: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   subtotal: number;
-  shippingFee: number;
+  shippingFee?: number;
   discountAmount: number;
   totalAmount: number;
   currency: string;
   placedAt: string;
   deliveredAt?: string;
+  deliveryInfo?: DeliveryInfo;
+  dispatchInfo?: DispatchInfo;
   shippingAddress?: Record<string, string>;
   customerNote?: string;
   orderItems?: OrderItem[];

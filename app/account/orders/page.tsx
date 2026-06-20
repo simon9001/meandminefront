@@ -1,17 +1,17 @@
 'use client';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { Package, Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, Truck, CreditCard } from 'lucide-react';
 import { listMyOrders } from '@/lib/api/orders';
 import { formatPrice, formatDate } from '@/lib/utils';
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Package; color: string }> = {
-  pending:    { label: 'Pending',   icon: Clock,        color: 'text-amber-600 bg-amber-50' },
-  confirmed:  { label: 'Confirmed', icon: CheckCircle,  color: 'text-blue-600 bg-blue-50' },
-  processing: { label: 'Processing',icon: Package,      color: 'text-purple-600 bg-purple-50' },
-  shipped:    { label: 'Shipped',   icon: Truck,        color: 'text-indigo-600 bg-indigo-50' },
-  delivered:  { label: 'Delivered', icon: CheckCircle,  color: 'text-emerald-600 bg-emerald-50' },
-  cancelled:  { label: 'Cancelled', icon: XCircle,      color: 'text-red-600 bg-red-50' },
+  pending_payment:   { label: 'Awaiting Payment', icon: CreditCard,   color: 'text-amber-600 bg-amber-50' },
+  paid:              { label: 'Paid',             icon: CheckCircle,  color: 'text-blue-600 bg-blue-50' },
+  awaiting_dispatch: { label: 'Being Processed',  icon: Package,      color: 'text-purple-600 bg-purple-50' },
+  dispatched:        { label: 'Dispatched',       icon: Truck,        color: 'text-indigo-600 bg-indigo-50' },
+  delivered:         { label: 'Delivered',        icon: CheckCircle,  color: 'text-emerald-600 bg-emerald-50' },
+  cancelled:         { label: 'Cancelled',        icon: XCircle,      color: 'text-red-600 bg-red-50' },
 };
 
 export default function OrdersPage() {
@@ -37,7 +37,7 @@ export default function OrdersPage() {
     <div className="space-y-4">
       <h2 className="font-bold text-gray-900">Order History ({orders.length})</h2>
       {orders.map((order) => {
-        const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
+        const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending_payment;
         const Icon = cfg.icon;
         return (
           <Link key={order.id} href={`/account/orders/${order.id}`} className="block rounded-2xl border border-gray-100 bg-white p-4 hover:border-gray-200 hover:shadow-sm transition-all">
