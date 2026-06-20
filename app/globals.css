@@ -42,29 +42,241 @@
 }
 
 * { box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  background-color: #faf6ee;
-  color: #1a1a1a;
+  background-color: #f0e8d8;
+  color: #2a1810;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f5efe3; }
-::-webkit-scrollbar-thumb { background: #d4c4b4; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #9c8068; }
+::-webkit-scrollbar-track { background: #e8dcc8; }
+::-webkit-scrollbar-thumb { background: #9c8068; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #7a6248; }
 
 :focus-visible { outline: 2px solid #2d7350; outline-offset: 2px; }
 
+/* ============================================================
+   SKEUOMORPHIC DESIGN SYSTEM
+   ============================================================ */
+
+/* Raised paper/parchment card */
+.skeu-card {
+  background: linear-gradient(160deg, #fdf8f0 0%, #f5ece0 60%, #ede4d0 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 -1px 0 rgba(0,0,0,0.06) inset,
+    1px 0 0 rgba(255,255,255,0.6) inset,
+    0 4px 16px rgba(90,60,30,0.14),
+    0 1px 4px rgba(90,60,30,0.10);
+  border: 1px solid rgba(140,100,60,0.18);
+  border-radius: 12px;
+}
+
+/* Deeper raised card (for stat cards) */
+.skeu-card-raised {
+  background: linear-gradient(160deg, #ffffff 0%, #f8f2e8 50%, #f0e8d8 100%);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,1) inset,
+    0 -1px 0 rgba(0,0,0,0.08) inset,
+    1px 0 0 rgba(255,255,255,0.7) inset,
+    -1px 0 0 rgba(255,255,255,0.4) inset,
+    0 6px 20px rgba(90,60,30,0.18),
+    0 2px 6px rgba(90,60,30,0.12);
+  border: 1px solid rgba(140,100,60,0.2);
+  border-top-color: rgba(255,255,255,0.8);
+  border-radius: 14px;
+}
+
+/* Inset/recessed panel */
+.skeu-inset {
+  background: linear-gradient(180deg, #e0d4c0 0%, #ede4d4 40%, #f0e8da 100%);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.16) inset,
+    0 1px 0 rgba(255,255,255,0.5);
+  border: 1px solid rgba(0,0,0,0.14);
+  border-top-color: rgba(0,0,0,0.2);
+  border-bottom-color: rgba(255,255,255,0.4);
+  border-radius: 8px;
+}
+
+/* Embossed primary button (forest green) */
+.skeu-btn-primary {
+  background: linear-gradient(180deg, #3a9166 0%, #2d7350 40%, #255c3d 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 -2px 0 rgba(0,0,0,0.2) inset,
+    0 4px 10px rgba(37,92,61,0.4),
+    0 1px 3px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.25);
+  border-top-color: rgba(255,255,255,0.15);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.12s ease;
+}
+.skeu-btn-primary:hover {
+  background: linear-gradient(180deg, #52a97d 0%, #3a9166 40%, #2d7350 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.3) inset,
+    0 -2px 0 rgba(0,0,0,0.2) inset,
+    0 6px 14px rgba(37,92,61,0.45),
+    0 2px 4px rgba(0,0,0,0.2);
+}
+.skeu-btn-primary:active {
+  background: linear-gradient(180deg, #255c3d 0%, #2d7350 100%);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,0.2) inset,
+    0 1px 2px rgba(0,0,0,0.15);
+  transform: translateY(1px);
+}
+
+/* Embossed secondary button (parchment/wood) */
+.skeu-btn-secondary {
+  background: linear-gradient(180deg, #e8dcc8 0%, #d4c4b0 50%, #c8b49c 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 -1px 0 rgba(0,0,0,0.12) inset,
+    0 3px 8px rgba(90,60,30,0.2),
+    0 1px 2px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.18);
+  border-top-color: rgba(255,255,255,0.5);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  color: #3d2f1e;
+  transition: all 0.12s ease;
+}
+.skeu-btn-secondary:hover {
+  background: linear-gradient(180deg, #f0e4d0 0%, #e0d0bc 50%, #d0c0a8 100%);
+}
+.skeu-btn-secondary:active {
+  background: linear-gradient(180deg, #c8b49c 0%, #d4c4b0 100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15) inset;
+  transform: translateY(1px);
+}
+
+/* Danger button (embossed red/earth) */
+.skeu-btn-danger {
+  background: linear-gradient(180deg, #e8503a 0%, #c4351f 40%, #a82810 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.2) inset,
+    0 -2px 0 rgba(0,0,0,0.2) inset,
+    0 4px 10px rgba(164,40,16,0.4);
+  border: 1px solid rgba(0,0,0,0.25);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  color: #fff;
+  transition: all 0.12s ease;
+}
+.skeu-btn-danger:active { transform: translateY(1px); }
+
+/* Recessed input field */
+.skeu-input {
+  background: linear-gradient(180deg, #ddd0b8 0%, #ede4d4 25%, #f5ede0 100%);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,0.16) inset,
+    0 1px 0 rgba(255,255,255,0.7);
+  border: 1px solid rgba(0,0,0,0.2);
+  border-top-color: rgba(0,0,0,0.28);
+  border-bottom-color: rgba(255,255,255,0.4);
+  color: #2a1810;
+  transition: all 0.15s ease;
+}
+.skeu-input::placeholder { color: #9c8068; }
+.skeu-input:focus {
+  background: linear-gradient(180deg, #e8dcc8 0%, #f5ede0 30%, #faf5ed 100%);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,0.14) inset,
+    0 0 0 3px rgba(45,115,80,0.2);
+  border-color: rgba(45,115,80,0.5);
+  outline: none;
+}
+
+/* Leather sidebar background */
+.skeu-sidebar {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.04) 3px,
+      rgba(0,0,0,0.04) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(255,255,255,0.015) 8px,
+      rgba(255,255,255,0.015) 9px
+    ),
+    linear-gradient(180deg, #3d2215 0%, #2a1810 50%, #1e1008 100%);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.35), 1px 0 0 rgba(255,255,255,0.05) inset;
+}
+
+/* Dark wood header/navbar */
+.skeu-wood {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 40px,
+      rgba(0,0,0,0.03) 40px,
+      rgba(0,0,0,0.03) 41px
+    ),
+    linear-gradient(180deg, #4a3020 0%, #3a2418 50%, #2e1c10 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.3) inset,
+    0 3px 10px rgba(0,0,0,0.4);
+}
+
+/* Stitched leather pill badge */
+.skeu-badge {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.3) inset,
+    0 1px 3px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.15);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+/* Chart container */
+.skeu-chart-wrap {
+  background: linear-gradient(180deg, #f0e8d8 0%, #f8f2e8 100%);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.15) inset,
+    0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-top-color: rgba(0,0,0,0.18);
+  border-radius: 10px;
+}
+
+/* Progress bar track */
+.skeu-progress-track {
+  background: linear-gradient(180deg, #d0c4b0 0%, #e0d4c0 100%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15) inset;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 999px;
+}
+
+/* Separator / divider */
+.skeu-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.12) 20%, rgba(0,0,0,0.12) 80%, transparent);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-
 @keyframes marquee-up {
   from { transform: translateY(0); }
   to   { transform: translateY(-50%); }
+}
+@keyframes skeu-press {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(1px); }
+  100% { transform: translateY(0); }
 }

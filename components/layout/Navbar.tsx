@@ -188,20 +188,12 @@ export function Navbar() {
   const slide = PROMO_SLIDES[promoIndex % Math.max(PROMO_SLIDES.length, 1)];
 
   return (
-    <header className={cn(
-      'sticky top-0 z-50 transition-shadow duration-200',
-      scrolled ? 'shadow-md' : 'shadow-none'
-    )}>
+    <header className="sticky top-0 z-50">
 
       {/* ── Promo banner + dots — hidden for admin/superadmin; deferred until mounted ── */}
       {(!mounted || !isAdmin) && (
         <>
-          <div
-            className={cn(
-              'overflow-hidden transition-all duration-300 ease-in-out',
-              scrolled ? 'max-h-0' : 'max-h-14'
-            )}
-          >
+          <div className="overflow-hidden max-h-14">
             <Link
               href={slide.href}
               className={cn(
@@ -251,8 +243,19 @@ export function Navbar() {
         </>
       )}
 
-      {/* ── Main navbar bar ── */}
-      <div className="bg-white border-b border-gray-100">
+      {/* ── Main navbar bar — dark wood; blurred glass when scrolled ── */}
+      <div
+        style={{
+          background: 'rgba(255, 255, 255, 0.97)',
+          backdropFilter:       scrolled ? 'blur(16px) saturate(140%)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(16px) saturate(140%)' : 'none',
+          boxShadow: scrolled
+            ? '0 2px 16px rgba(0,0,0,0.12)'
+            : '0 1px 0 rgba(0,0,0,0.06), 0 2px 10px rgba(0,0,0,0.07)',
+          borderBottom: '1px solid rgba(0,0,0,0.07)',
+          transition: 'box-shadow 0.35s ease',
+        }}
+      >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 h-16">
 
@@ -263,119 +266,154 @@ export function Navbar() {
                 alt="Maschon"
                 width={60}
                 height={40}
-                className="h-10 w-auto object-contain"
+                className="h-9 sm:h-10 w-auto object-contain drop-shadow-md"
                 priority
               />
-              <span className="text-2xl font-black tracking-tighter text-forest-900">Maschon</span>
+              <span className="hidden sm:inline text-xl lg:text-2xl font-black tracking-tighter" style={{ transition: 'color 0.35s ease' }}>
+                <span style={{ color: '#ff7c2a' }}>Ma</span>
+                <span style={{ color: '#111111' }}>schon</span>
+              </span>
             </Link>
 
-            {/* Search */}
+            {/* Search — inset/recessed */}
             <form onSubmit={handleSearch} className="hidden md:flex flex-1 min-w-0">
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-bark-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none" style={{ color: '#888888' }} />
                 <input
                   type="search"
                   placeholder="Search carpets, curtains, bedding, kitchenware…"
                   value={searchQ}
                   onChange={(e) => setSearchQ(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-forest-900 placeholder:text-bark-400 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:border-transparent focus:bg-white transition"
+                  className="skeu-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm"
                 />
               </div>
             </form>
 
             {/* Right icons */}
-            <div className="flex items-center gap-1 ml-auto flex-shrink-0">
-              {/* WhatsApp shortcut */}
+            <div className="flex items-center gap-1 sm:gap-1.5 ml-auto flex-shrink-0">
               <a
                 href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-gray-100 text-xs font-semibold text-bark-600 hover:text-forest-800 transition-colors"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                style={{ color: '#333333', border: '1px solid rgba(0,0,0,0.12)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.color = '#ff7c2a'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#333333'; }}
               >
                 <WhatsAppIcon className="h-4 w-4" />
-                Join our WhatsApp group
+                WhatsApp
               </a>
 
               {/* Cart */}
               <button
                 type="button"
                 onClick={openCart}
-                className="relative p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
+                className="relative p-2.5 rounded-xl transition-all"
+                style={{ background: 'transparent' }}
                 aria-label="Open cart"
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
+                onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.transform = ''; }}
               >
-                <ShoppingCart className="h-5 w-5 text-bark-600" />
+                <ShoppingCart className="h-5 w-5" style={{ color: '#ff7c2a' }} />
                 {itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center h-4 min-w-[1rem] px-1 rounded-full bg-red-500 text-white text-[9px] font-bold">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 flex items-center justify-center h-4 min-w-[1rem] px-1 rounded-full text-white text-[9px] font-black"
+                    style={{
+                      background: 'linear-gradient(135deg, #e8503a, #c4351f)',
+                      boxShadow: '0 1px 3px rgba(196,53,31,0.6)',
+                    }}
+                  >
                     {itemCount}
                   </span>
                 )}
               </button>
 
-              {/* Auth — placeholder until client hydrates, then Sign In or avatar */}
+              {/* Auth */}
               {!mounted ? (
-                <div className="h-9 w-9 rounded-xl bg-gray-100 animate-pulse" />
+                <div className="h-9 w-9 rounded-xl animate-pulse" style={{ background: 'rgba(0,0,0,0.08)' }} />
               ) : user ? (
                 <div className="relative" ref={profileRef}>
                   <button
                     type="button"
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-2 transition-all"
+                    style={{
+                      background: profileOpen ? 'rgba(0,0,0,0.08)' : '#f4f4f4',
+                      border: '1px solid rgba(0,0,0,0.12)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      borderRadius: '999px',
+                      padding: '4px 6px 4px 4px',
+                    }}
+                    onMouseEnter={(e) => { if (!profileOpen) (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.07)'; }}
+                    onMouseLeave={(e) => { if (!profileOpen) (e.currentTarget as HTMLElement).style.background = '#f4f4f4'; }}
                     aria-label="Profile menu"
                   >
-                    <div className="relative h-8 w-8 rounded-full overflow-hidden bg-forest-900 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 select-none">
+                    <div
+                      className="relative h-7 w-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-black flex-shrink-0 select-none"
+                      style={{
+                        background: 'linear-gradient(145deg, #111111, #333333)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        textShadow: '0 1px 1px rgba(0,0,0,0.4)',
+                      }}
+                    >
                       {user.avatarUrl
-                        ? <Image src={user.avatarUrl} alt="Avatar" fill className="object-cover" sizes="32px" />
+                        ? <Image src={user.avatarUrl} alt="Avatar" fill className="object-cover" sizes="28px" />
                         : <span>{user.firstName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? '?'}</span>
                       }
                     </div>
-                    <span className="hidden sm:block text-sm font-semibold text-forest-900 max-w-[80px] truncate">
+                    <span className="hidden sm:block text-sm font-bold max-w-[80px] truncate pr-1" style={{ color: '#111111' }}>
                       {user.firstName}
                     </span>
-                    <ChevronDown className={cn('hidden sm:block h-3.5 w-3.5 text-bark-400 transition-transform duration-200', profileOpen && 'rotate-180')} />
+                    <ChevronDown className={cn('hidden sm:block h-3.5 w-3.5 mr-1 transition-transform duration-200', profileOpen && 'rotate-180')} style={{ color: 'rgba(0,0,0,0.4)' }} />
                   </button>
 
                   {/* Dropdown */}
                   {profileOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl bg-white border border-gray-100 shadow-lg py-2 z-50 overflow-hidden">
-                      {/* User info header */}
-                      <div className="px-4 py-3 border-b border-gray-50">
-                        <p className="font-bold text-forest-900 text-sm truncate">{user.firstName} {user.lastName}</p>
-                        <p className="text-xs text-bark-400 truncate mt-0.5">{user.email}</p>
+                    <div
+                      className="absolute right-0 top-full mt-2 w-52 py-2 z-50 overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(160deg, #fdf8f0 0%, #f0e8d8 100%)',
+                        boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 28px rgba(90,60,30,0.25), 0 2px 8px rgba(0,0,0,0.15)',
+                        border: '1px solid rgba(140,100,60,0.2)',
+                        borderRadius: '14px',
+                      }}
+                    >
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(140,100,60,0.12)', boxShadow: '0 1px 0 rgba(255,255,255,0.6)' }}>
+                        <p className="font-black text-sm truncate" style={{ color: '#1a3828' }}>{user.firstName} {user.lastName}</p>
+                        <p className="text-xs truncate mt-0.5" style={{ color: '#9c8068' }}>{user.email}</p>
                       </div>
 
                       <div className="py-1">
-                        <Link
-                          href="/account"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-bark-700 hover:bg-forest-50 hover:text-forest-800 transition-colors"
-                        >
-                          <User className="h-4 w-4 flex-shrink-0" />
-                          My Profile
-                        </Link>
-                        <Link
-                          href="/account/orders"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-bark-700 hover:bg-forest-50 hover:text-forest-800 transition-colors"
-                        >
-                          <Package className="h-4 w-4 flex-shrink-0" />
-                          My Orders
-                        </Link>
-                        {isAdmin && (
+                        {[
+                          { href: '/account',        label: 'My Profile', icon: User },
+                          { href: '/account/orders', label: 'My Orders',  icon: Package },
+                          ...(isAdmin ? [{ href: '/admin', label: 'Admin Panel', icon: Settings }] : []),
+                        ].map(({ href, label, icon: Icon }) => (
                           <Link
-                            href="/admin"
+                            key={href}
+                            href={href}
                             onClick={() => setProfileOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-bark-700 hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors"
+                            style={{ color: '#5c4a38' }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(45,115,80,0.08)'; (e.currentTarget as HTMLElement).style.color = '#1a3828'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#5c4a38'; }}
                           >
-                            <Settings className="h-4 w-4 flex-shrink-0" />
-                            Admin Panel
+                            <Icon className="h-4 w-4 flex-shrink-0" />
+                            {label}
                           </Link>
-                        )}
+                        ))}
                       </div>
 
-                      <div className="border-t border-gray-50 py-1">
+                      <div style={{ borderTop: '1px solid rgba(140,100,60,0.12)', boxShadow: '-0 -1px 0 rgba(255,255,255,0.6)' }} className="py-1">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors"
+                          style={{ color: '#c4351f' }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,53,31,0.06)'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
                         >
                           <LogOut className="h-4 w-4 flex-shrink-0" />
                           Sign Out
@@ -387,43 +425,70 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/auth/login"
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl bg-forest-900 text-white hover:bg-forest-700 transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-bold rounded-full text-white transition-all"
+                  style={{
+                    background: 'linear-gradient(180deg, #2a2a2a 0%, #111111 55%, #000000 100%)',
+                    boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 6px rgba(0,0,0,0.25)',
+                    border: '1px solid rgba(0,0,0,0.3)',
+                    padding: '7px 10px 7px 10px',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'linear-gradient(180deg, #3a3a3a 0%, #222 55%, #111 100%)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'linear-gradient(180deg, #2a2a2a 0%, #111111 55%, #000000 100%)'; }}
                 >
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  <User className="h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline pr-1">Sign In</span>
                 </Link>
               )}
 
               {/* Mobile menu toggle */}
               <button
-                className="md:hidden p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
+                className="md:hidden p-2.5 rounded-xl transition-all"
+                style={{ background: 'transparent' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label="Toggle menu"
               >
-                {menuOpen ? <X className="h-5 w-5 text-bark-600" /> : <Menu className="h-5 w-5 text-bark-600" />}
+                {menuOpen
+                  ? <X    className="h-5 w-5" style={{ color: '#ff7c2a' }} />
+                  : <Menu className="h-5 w-5" style={{ color: '#ff7c2a' }} />
+                }
               </button>
             </div>
           </div>
         </nav>
       </div>
 
-      {/* ── Category bar (desktop) — hidden for admin/superadmin; deferred until mounted ── */}
+      {/* ── Category bar — visible at top, hides on scroll ── */}
       {(!mounted || !isAdmin) && (
-        <div className="hidden md:block bg-white border-b border-gray-100">
+        <div
+          className={cn('hidden md:block overflow-hidden transition-all duration-300 ease-in-out', scrolled ? 'max-h-0' : 'max-h-12')}
+          style={{
+            background: 'rgba(255,255,255,0.97)',
+            boxShadow: '0 1px 0 rgba(0,0,0,0.05)',
+            borderBottom: '1px solid rgba(0,0,0,0.08)',
+          }}
+        >
           <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-0.5 h-10 overflow-x-auto scrollbar-none">
+            <div className="flex items-center gap-0.5 h-9 overflow-x-auto scrollbar-none">
               <Link
                 href="/products"
-                className="flex-shrink-0 px-4 py-1.5 text-xs font-bold text-forest-800 uppercase tracking-wider hover:bg-forest-50 rounded-lg transition-colors"
+                className="flex-shrink-0 px-4 py-1 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all"
+                style={{ color: '#ff7c2a' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,124,42,0.12)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
                 All
               </Link>
-              <span className="text-bark-200 mx-1">|</span>
+              <span style={{ color: 'rgba(0,0,0,0.15)' }} className="mx-1">|</span>
               {CATEGORIES.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/products?category=${cat.slug}`}
-                  className="flex-shrink-0 px-3 py-1.5 text-xs font-medium text-bark-600 uppercase tracking-wider hover:text-forest-800 hover:bg-forest-50 rounded-lg transition-colors whitespace-nowrap"
+                  className="flex-shrink-0 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider rounded-lg whitespace-nowrap"
+                  style={{ color: 'rgba(0,0,0,0.6)' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,124,42,0.1)'; (e.currentTarget as HTMLElement).style.color = '#ff7c2a'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.6)'; }}
                 >
                   {cat.name}
                 </Link>
@@ -435,30 +500,41 @@ export function Navbar() {
 
       {/* ── Mobile menu ── */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 py-4 px-4 space-y-4">
+        <div
+          className="md:hidden py-4 px-4 space-y-4"
+          style={{
+            background: 'linear-gradient(180deg, #3a2418, #2e1c10)',
+            borderBottom: '2px solid rgba(0,0,0,0.4)',
+          }}
+        >
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-bark-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#9c8068' }} />
               <input
                 type="search"
                 placeholder="Search products…"
                 value={searchQ}
                 onChange={(e) => setSearchQ(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-600 bg-gray-50"
+                className="skeu-input w-full pl-9 pr-3 py-2.5 rounded-xl text-sm"
               />
             </div>
-            <button type="submit" className="px-4 py-2 bg-forest-900 text-white rounded-xl text-sm font-medium">
+            <button type="submit" className="skeu-btn-primary px-4 py-2 rounded-xl text-sm font-bold text-white">
               Go
             </button>
           </form>
 
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 xs:grid-cols-4 gap-2">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
                 onClick={() => setMenuOpen(false)}
-                className="text-center py-2.5 px-1 text-[11px] font-medium text-bark-700 bg-gray-50 rounded-xl hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                className="text-center py-3 px-1 text-[11px] font-semibold rounded-xl transition-all leading-tight"
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.85)',
+                }}
               >
                 {cat.name}
               </Link>
@@ -469,44 +545,58 @@ export function Navbar() {
             <Link
               href="/products"
               onClick={() => setMenuOpen(false)}
-              className="flex-1 text-center py-2.5 text-sm font-semibold text-forest-800 bg-forest-50 rounded-xl"
+              className="flex-1 text-center py-2.5 text-sm font-bold rounded-xl skeu-btn-secondary"
             >
-              View All Products
+              All Products
             </Link>
             <a
               href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-[#25D366] rounded-xl"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-bold text-white rounded-xl"
+              style={{
+                background: 'linear-gradient(180deg, #2ecc71, #25D366, #1da851)',
+                boxShadow: '0 1px 0 rgba(255,255,255,0.2) inset, 0 3px 8px rgba(37,211,102,0.4)',
+                border: '1px solid rgba(0,0,0,0.15)',
+              }}
             >
-              <WhatsAppIcon className="h-4 w-4 text-white" />
-              Join our WhatsApp group
+              <WhatsAppIcon className="h-4 w-4" />
+              WhatsApp
             </a>
           </div>
 
-          {/* Mobile auth links — deferred until mounted to avoid hydration mismatch */}
           {mounted && user ? (
-            <div className="border-t border-gray-100 pt-3 space-y-1">
+            <div className="pt-3 space-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="flex items-center gap-3 px-2 py-2 mb-1">
-                <div className="h-8 w-8 rounded-full bg-forest-900 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div
+                  className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
+                  style={{ background: 'linear-gradient(145deg, #111111, #333333)', color: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
+                >
                   {user.firstName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? '?'}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-forest-900 truncate">{user.firstName} {user.lastName}</p>
-                  <p className="text-xs text-bark-400 truncate">{user.email}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: '#ffffff' }}>{user.firstName} {user.lastName}</p>
+                  <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{user.email}</p>
                 </div>
               </div>
               {[
-                { href: '/account', label: 'My Profile', icon: User },
-                { href: '/account/orders', label: 'My Orders', icon: Package },
+                { href: '/account',        label: 'My Profile', icon: User },
+                { href: '/account/orders', label: 'My Orders',  icon: Package },
               ].map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-bark-700 hover:bg-forest-50 hover:text-forest-800 rounded-xl transition-colors">
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all"
+                  style={{ color: 'rgba(255,255,255,0.85)', border: '1px solid transparent' }}
+                >
                   <Icon className="h-4 w-4" /> {label}
                 </Link>
               ))}
               <button
                 onClick={() => { setMenuOpen(false); handleLogout(); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all"
+                style={{ color: 'rgba(220,120,100,0.9)' }}
               >
                 <LogOut className="h-4 w-4" /> Sign Out
               </button>
@@ -515,7 +605,7 @@ export function Navbar() {
             <Link
               href="/auth/login"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-bold text-white bg-forest-900 rounded-xl hover:bg-forest-700 transition-colors"
+              className="skeu-btn-primary flex items-center justify-center gap-2 w-full py-2.5 text-sm font-black text-white rounded-xl"
             >
               <User className="h-4 w-4" /> Sign In
             </Link>

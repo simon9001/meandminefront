@@ -13,7 +13,6 @@ import { useGetCartQuery } from '@/lib/redux/api/cartApi';
 import {
   useCreateOrderMutation,
   useInitializePaymentMutation,
-  useVerifyPaymentMutation,
   useValidateDiscountCodeMutation,
   type CreateOrderPayload,
 } from '@/lib/redux/api/ordersApi';
@@ -26,14 +25,6 @@ import { toast } from 'sonner';
 import type { CartItem } from '@/lib/types';
 import { useListProductsQuery } from '@/lib/redux/api/productsApi';
 import { ProductCard } from '@/components/product/ProductCard';
-
-declare global {
-  interface Window {
-    PaystackPop: {
-      setup: (opts: Record<string, unknown>) => { openIframe: () => void };
-    };
-  }
-}
 
 type DeliveryMethod = 'home_delivery' | 'pickup';
 
@@ -96,7 +87,6 @@ export default function CheckoutPage() {
   const { data: savedAddresses = [] } = useListAddressesQuery(undefined, { skip: !isLoggedIn });
   const [createOrder,       { isLoading: ordering }]  = useCreateOrderMutation();
   const [initializePayment, { isLoading: initing }]   = useInitializePaymentMutation();
-  const [verifyPayment,     { isLoading: verifying }] = useVerifyPaymentMutation();
   const [validateDiscount,  { isLoading: validating }] = useValidateDiscountCodeMutation();
   const [saveAddressMutation] = useCreateAddressMutation();
 
@@ -118,15 +108,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [saveAddress,       setSaveAddress]       = useState(true);
 
-  useEffect(() => {
-    setMounted(true);
-    if (typeof window !== 'undefined' && !window.PaystackPop) {
-      const script = document.createElement('script');
-      script.src = 'https://js.paystack.co/v1/inline.js';
-      script.async = true;
-      document.head.appendChild(script);
-    }
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   // Pre-fill name from auth user (only when no saved addresses)
   useEffect(() => {
@@ -201,49 +183,25 @@ export default function CheckoutPage() {
       };
 
       const order = await createOrder(payload).unwrap();
-      const { reference } = await initializePayment(order.id).unwrap();
+      const { authorizationUrl } = await initializePayment(order.id).unwrap();
 
-      setStep('form');
-
-      if (!window.PaystackPop) {
-        toast.error('Payment system not ready — please refresh and try again');
-        return;
+      // Persist data needed by the confirm page after Paystack redirects back
+      const pending: Record<string, unknown> = { orderNumber: order.orderNumber };
+      if (saveAddress && !selectedAddressId) {
+        pending.address = {
+          recipientName,
+          phone,
+          addressLine1: stage || town,
+          city:         town,
+          county:       county.trim() || undefined,
+          isDefault:    savedAddresses.length === 0,
+          label:        'Home',
+        };
       }
+      sessionStorage.setItem('maschon_pending_checkout', JSON.stringify(pending));
 
-      window.PaystackPop.setup({
-        key:      process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
-        email:    user!.email,
-        amount:   Math.round(total * 100),
-        ref:      reference,
-        currency: 'KES',
-        label:    'Maschon Order',
-        onSuccess: async (txn: { reference: string }) => {
-          setStep('processing');
-          try {
-            await verifyPayment(txn.reference).unwrap();
-            // Save address if user opted in and it's a new entry
-            if (saveAddress && !selectedAddressId) {
-              saveAddressMutation({
-                recipientName,
-                phone,
-                addressLine1: stage || town,
-                city:         town,
-                county:       county.trim() || undefined,
-                isDefault:    savedAddresses.length === 0,
-                label:        'Home',
-              }).catch(() => {});
-            }
-            router.push(`/checkout/confirm?order=${order.orderNumber}`);
-          } catch {
-            toast.error('Payment received but verification failed — contact support with ref: ' + txn.reference);
-            setStep('form');
-          }
-        },
-        onCancel: () => {
-          toast.info('Payment cancelled');
-          setStep('form');
-        },
-      }).openIframe();
+      // Redirect to Paystack's hosted checkout page — works on all browsers
+      window.location.href = authorizationUrl;
     } catch (e: unknown) {
       setStep('form');
       const err = e as { data?: { error?: string; message?: string } };
@@ -576,11 +534,11 @@ export default function CheckoutPage() {
 
             <button
               onClick={handlePay}
-              disabled={step === 'processing' || ordering || initing || verifying}
+              disabled={step === 'processing' || ordering || initing}
               className="w-full py-4 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
-              {(step === 'processing' || ordering || initing || verifying)
-                ? <><Loader2 className="h-5 w-5 animate-spin" /> {verifying ? 'Verifying…' : 'Processing…'}</>
+              {(step === 'processing' || ordering || initing)
+                ? <><Loader2 className="h-5 w-5 animate-spin" /> Processing…</>
                 : <>Pay {formatPrice(total)} — Secure Checkout</>
               }
             </button>
