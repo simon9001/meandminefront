@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { setCredentials, clearCredentials } from '../slices/authSlice';
+import { setCredentials, clearCredentials, sessionExpired } from '../slices/authSlice';
 import type { AuthUser } from '@/lib/types';
 
 interface ApiWrap<T> { data: T; }
@@ -55,7 +55,10 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
         // Retry the original failed request with the new cookie in place.
         result = await rawBaseQuery(args, api, extraOptions);
       } else {
-        api.dispatch(clearCredentials());
+        // Refresh failed — token is truly expired or revoked.
+        // sessionExpired() clears the user and stamps a timestamp that
+        // TokenExpiryWatcher observes to show a toast and redirect to /auth/login.
+        api.dispatch(sessionExpired());
         setTimeout(() => api.dispatch(baseApi.util.resetApiState()), 0);
       }
     } finally {
@@ -69,7 +72,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Cart', 'Product', 'Order', 'Wishlist', 'Review', 'Admin', 'Promotion'],
+  tagTypes: ['User', 'Cart', 'Product', 'Order', 'Wishlist', 'Review', 'Admin', 'Promotion', 'Address'],
   refetchOnFocus: true,
   refetchOnReconnect: true,
   endpoints: () => ({}),
