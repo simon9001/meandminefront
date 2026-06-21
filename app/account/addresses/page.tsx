@@ -54,7 +54,7 @@ export default function AddressesPage() {
     setSaving(true);
     try {
       if (editing) {
-        await updateAddress({ addressId: editing.id, ...form }).unwrap();
+        await updateAddress({ id: editing.id, ...form }).unwrap();
         toast.success('Address updated');
       } else {
         await createAddress(form).unwrap();
