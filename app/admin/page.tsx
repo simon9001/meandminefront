@@ -116,7 +116,7 @@ export default function AdminDashboard() {
     ? stats.revenue30d / stats.orders.total
     : 0;
 
-  const topRevenue = top[0]?.totalRevenue ?? top[0]?.total_revenue ?? 1;
+  const topRevenue = top[0]?.totalRevenue ?? 1;
 
   return (
     <div className="space-y-7 max-w-7xl mx-auto">
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                     iconSize={8}
                   />
                   <Tooltip
-                    formatter={(v: number, name: string) => [v, name]}
+                    formatter={(v, name) => [v, name]}
                     contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid rgba(140,100,60,0.2)', background: '#fdf8f0' }}
                   />
                 </PieChart>
