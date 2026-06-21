@@ -276,7 +276,7 @@ export default function NewProductPage() {
             <input
               type="number"
               value={form.salePrice ?? ''}
-              onChange={(e) => set('salePrice', e.target.value ? Number(e.target.value) : undefined)}
+              onChange={(e) => { const n = Number(e.target.value); set('salePrice', n > 0 ? n : undefined); }}
               min={0}
               placeholder="Leave blank if no sale"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"

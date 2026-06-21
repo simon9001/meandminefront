@@ -7,8 +7,10 @@ import type { PaystackReference } from '@/lib/types';
 
 declare global {
   interface Window {
+    // Covers both v1 (setup/openIframe) and v2 (new + resumeTransaction)
     PaystackPop: {
-      setup: (opts: Record<string, unknown>) => { openIframe: () => void };
+      new(): { resumeTransaction(accessCode: string): void };
+      setup(opts: Record<string, unknown>): { openIframe(): void };
     };
   }
 }

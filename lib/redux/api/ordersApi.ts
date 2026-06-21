@@ -42,9 +42,19 @@ export const ordersApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { orderId }) => [{ type: 'Order', id: orderId }, 'Order'],
     }),
 
-    initializePayment: builder.mutation<{ authorizationUrl: string; reference: string }, string>({
+    initializePayment: builder.mutation<{ authorizationUrl: string; reference: string; accessCode: string }, string>({
       query: (orderId) => ({ url: '/payments/initialize', method: 'POST', body: { orderId } }),
-      transformResponse: (res: ApiWrap<{ authorizationUrl: string; reference: string }>) => res.data,
+      transformResponse: (res: ApiWrap<{ authorizationUrl: string; reference: string; accessCode: string }>) => res.data,
+    }),
+
+    chargeMpesa: builder.mutation<{ reference: string; status: string }, { orderId: string; phone: string }>({
+      query: (body) => ({ url: '/payments/charge/mpesa', method: 'POST', body }),
+      transformResponse: (res: ApiWrap<{ reference: string; status: string }>) => res.data,
+    }),
+
+    checkPaymentStatus: builder.query<{ status: string }, string>({
+      query: (reference) => `/payments/status/${reference}`,
+      transformResponse: (res: ApiWrap<{ status: string }>) => res.data,
     }),
 
     verifyPayment: builder.mutation<{ status: string }, string>({
@@ -84,6 +94,9 @@ export const {
   useCreateOrderMutation,
   useCancelOrderMutation,
   useInitializePaymentMutation,
+  useChargeMpesaMutation,
+  useCheckPaymentStatusQuery,
+  useLazyCheckPaymentStatusQuery,
   useVerifyPaymentMutation,
   useValidateDiscountCodeMutation,
   useGetWishlistQuery,

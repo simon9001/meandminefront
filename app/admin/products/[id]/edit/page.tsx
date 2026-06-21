@@ -246,7 +246,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Sale Price (KES)</label>
-            <input type="number" value={form.salePrice ?? ''} onChange={(e) => set('salePrice', e.target.value ? Number(e.target.value) : undefined)}
+            <input type="number" value={form.salePrice ?? ''} onChange={(e) => { const n = Number(e.target.value); set('salePrice', n > 0 ? n : undefined); }}
               placeholder="Leave blank if no sale" min={0}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
             {form.salePrice !== undefined && (
