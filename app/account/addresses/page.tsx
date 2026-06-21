@@ -6,11 +6,12 @@ import {
   useCreateAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
+  type CreateAddressPayload,
+  type SavedAddress,
 } from '@/lib/redux/api/usersApi';
-import type { Address } from '@/lib/types';
 import { toast } from 'sonner';
 
-const EMPTY: Omit<Address, 'id'> = {
+const EMPTY: CreateAddressPayload = {
   label:         '',
   recipientName: '',
   phone:         '',
@@ -30,14 +31,25 @@ export default function AddressesPage() {
   const [deleteAddress] = useDeleteAddressMutation();
 
   const [showForm, setShowForm]   = useState(false);
-  const [editing, setEditing]     = useState<Address | null>(null);
-  const [form, setForm]           = useState<Omit<Address, 'id'>>(EMPTY);
+  const [editing, setEditing]     = useState<SavedAddress | null>(null);
+  const [form, setForm]           = useState<CreateAddressPayload>(EMPTY);
   const [saving, setSaving]       = useState(false);
 
   function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true); }
-  function openEdit(a: Address) {
+  function openEdit(a: SavedAddress) {
     setEditing(a);
-    setForm({ label: a.label ?? '', recipientName: a.recipientName, phone: a.phone ?? '', addressLine1: a.addressLine1, addressLine2: a.addressLine2 ?? '', city: a.city, county: a.county ?? '', postalCode: a.postalCode ?? '', countryCode: a.countryCode, isDefault: a.isDefault });
+    setForm({
+      label:         a.label ?? '',
+      recipientName: a.recipient_name,
+      phone:         a.phone ?? '',
+      addressLine1:  a.address_line1,
+      addressLine2:  a.address_line2 ?? '',
+      city:          a.city,
+      county:        a.county ?? '',
+      postalCode:    a.postal_code ?? '',
+      countryCode:   a.country_code,
+      isDefault:     a.is_default,
+    });
     setShowForm(true);
   }
   function close() { setShowForm(false); setEditing(null); setForm(EMPTY); }
@@ -158,16 +170,16 @@ export default function AddressesPage() {
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       {address.label && <p className="font-semibold text-gray-900 text-sm">{address.label}</p>}
-                      {address.isDefault && (
+                      {address.is_default && (
                         <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
                           <Star className="h-2.5 w-2.5" /> Default
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-700">{address.recipientName}</p>
+                    <p className="text-sm text-gray-700">{address.recipient_name}</p>
                     {address.phone && <p className="text-sm text-gray-500">{address.phone}</p>}
-                    <p className="text-sm text-gray-600">{address.addressLine1}</p>
-                    {address.addressLine2 && <p className="text-sm text-gray-600">{address.addressLine2}</p>}
+                    <p className="text-sm text-gray-600">{address.address_line1}</p>
+                    {address.address_line2 && <p className="text-sm text-gray-600">{address.address_line2}</p>}
                     <p className="text-sm text-gray-600">{address.city}{address.county ? `, ${address.county}` : ''}</p>
                   </div>
                 </div>
