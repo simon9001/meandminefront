@@ -63,7 +63,7 @@ function ResetForm() {
           <button
             type="button"
             onClick={() => router.push('/auth/login')}
-            className="px-8 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors"
+            className="px-8 py-3 rounded-xl bg-[#ff7c2a] text-white font-bold hover:bg-[#e06920] transition-colors"
           >
             Sign In
           </button>
@@ -143,7 +143,7 @@ function ResetForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-[#ff7c2a] text-white font-bold hover:bg-[#e06920] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <><Loader2 className="h-5 w-5 animate-spin" /> Updating…</>

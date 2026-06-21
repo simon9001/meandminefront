@@ -4,7 +4,7 @@ import { Loader2, Save, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from '@/lib/redux/hooks';
 import { selectCurrentUser, setCredentials } from '@/lib/redux/slices/authSlice';
-import { useGetProfileQuery, useUpdateProfileMutation } from '@/lib/redux/api/adminApi';
+import { useGetProfileQuery, useUpdateProfileMutation } from '@/lib/redux/api/usersApi';
 import { toast } from 'sonner';
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, '');

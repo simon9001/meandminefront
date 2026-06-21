@@ -187,10 +187,10 @@ export function ProductCard({ product, className }: Props) {
           style={{
             background: outOfStock
               ? 'linear-gradient(180deg, #b89f8a, #9c8068)'
-              : 'linear-gradient(180deg, #3a9166 0%, #2d7350 45%, #255c3d 100%)',
+              : 'linear-gradient(180deg, #ff8c3a 0%, #ff7c2a 45%, #e06920 100%)',
             boxShadow: outOfStock
               ? '0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)'
-              : '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(37,92,61,0.38)',
+              : '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(224,105,32,0.38)',
             border: '1px solid rgba(0,0,0,0.2)',
             textShadow: '0 1px 2px rgba(0,0,0,0.3)',
           }}
@@ -202,7 +202,7 @@ export function ProductCard({ product, className }: Props) {
           }}
           onMouseUp={(e) => {
             (e.currentTarget as HTMLElement).style.transform = '';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(37,92,61,0.38)';
+            (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(224,105,32,0.38)';
           }}
         >
           {isLoading

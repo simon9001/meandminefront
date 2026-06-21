@@ -241,7 +241,7 @@ function OrdersList() {
         </div>
         <Link
           href="/products"
-          className="px-6 py-3 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 transition-colors"
+          className="px-6 py-3 rounded-xl bg-[#ff7c2a] text-white font-bold text-sm hover:bg-[#e06920] transition-colors"
         >
           Shop Now
         </Link>
@@ -335,7 +335,7 @@ function TrackByNumber({ orderNumber }: { orderNumber: string }) {
           <Link href="/track" className="px-6 py-3 rounded-xl border border-bark-200 text-forest-900 font-bold text-sm hover:bg-gray-50 transition-colors">
             My orders
           </Link>
-          <Link href="/products" className="px-6 py-3 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 transition-colors">
+          <Link href="/products" className="px-6 py-3 rounded-xl bg-[#ff7c2a] text-white font-bold text-sm hover:bg-[#e06920] transition-colors">
             Back to shopping
           </Link>
         </div>

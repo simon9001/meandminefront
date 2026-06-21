@@ -197,6 +197,7 @@ export interface Order {
   currency: string;
   placedAt: string;
   deliveredAt?: string;
+  customerName?: string;
   deliveryInfo?: DeliveryInfo;
   dispatchInfo?: DispatchInfo;
   shippingAddress?: Record<string, string>;

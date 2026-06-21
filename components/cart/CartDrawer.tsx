@@ -90,7 +90,7 @@ export function CartDrawer() {
               <p className="font-semibold text-forest-900">Your cart is empty</p>
               <p className="text-sm text-bark-500 mt-1">Add some products to get started</p>
             </div>
-            <button type="button" onClick={closeCart} className="mt-2 px-6 py-2.5 rounded-xl bg-forest-900 text-white text-sm font-bold hover:bg-forest-700 transition-colors">
+            <button type="button" onClick={closeCart} className="mt-2 px-6 py-2.5 rounded-xl bg-[#ff7c2a] text-white text-sm font-bold hover:bg-[#e06920] transition-colors">
               Continue shopping
             </button>
           </div>
@@ -168,7 +168,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={closeCart}
-                className="block w-full text-center py-3.5 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 transition-colors"
+                className="block w-full text-center py-3.5 rounded-xl bg-[#ff7c2a] text-white font-bold text-sm hover:bg-[#e06920] transition-colors"
               >
                 Proceed to Checkout
               </Link>

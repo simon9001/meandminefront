@@ -65,7 +65,7 @@ export default function WishlistPage() {
                   <p className="text-sm font-semibold text-gray-900 line-clamp-2 hover:text-emerald-600 transition-colors">{p.name}</p>
                 </Link>
                 <p className="font-bold text-gray-900">{formatPrice(price)}</p>
-                <button onClick={() => handleAddToCart(p.id)} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors">
+                <button onClick={() => handleAddToCart(p.id)} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-[#ff7c2a] text-white text-xs font-bold hover:bg-[#e06920] transition-colors">
                   <ShoppingCart className="h-3.5 w-3.5" /> Add to Cart
                 </button>
               </div>

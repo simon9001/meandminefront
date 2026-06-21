@@ -103,7 +103,7 @@ export function ReviewSection({ productId, averageRating, reviewCount }: Props) 
             className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
           />
           <div className="flex gap-3">
-            <button onClick={() => submitMutation.mutate()} disabled={!form.body || submitMutation.isPending} className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            <button onClick={() => submitMutation.mutate()} disabled={!form.body || submitMutation.isPending} className="px-5 py-2 rounded-xl bg-[#ff7c2a] text-white text-sm font-medium hover:bg-[#e06920] transition-colors disabled:opacity-50 flex items-center gap-2">
               {submitMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               Submit Review
             </button>

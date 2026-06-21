@@ -3,6 +3,7 @@ import { useState, Fragment } from 'react';
 import { Search, ChevronDown, ChevronRight, Loader2, Send, X } from 'lucide-react';
 import {
   useAdminListOrdersQuery,
+  useAdminGetOrderQuery,
   useUpdateOrderStatusMutation,
   useDispatchOrderMutation,
 } from '@/lib/redux/api/adminApi';
@@ -10,7 +11,90 @@ import { formatPrice, formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Order } from '@/lib/types';
 
+// ─── Order detail panel (fetches full order on expand) ────────────────────────
+
+function OrderDetail({ orderId, summary }: { orderId: string; summary: Order }) {
+  const { data: detail, isLoading } = useAdminGetOrderQuery(orderId);
+  const order = detail ?? summary;
+
+  return (
+    <div className="space-y-3 max-w-2xl">
+      {isLoading && <p className="text-xs text-gray-400 flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Loading details…</p>}
+
+      {order.orderItems && order.orderItems.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Items</p>
+          <div className="space-y-1">
+            {order.orderItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between text-sm">
+                <span className="text-gray-700">{item.productName} <span className="text-gray-400">× {item.quantity}</span></span>
+                <span className="font-semibold text-gray-900">{formatPrice(item.totalPrice)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {order.deliveryInfo && (
+        <div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Delivery Details</p>
+          <p className="text-sm text-gray-700">
+            {[order.deliveryInfo.recipientName, order.deliveryInfo.stage, order.deliveryInfo.town, order.deliveryInfo.county].filter(Boolean).join(', ')}
+          </p>
+          {order.deliveryInfo.phone && <p className="text-xs text-gray-500 mt-0.5">{order.deliveryInfo.phone}</p>}
+          {order.deliveryInfo.deliveryMethod && (
+            <p className="text-xs text-gray-500 capitalize mt-0.5">
+              {order.deliveryInfo.deliveryMethod.replace('_', ' ')}
+              {order.deliveryInfo.preferredProvider && ` — preferred: ${order.deliveryInfo.preferredProvider}`}
+            </p>
+          )}
+          {order.deliveryInfo.instructions && <p className="text-xs text-gray-500 italic mt-0.5">&ldquo;{order.deliveryInfo.instructions}&rdquo;</p>}
+        </div>
+      )}
+
+      {order.dispatchInfo && (
+        <div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Dispatch Info</p>
+          <div className="text-xs text-gray-600 space-y-0.5">
+            {order.dispatchInfo.parcelRef    && <p>Parcel Ref: <span className="font-mono font-semibold">{order.dispatchInfo.parcelRef}</span></p>}
+            {order.dispatchInfo.trackingNo   && <p>Tracking: <span className="font-mono font-semibold">{order.dispatchInfo.trackingNo}</span></p>}
+            {order.dispatchInfo.collectionPoint && <p>Collection: {order.dispatchInfo.collectionPoint}</p>}
+            {order.dispatchInfo.dispatchNotes   && <p className="italic">{order.dispatchInfo.dispatchNotes}</p>}
+          </div>
+        </div>
+      )}
+
+      {order.customerNote && (
+        <div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Customer Note</p>
+          <p className="text-sm text-gray-700 italic">&ldquo;{order.customerNote}&rdquo;</p>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 border-t border-gray-100 pt-2">
+        <span>Subtotal: <strong className="text-gray-700">{formatPrice(order.subtotal)}</strong></span>
+        {order.discountAmount > 0 && <span>Discount: <strong className="text-red-600">-{formatPrice(order.discountAmount)}</strong></span>}
+        <span>Total: <strong className="text-gray-900 text-sm">{formatPrice(order.totalAmount)}</strong></span>
+        <span className={`ml-auto px-2.5 py-0.5 rounded-full font-semibold ${order.paymentStatus === 'paid' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
+          {order.paymentStatus}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 const STATUSES = ['all', 'pending_payment', 'awaiting_dispatch', 'dispatched', 'delivered', 'cancelled'];
+
+const VALID_NEXT_STATUSES: Record<string, string[]> = {
+  pending_payment:   ['paid', 'cancelled'],
+  paid:              ['awaiting_dispatch', 'cancelled'],
+  awaiting_dispatch: ['dispatched', 'cancelled'],
+  dispatched:        ['delivered', 'cancelled'],
+  delivered:         [],
+  cancelled:         [],
+};
 
 const STATUS_LABELS: Record<string, string> = {
   all:               'All',
@@ -51,7 +135,7 @@ export default function AdminOrdersPage() {
     parcelRef: '', trackingNo: '', collectionPoint: '', dispatchNotes: '',
   });
 
-  const { data, isLoading } = useAdminListOrdersQuery({
+  const { data, isLoading, error } = useAdminListOrdersQuery({
     status: status === 'all' ? undefined : status,
     page,
     limit: 20,
@@ -146,6 +230,15 @@ export default function AdminOrdersPage() {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center"><Loader2 className="h-6 w-6 animate-spin text-forest-600 mx-auto" /></div>
+        ) : error ? (
+          <div className="p-12 text-center space-y-2">
+            <p className="text-red-600 font-semibold text-sm">Failed to load orders</p>
+            <p className="text-gray-400 text-xs font-mono">
+              {('data' in error && (error.data as { error?: string; message?: string })?.error)
+                || ('data' in error && (error.data as { error?: string; message?: string })?.message)
+                || ('status' in error ? `HTTP ${error.status}` : 'Unknown error')}
+            </p>
+          </div>
         ) : !filtered.length ? (
           <div className="p-12 text-center text-gray-400 text-sm">No orders found</div>
         ) : (
@@ -155,8 +248,9 @@ export default function AdminOrdersPage() {
                 <tr>
                   <th className="px-4 py-3 w-8" />
                   <th className="px-4 py-3 text-left">Order</th>
-                  <th className="px-4 py-3 text-left hidden sm:table-cell">Date</th>
-                  <th className="px-4 py-3 text-left hidden md:table-cell">Items</th>
+                  <th className="px-4 py-3 text-left hidden sm:table-cell">Customer</th>
+                  <th className="px-4 py-3 text-left hidden md:table-cell">Date</th>
+                  <th className="px-4 py-3 text-left hidden lg:table-cell">Items</th>
                   <th className="px-4 py-3 text-left">Total</th>
                   <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-left">Actions</th>
@@ -177,10 +271,13 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3 font-mono text-sm font-semibold text-gray-900">
                         #{order.orderNumber}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500 hidden sm:table-cell">
+                      <td className="px-4 py-3 text-sm text-gray-700 hidden sm:table-cell max-w-[160px] truncate">
+                        {order.customerName ?? <span className="text-gray-400 italic">Guest</span>}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500 hidden md:table-cell">
                         {formatDate(order.placedAt)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">
+                      <td className="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">
                         {order.orderItems?.length ?? 0}
                       </td>
                       <td className="px-4 py-3 font-bold text-gray-900 text-sm">
@@ -196,7 +293,7 @@ export default function AdminOrdersPage() {
                           {updating === order.id && (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400 flex-shrink-0" />
                           )}
-                          {order.status === 'awaiting_dispatch' && (
+                          {['awaiting_dispatch', 'paid'].includes(order.status) && (
                             <button
                               onClick={() => openDispatchModal(order)}
                               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap"
@@ -204,99 +301,28 @@ export default function AdminOrdersPage() {
                               <Send className="h-3 w-3" /> Dispatch
                             </button>
                           )}
-                          <select
-                            value={order.status}
-                            onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                            disabled={updating === order.id}
-                            className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-forest-500 bg-white disabled:opacity-50"
-                          >
-                            {STATUSES.filter((s) => s !== 'all').map((s) => (
-                              <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
-                            ))}
-                          </select>
+                          {(VALID_NEXT_STATUSES[order.status] ?? []).length > 0 && (
+                            <select
+                              value={order.status}
+                              onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                              disabled={updating === order.id}
+                              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-forest-500 bg-white disabled:opacity-50"
+                            >
+                              <option value={order.status}>{STATUS_LABELS[order.status] ?? order.status}</option>
+                              {(VALID_NEXT_STATUSES[order.status] ?? []).map((s) => (
+                                <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
+                              ))}
+                            </select>
+                          )}
                         </div>
                       </td>
                     </tr>
 
-                    {/* Expanded detail row */}
+                    {/* Expanded detail row — loads full order on demand */}
                     {expanded === order.id && (
                       <tr key={`${order.id}-detail`}>
-                        <td colSpan={7} className="bg-gray-50/70 px-6 py-4 border-b border-gray-100">
-                          <div className="space-y-3 max-w-2xl">
-                            {order.orderItems && order.orderItems.length > 0 && (
-                              <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Items</p>
-                                <div className="space-y-1">
-                                  {order.orderItems.map((item) => (
-                                    <div key={item.id} className="flex items-center justify-between text-sm">
-                                      <span className="text-gray-700">{item.productName} <span className="text-gray-400">× {item.quantity}</span></span>
-                                      <span className="font-semibold text-gray-900">{formatPrice(item.totalPrice)}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Delivery info */}
-                            {order.deliveryInfo && (
-                              <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Delivery Details</p>
-                                <p className="text-sm text-gray-700">
-                                  {[
-                                    order.deliveryInfo.recipientName,
-                                    order.deliveryInfo.stage,
-                                    order.deliveryInfo.town,
-                                    order.deliveryInfo.county,
-                                  ].filter(Boolean).join(', ')}
-                                </p>
-                                {order.deliveryInfo.phone && (
-                                  <p className="text-xs text-gray-500 mt-0.5">{order.deliveryInfo.phone}</p>
-                                )}
-                                {order.deliveryInfo.deliveryMethod && (
-                                  <p className="text-xs text-gray-500 capitalize mt-0.5">
-                                    {order.deliveryInfo.deliveryMethod.replace('_', ' ')}
-                                    {order.deliveryInfo.preferredProvider && ` — preferred: ${order.deliveryInfo.preferredProvider}`}
-                                  </p>
-                                )}
-                                {order.deliveryInfo.instructions && (
-                                  <p className="text-xs text-gray-500 italic mt-0.5">&ldquo;{order.deliveryInfo.instructions}&rdquo;</p>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Dispatch info */}
-                            {order.dispatchInfo && (
-                              <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Dispatch Info</p>
-                                <div className="text-xs text-gray-600 space-y-0.5">
-                                  {order.dispatchInfo.parcelRef    && <p>Parcel Ref: <span className="font-mono font-semibold">{order.dispatchInfo.parcelRef}</span></p>}
-                                  {order.dispatchInfo.trackingNo   && <p>Tracking: <span className="font-mono font-semibold">{order.dispatchInfo.trackingNo}</span></p>}
-                                  {order.dispatchInfo.collectionPoint && <p>Collection: {order.dispatchInfo.collectionPoint}</p>}
-                                  {order.dispatchInfo.dispatchNotes   && <p className="italic">{order.dispatchInfo.dispatchNotes}</p>}
-                                </div>
-                              </div>
-                            )}
-
-                            {order.customerNote && (
-                              <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Customer Note</p>
-                                <p className="text-sm text-gray-700 italic">&ldquo;{order.customerNote}&rdquo;</p>
-                              </div>
-                            )}
-
-                            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 border-t border-gray-100 pt-2">
-                              <span>Subtotal: <strong className="text-gray-700">{formatPrice(order.subtotal)}</strong></span>
-                              {order.discountAmount > 0 && (
-                                <span>Discount: <strong className="text-red-600">-{formatPrice(order.discountAmount)}</strong></span>
-                              )}
-                              <span>Total: <strong className="text-gray-900 text-sm">{formatPrice(order.totalAmount)}</strong></span>
-                              <span className={`ml-auto px-2.5 py-0.5 rounded-full font-semibold ${
-                                order.paymentStatus === 'paid' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
-                              }`}>
-                                {order.paymentStatus}
-                              </span>
-                            </div>
-                          </div>
+                        <td colSpan={8} className="bg-gray-50/70 px-6 py-4 border-b border-gray-100">
+                          <OrderDetail orderId={order.id} summary={order} />
                         </td>
                       </tr>
                     )}

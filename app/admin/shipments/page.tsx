@@ -55,7 +55,7 @@ function ShipmentDetail({ orderId }: { orderId: string }) {
           <input value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="Carrier (e.g. Fargo)" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           <input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="Tracking number" className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
         </div>
-        <button onClick={handleCreate} disabled={saving} className="px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-medium hover:bg-forest-700 disabled:opacity-50 flex items-center gap-2">
+        <button onClick={handleCreate} disabled={saving} className="px-4 py-2 rounded-xl bg-[#ff7c2a] text-white text-sm font-medium hover:bg-[#e06920] disabled:opacity-50 flex items-center gap-2">
           {saving && <Loader2 className="h-4 w-4 animate-spin" />} Create Shipment
         </button>
       </div>
@@ -104,7 +104,7 @@ function ShipmentDetail({ orderId }: { orderId: string }) {
           </select>
           <input value={eventDesc} onChange={(e) => setEvDesc(e.target.value)} placeholder="Event description *" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           <input value={evLocation} onChange={(e) => setEvLoc(e.target.value)} placeholder="Location (optional)" className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
-          <button onClick={() => handleAddEvent(shipment)} disabled={saving} className="px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-medium hover:bg-forest-700 disabled:opacity-50 flex items-center gap-2">
+          <button onClick={() => handleAddEvent(shipment)} disabled={saving} className="px-4 py-2 rounded-xl bg-[#ff7c2a] text-white text-sm font-medium hover:bg-[#e06920] disabled:opacity-50 flex items-center gap-2">
             {saving && <Loader2 className="h-4 w-4 animate-spin" />} <Plus className="h-4 w-4" /> Add Event
           </button>
         </div>

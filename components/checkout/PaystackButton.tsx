@@ -73,7 +73,7 @@ export function PaystackButton({ email, amountKobo, reference, onSuccess, onCanc
     <button
       onClick={handlePay}
       disabled={disabled || !loaded || verifying}
-      className="w-full py-4 rounded-xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 shadow-lg shadow-emerald-200"
+      className="w-full py-4 rounded-xl bg-[#ff7c2a] text-white font-bold text-lg hover:bg-[#e06920] disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 shadow-lg shadow-orange-200"
     >
       {verifying ? (
         <><Loader2 className="h-5 w-5 animate-spin" /> Verifying Payment…</>

@@ -22,12 +22,12 @@ export function Footer() {
                   <Mail className="h-4 w-4 text-earth-500 flex-shrink-0" />
                   support@maschon.co.ke
                 </a>
-                <a href="tel:+254700000000" className="flex items-center gap-2 text-sm text-forest-400 hover:text-white transition-colors">
+                <a href="tel:+254757568845" className="flex items-center gap-2 text-sm text-forest-400 hover:text-white transition-colors">
                   <Phone className="h-4 w-4 text-earth-500 flex-shrink-0" />
-                  +254 700 000 000
+                  0757 568 845
                 </a>
                 <a
-                  href="https://wa.me/254700000000"
+                  href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-forest-400 hover:text-white transition-colors"
@@ -82,7 +82,7 @@ export function Footer() {
                 <h3 className="text-white text-xs font-bold uppercase tracking-widest mb-3">Delivery Partners</h3>
                 <div className="flex flex-wrap gap-2">
                   {['DHL', 'Aramex', 'Fargo', 'EasyCoach', 'Little'].map((c) => (
-                    <span key={c} className="px-2.5 py-1 rounded-lg bg-forest-900 border border-forest-700 text-xs text-forest-400">
+                    <span key={c} className="px-2.5 py-1 rounded-lg text-xs font-semibold text-white" style={{ backgroundColor: '#ff7c2a' }}>
                       {c}
                     </span>
                   ))}

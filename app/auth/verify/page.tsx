@@ -81,7 +81,7 @@ function VerifyForm() {
             ))}
           </div>
 
-          <button onClick={() => handleVerify()} disabled={isLoading || otp.some((d) => !d)} className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+          <button onClick={() => handleVerify()} disabled={isLoading || otp.some((d) => !d)} className="w-full py-3.5 rounded-xl bg-[#ff7c2a] text-white font-bold hover:bg-[#e06920] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             {isLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Verifying…</> : 'Verify Email'}
           </button>
 

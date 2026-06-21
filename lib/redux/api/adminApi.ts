@@ -195,6 +195,10 @@ export const adminApi = baseApi.injectEndpoints({
         const orders: Order[] = raw.data.map((o) => {
           const rawAddr = (o.shipping_address ?? o.shippingAddress) as Record<string, unknown> | undefined;
           const rawMeta = (o.metadata ?? {}) as Record<string, unknown>;
+          const profile = (o.user_profiles ?? o.userProfiles) as { first_name: string; last_name: string } | null | undefined;
+          const customerName = profile
+            ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() || undefined
+            : (rawAddr?.recipientName as string | undefined);
           return {
             id:             o.id as string,
             orderNumber:    (o.order_number ?? o.orderNumber) as string,
@@ -206,6 +210,7 @@ export const adminApi = baseApi.injectEndpoints({
             totalAmount:    Number(o.total_amount ?? o.totalAmount ?? 0),
             currency:       (o.currency as string) ?? 'KES',
             placedAt:       (o.placed_at ?? o.placedAt) as string,
+            customerName,
             customerNote:   (o.customer_note ?? o.customerNote) as string | undefined,
             shippingAddress: rawAddr as Order['shippingAddress'],
             deliveryInfo:   rawAddr as Order['deliveryInfo'],
@@ -229,6 +234,42 @@ export const adminApi = baseApi.injectEndpoints({
         };
       },
       providesTags: ['Order'],
+    }),
+
+    adminGetOrder: builder.query<Order, string>({
+      query: (orderId) => `/orders/${orderId}`,
+      transformResponse: (res: unknown) => {
+        const raw = res as { success: boolean; data: Record<string, unknown> };
+        const o = raw.data;
+        const rawAddr = (o.shipping_address ?? o.shippingAddress) as Record<string, unknown> | undefined;
+        const rawMeta = (o.metadata ?? {}) as Record<string, unknown>;
+        return {
+          id:             o.id as string,
+          orderNumber:    (o.order_number ?? o.orderNumber) as string,
+          status:         o.status as Order['status'],
+          paymentStatus:  (o.payment_status ?? o.paymentStatus) as Order['paymentStatus'],
+          subtotal:       Number(o.subtotal ?? 0),
+          shippingFee:    Number(o.shipping_fee ?? o.shippingFee ?? 0),
+          discountAmount: Number(o.discount_amount ?? o.discountAmount ?? 0),
+          totalAmount:    Number(o.total_amount ?? o.totalAmount ?? 0),
+          currency:       (o.currency as string) ?? 'KES',
+          placedAt:       (o.placed_at ?? o.placedAt) as string,
+          customerNote:   (o.customer_note ?? o.customerNote) as string | undefined,
+          shippingAddress: rawAddr as Order['shippingAddress'],
+          deliveryInfo:   rawAddr as Order['deliveryInfo'],
+          dispatchInfo:   rawMeta.dispatchInfo as Order['dispatchInfo'],
+          orderItems: ((o.order_items ?? o.orderItems) as Record<string, unknown>[] | undefined)?.map((i) => ({
+            id:                i.id as string,
+            productId:         (i.product_id ?? i.productId ?? '') as string,
+            productName:       (i.product_name ?? i.productName) as string,
+            quantity:          Number(i.quantity),
+            unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
+            totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
+            fulfillmentStatus: (i.fulfillment_status ?? i.fulfillmentStatus ?? 'pending') as string,
+          })),
+        };
+      },
+      providesTags: (_r, _e, id) => [{ type: 'Order', id }],
     }),
 
     updateOrderStatus: builder.mutation<Order, { orderId: string; status: string; adminNote?: string }>({
@@ -320,43 +361,6 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: ['Order'],
     }),
 
-    // ── Address (customer) ──
-    listAddresses: builder.query<Address[], void>({
-      query: () => '/users/addresses',
-      transformResponse: (res: ApiWrap<Address[]>) => res.data,
-      providesTags: ['User'],
-    }),
-
-    createAddress: builder.mutation<Address, Omit<Address, 'id'>>({
-      query: (body) => ({ url: '/users/addresses', method: 'POST', body }),
-      transformResponse: (res: ApiWrap<Address>) => res.data,
-      invalidatesTags: ['User'],
-    }),
-
-    updateAddress: builder.mutation<Address, { addressId: string } & Partial<Omit<Address, 'id'>>>({
-      query: ({ addressId, ...body }) => ({ url: `/users/addresses/${addressId}`, method: 'PATCH', body }),
-      transformResponse: (res: ApiWrap<Address>) => res.data,
-      invalidatesTags: ['User'],
-    }),
-
-    deleteAddress: builder.mutation<void, string>({
-      query: (addressId) => ({ url: `/users/addresses/${addressId}`, method: 'DELETE' }),
-      invalidatesTags: ['User'],
-    }),
-
-    // ── Profile (customer) ──
-    getProfile: builder.query<AuthUser, void>({
-      query: () => '/users/profile',
-      transformResponse: (res: ApiWrap<AuthUser>) => res.data,
-      providesTags: ['User'],
-    }),
-
-    updateProfile: builder.mutation<AuthUser, Partial<Pick<AuthUser, 'firstName' | 'lastName'>>>({
-      query: (body) => ({ url: '/users/profile', method: 'PATCH', body }),
-      transformResponse: (res: ApiWrap<AuthUser>) => res.data,
-      invalidatesTags: ['User'],
-    }),
-
     refreshMaterializedViews: builder.mutation<void, void>({
       query: () => ({ url: '/admin/refresh-views', method: 'POST' }),
       invalidatesTags: ['Admin'],
@@ -381,6 +385,7 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useAdminListOrdersQuery,
+  useAdminGetOrderQuery,
   useUpdateOrderStatusMutation,
   useDispatchOrderMutation,
   useListInventoryQuery,
@@ -396,11 +401,5 @@ export const {
   useGetShipmentForOrderQuery,
   useCreateShipmentMutation,
   useAddShipmentEventMutation,
-  useListAddressesQuery,
-  useCreateAddressMutation,
-  useUpdateAddressMutation,
-  useDeleteAddressMutation,
-  useGetProfileQuery,
-  useUpdateProfileMutation,
   useRefreshMaterializedViewsMutation,
 } = adminApi;

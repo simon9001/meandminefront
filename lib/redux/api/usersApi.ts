@@ -1,4 +1,5 @@
 import { baseApi } from './baseApi';
+import type { AuthUser } from '@/lib/types';
 
 export interface SavedAddress {
   id: string;
@@ -59,8 +60,20 @@ export const usersApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, id) => [{ type: 'Address', id }, 'Address'],
     }),
 
+    getProfile: builder.query<AuthUser, void>({
+      query: () => '/users/profile',
+      transformResponse: (res: ApiWrap<AuthUser>) => res.data,
+      providesTags: ['User'],
+    }),
+
+    updateProfile: builder.mutation<AuthUser, Partial<Pick<AuthUser, 'firstName' | 'lastName'>>>({
+      query: (body) => ({ url: '/users/profile', method: 'PATCH', body }),
+      transformResponse: (res: ApiWrap<AuthUser>) => res.data,
+      invalidatesTags: ['User'],
+    }),
+
   }),
-  overrideExisting: false,
+  overrideExisting: true,
 });
 
 export const {
@@ -68,4 +81,6 @@ export const {
   useCreateAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
 } = usersApi;

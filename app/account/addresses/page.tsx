@@ -6,7 +6,7 @@ import {
   useCreateAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
-} from '@/lib/redux/api/adminApi';
+} from '@/lib/redux/api/usersApi';
 import type { Address } from '@/lib/types';
 import { toast } from 'sonner';
 
@@ -78,7 +78,7 @@ export default function AddressesPage() {
         <h2 className="text-lg font-bold text-gray-900">Delivery Addresses</h2>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff7c2a] text-white text-sm font-semibold hover:bg-[#e06920] transition-colors"
         >
           <Plus className="h-4 w-4" /> Add Address
         </button>
@@ -132,7 +132,7 @@ export default function AddressesPage() {
 
             <div className="flex gap-3 pt-2">
               <button onClick={close} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2">
+              <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-[#ff7c2a] text-white text-sm font-semibold hover:bg-[#e06920] disabled:opacity-50 flex items-center justify-center gap-2">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                 {saving ? 'Saving…' : 'Save'}
               </button>

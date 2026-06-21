@@ -95,7 +95,7 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900">Categories</h1>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-forest-600 text-white text-sm font-semibold hover:bg-forest-700 transition-colors">
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#ff7c2a] text-white text-sm font-semibold hover:bg-[#e06920] transition-colors">
           <Plus className="h-4 w-4" /> Add Category
         </button>
       </div>
@@ -199,7 +199,7 @@ export default function CategoriesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-xl bg-forest-900 text-white text-sm font-semibold hover:bg-forest-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-[#ff7c2a] text-white text-sm font-semibold hover:bg-[#e06920] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                 {saving ? 'Saving…' : 'Save'}

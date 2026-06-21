@@ -49,7 +49,7 @@ export default function HomePage() {
                 Shop Now <ArrowRight className="h-5 w-5" />
               </Link>
               <a
-                href="https://wa.me/254700000000?text=Hi%20Maschon%2C%20I%27d%20like%20to%20order"
+                href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative z-10 inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-[#25D366] text-white font-bold hover:bg-[#20b358] transition-colors shadow-lg shadow-green-900/30"
@@ -70,7 +70,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Trust strip ── */}
-      <div className="bg-earth-600 text-white">
+      <div className="text-white" style={{ backgroundColor: '#ff7c2a' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-wrap justify-center md:justify-between items-center gap-4 text-sm font-medium">
             <span className="flex items-center gap-2"><Truck className="h-4 w-4" /> Same-day dispatch — Nairobi orders before 12 PM</span>
@@ -109,7 +109,7 @@ export default function HomePage() {
               <p className="text-bark-600 text-sm mt-2">Chat directly, confirm your order, ask about bulk pricing or availability.</p>
             </div>
             <a
-              href="https://wa.me/254700000000?text=Hi%20Maschon%2C%20I%27d%20like%20to%20order"
+              href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] text-white font-bold text-sm hover:bg-[#20b358] transition-colors shadow-md shadow-green-900/20"

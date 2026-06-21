@@ -48,7 +48,7 @@ export function AddToCartSection({ product }: Props) {
   const waText = encodeURIComponent(
     `Hi Maschon, I'd like to order: ${product.name} (KES ${displayPrice.toLocaleString()}). Please confirm availability.`
   );
-  const waUrl = `https://wa.me/254700000000?text=${waText}`;
+  const waUrl = `https://wa.me/254757568845?text=${waText}`;
 
   const isOutOfStock = product.status === 'out_of_stock';
 
@@ -109,7 +109,7 @@ export function AddToCartSection({ product }: Props) {
           type="button"
           onClick={handleAddToCart}
           disabled={isLoading || isOutOfStock}
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-forest-900 text-white font-bold text-sm hover:bg-forest-700 active:scale-[0.98] transition-all disabled:opacity-50"
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#ff7c2a] text-white font-bold text-sm hover:bg-[#e06920] active:scale-[0.98] transition-all disabled:opacity-50"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
           {isLoading ? 'Adding…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
