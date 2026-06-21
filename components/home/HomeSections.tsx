@@ -36,18 +36,6 @@ function CompactSkeleton() {
   );
 }
 
-// ── Static fallbacks for category display ─────────────────────────────────────
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  carpets:      '/images/carpet-abstract-beige.jpeg',
-  bedding:      '/images/canopy-princess-purple.jpeg',
-  kitchenware:  '/images/cooking-pots.jpeg',
-  appliances:   '/images/washing-machine-hisense.jpeg',
-  'home-decor': '/images/cushion-tribal-black-white.jpeg',
-  storage:      '/images/wardrobe-fabric-maroon.jpeg',
-  curtains:     '/images/carpet-geometric-green.jpeg',
-};
-
 const CATEGORY_EMOJIS: Record<string, string> = {
   carpets:      '🪴',
   bedding:      '🛏️',
@@ -84,7 +72,7 @@ export function CategoriesSection() {
               </div>
             ))
           : categories.slice(0, 6).map((cat) => {
-              const img   = cat.imageUrl ?? CATEGORY_IMAGES[cat.slug];
+              const img   = cat.imageUrl ?? null;
               const emoji = CATEGORY_EMOJIS[cat.slug] ?? '🛍️';
               return (
                 <Link
@@ -160,7 +148,7 @@ export function InStockSection() {
                     {item.name}
                   </p>
                   <p className="text-xs font-bold text-forest-700 mt-1">
-                    KES {((item.showSalePrice && item.salePrice) ? item.salePrice : item.basePrice).toLocaleString()}
+                    KES {(item.salePrice && item.salePrice < item.basePrice ? item.salePrice : item.basePrice).toLocaleString()}
                   </p>
                 </div>
               </Link>

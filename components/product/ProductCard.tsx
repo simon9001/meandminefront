@@ -14,7 +14,7 @@ export function ProductCard({ product, className }: Props) {
   const { openCart } = useCart();
   const [addToCart, { isLoading }] = useAddToCartMutation();
 
-  const showSale    = product.showSalePrice && product.salePrice && product.salePrice < product.basePrice;
+  const showSale    = !!(product.salePrice && product.salePrice < product.basePrice);
   const price       = showSale ? product.salePrice! : product.basePrice;
   const hasDiscount = showSale;
   const discount    = showSale ? Math.round((1 - product.salePrice! / product.basePrice) * 100) : 0;

@@ -96,13 +96,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 border: '1px solid rgba(45,115,80,0.4)',
                 color: '#f0e8d8',
               } : {
-                color: 'rgba(210,190,160,0.7)',
+                color: 'rgba(220,200,168,0.92)',
                 border: '1px solid transparent',
               }}
             >
               <Icon
                 className="h-4 w-4 flex-shrink-0"
-                style={{ color: active ? '#7dc4a0' : 'rgba(180,155,120,0.6)' }}
+                style={{ color: active ? '#7dc4a0' : 'rgba(190,165,130,0.88)' }}
               />
               <span className="flex-1">{label}</span>
               {active && (
@@ -166,7 +166,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="flex h-screen" style={{ background: '#e8dcc8' }}>
+    <div className="flex h-screen" style={{ background: '#c8b89a' }}>
       {mounted && user && isAdmin ? (
         <>
           {/* Desktop sidebar */}
@@ -203,7 +203,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Main content area */}
             <main
               className="flex-1 overflow-y-auto p-4 md:p-6"
-              style={{ background: 'linear-gradient(160deg, #ede4d4 0%, #e0d4c0 100%)' }}
+              style={{ background: 'linear-gradient(160deg, #d8ccb4 0%, #cabea4 100%)' }}
             >
               {children}
             </main>

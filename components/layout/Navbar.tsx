@@ -193,7 +193,7 @@ export function Navbar() {
       {/* ── Promo banner + dots — hidden for admin/superadmin; deferred until mounted ── */}
       {(!mounted || !isAdmin) && (
         <>
-          <div className="overflow-hidden max-h-14">
+          <div className={cn('overflow-hidden transition-all duration-300 ease-in-out', scrolled ? 'max-h-0' : 'max-h-14')}>
             <Link
               href={slide.href}
               className={cn(

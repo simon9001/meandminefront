@@ -77,16 +77,16 @@ body {
 
 /* Deeper raised card (for stat cards) */
 .skeu-card-raised {
-  background: linear-gradient(160deg, #ffffff 0%, #f8f2e8 50%, #f0e8d8 100%);
+  background: linear-gradient(160deg, #f5ece0 0%, #ecdecf 50%, #e4d4c0 100%);
   box-shadow:
-    0 2px 0 rgba(255,255,255,1) inset,
-    0 -1px 0 rgba(0,0,0,0.08) inset,
-    1px 0 0 rgba(255,255,255,0.7) inset,
-    -1px 0 0 rgba(255,255,255,0.4) inset,
-    0 6px 20px rgba(90,60,30,0.18),
-    0 2px 6px rgba(90,60,30,0.12);
-  border: 1px solid rgba(140,100,60,0.2);
-  border-top-color: rgba(255,255,255,0.8);
+    0 2px 0 rgba(255,255,255,0.65) inset,
+    0 -1px 0 rgba(0,0,0,0.10) inset,
+    1px 0 0 rgba(255,255,255,0.5) inset,
+    -1px 0 0 rgba(255,255,255,0.25) inset,
+    0 6px 20px rgba(90,60,30,0.22),
+    0 2px 6px rgba(90,60,30,0.14);
+  border: 1px solid rgba(140,100,60,0.24);
+  border-top-color: rgba(255,255,255,0.55);
   border-radius: 14px;
 }
 

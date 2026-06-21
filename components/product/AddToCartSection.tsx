@@ -31,7 +31,7 @@ export function AddToCartSection({ product }: Props) {
   const [qty, setQty] = useState(1);
 
   const base         = product.basePrice ?? product.price ?? 0;
-  const showSale     = product.showSalePrice && product.salePrice && product.salePrice < base;
+  const showSale     = !!(product.salePrice && product.salePrice < base);
   const displayPrice = showSale ? product.salePrice! : base;
   const savings      = showSale ? base - product.salePrice! : 0;
   const discount     = showSale ? Math.round((1 - product.salePrice! / base) * 100) : 0;

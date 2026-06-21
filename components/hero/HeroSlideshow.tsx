@@ -6,54 +6,6 @@ import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useListPromotionsQuery } from '@/lib/redux/api/promotionsApi';
 
-const STATIC_SLIDES = [
-  {
-    image:   '/images/carpet-geometric-green.jpeg',
-    eyebrow: 'New Collection',
-    title:   'Premium Carpets',
-    sub:     'Geometric & abstract styles',
-    offer:   'FROM KES 2,500',
-    offerBg: 'bg-earth-500',
-    href:    '/products?category=carpets',
-  },
-  {
-    image:   '/images/cooking-pots.jpeg',
-    eyebrow: 'Kitchenware Deals',
-    title:   'Cookware Sets',
-    sub:     'Mika · Redberry · Rashnik',
-    offer:   'UP TO 40% OFF',
-    offerBg: 'bg-red-500',
-    href:    '/products?category=kitchenware',
-  },
-  {
-    image:   '/images/canopy-princess-purple.jpeg',
-    eyebrow: 'Bedroom Essentials',
-    title:   'Bed Canopies & Nets',
-    sub:     'Princess · Four-post · Ceiling',
-    offer:   'FROM KES 1,800',
-    offerBg: 'bg-forest-600',
-    href:    '/products?category=bedding',
-  },
-  {
-    image:   '/images/water-dispenser-red.jpeg',
-    eyebrow: 'Appliances Week',
-    title:   'Hot & Cold Dispensers',
-    sub:     'Sonar · Ailyons · Signature',
-    offer:   'UP TO 30% OFF',
-    offerBg: 'bg-red-500',
-    href:    '/products?category=appliances',
-  },
-  {
-    image:   '/images/cushion-tribal-black-white.jpeg',
-    eyebrow: 'Style Your Space',
-    title:   'Home Décor',
-    sub:     'Cushions · Contact paper · More',
-    offer:   'FROM KES 450',
-    offerBg: 'bg-earth-600',
-    href:    '/products?category=home-decor',
-  },
-];
-
 const INTERVAL = 4500;
 const FADE_MS  = 400;
 
@@ -63,17 +15,15 @@ export function HeroSlideshow() {
 
   const { data: apiSlides = [] } = useListPromotionsQuery({ type: 'hero_slide' }, { pollingInterval: 30_000 });
 
-  const slides = apiSlides.length > 0
-    ? apiSlides.map((s) => ({
-        image:   s.imageUrl ?? '',
-        eyebrow: s.eyebrow ?? '',
-        title:   s.title,
-        sub:     s.subtitle ?? '',
-        offer:   s.offerText ?? '',
-        offerBg: s.offerBg ?? 'bg-earth-500',
-        href:    s.ctaUrl,
-      }))
-    : STATIC_SLIDES;
+  const slides = apiSlides.map((s) => ({
+    image:   s.imageUrl ?? '',
+    eyebrow: s.eyebrow ?? '',
+    title:   s.title,
+    sub:     s.subtitle ?? '',
+    offer:   s.offerText ?? '',
+    offerBg: s.offerBg ?? 'bg-earth-500',
+    href:    s.ctaUrl,
+  }));
 
   // If the slide count changed and index is now out of range, reset
   useEffect(() => {
@@ -98,7 +48,16 @@ export function HeroSlideshow() {
     setTimeout(() => { setIndex(i); setVisible(true); }, FADE_MS);
   }
 
-  if (!slides.length) return null;
+  if (!slides.length) {
+    return (
+      <div className="relative h-full min-h-[480px] overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-earth-900 flex flex-col justify-end p-8">
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='20' cy='20' r='1.5'/%3E%3C/g%3E%3C/svg%3E")` }} />
+        <p className="text-earth-300 text-xs font-bold uppercase tracking-widest mb-2">Kenya&apos;s Home Store</p>
+        <h2 className="text-white font-black text-3xl lg:text-4xl leading-tight">Carpets · Canopies<br />Kitchenware & More</h2>
+        <p className="text-white/60 text-sm mt-2">Delivered across Kenya</p>
+      </div>
+    );
+  }
 
   const slide = slides[index];
 
