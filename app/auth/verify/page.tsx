@@ -38,7 +38,14 @@ function VerifyForm() {
     try {
       await verifyOtp({ email, otp: finalCode }).unwrap();
       const sid = typeof window !== 'undefined' ? (localStorage.getItem('session_id') ?? '') : '';
-      if (sid) await mergeCart({ sessionId: sid }).catch(() => {});
+      if (sid) {
+        try {
+          await mergeCart({ sessionId: sid }).unwrap();
+          localStorage.removeItem('session_id');
+        } catch {
+          // non-critical — user can re-add items
+        }
+      }
       await persistor.flush();
       toast.success('Email verified! Welcome aboard.');
       router.push('/');
