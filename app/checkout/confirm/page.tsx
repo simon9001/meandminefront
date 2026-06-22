@@ -98,7 +98,7 @@ function ConfirmContent() {
         </p>
       </div>
       <div className="flex flex-wrap gap-4 justify-center">
-        <Link href="/account/orders" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">
+        <Link href="/account/orders" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#ff7c2a] text-white font-bold hover:bg-[#e06920] transition-colors">
           <Package className="h-5 w-5" /> Track Order
         </Link>
         <Link href="/products" className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-gray-400 transition-colors">
