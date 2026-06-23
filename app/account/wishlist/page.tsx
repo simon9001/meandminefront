@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Heart, Trash2, ShoppingCart } from 'lucide-react';
+import { Heart, Trash2, ShoppingCart, Package } from 'lucide-react';
 import { getWishlist, removeFromWishlist } from '@/lib/api/wishlist';
 import { addToCart } from '@/lib/api/cart';
 import { getCart } from '@/lib/api/cart';
@@ -54,7 +54,7 @@ export default function WishlistPage() {
             <div key={id} className="rounded-2xl border border-gray-100 bg-white overflow-hidden group">
               <div className="relative h-44">
                 <Link href={`/products/${p.slug}`}>
-                  {img ? <Image src={img} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-4xl">🛍️</div>}
+                  {img ? <Image src={img} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 33vw" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center"><Package className="h-10 w-10 text-gray-300" /></div>}
                 </Link>
                 <button onClick={() => removeMut.mutate(id)} disabled={removeMut.isPending} className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-red-500 hover:bg-red-50 shadow-sm transition-colors">
                   <Trash2 className="h-4 w-4" />

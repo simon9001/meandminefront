@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
   ShoppingBag, MapPin, Tag, Loader2, ArrowLeft,
   AlertCircle, BookmarkCheck, Plus, Truck, Store, CheckCircle,
-  Smartphone, CreditCard, ChevronLeft, CheckCircle2, Clock, XCircle,
+  Smartphone, CreditCard, ChevronLeft, CheckCircle2, Clock, XCircle, Package,
 } from 'lucide-react';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { selectCurrentUser, selectIsLoggedIn } from '@/lib/redux/slices/authSlice';
@@ -577,7 +577,7 @@ export default function CheckoutPage() {
               <div className="relative h-12 w-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-50">
                 {img
                   ? <Image src={img} alt={getProductName(item)} fill className="object-cover group-hover/item:scale-105 transition-transform duration-200" sizes="48px" />
-                  : <div className="w-full h-full flex items-center justify-center text-gray-300">🛍️</div>
+                  : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-5 w-5" /></div>
                 }
                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-gray-700 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                   {item.quantity}

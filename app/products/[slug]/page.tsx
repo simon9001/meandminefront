@@ -170,7 +170,7 @@ export default async function ProductDetailPage({ params }: Props) {
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl text-bark-200">🛍️</div>
+            <div className="w-full h-full flex items-center justify-center text-bark-200"><Package className="h-16 w-16" /></div>
           )}
           {badge === 'bestseller' && (
             <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-earth-600 text-white text-xs font-bold">Best Seller</span>

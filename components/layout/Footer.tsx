@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MessageCircle, Lock } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -97,7 +97,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
         <p className="text-xs text-forest-600">© {new Date().getFullYear()} MeAndMine.shop. All rights reserved. Nairobi, Kenya.</p>
         <div className="flex items-center gap-3 text-xs text-forest-600">
-          <span className="flex items-center gap-1">🔒 SSL Secured</span>
+          <span className="flex items-center gap-1"><Lock className="h-3 w-3" /> SSL Secured</span>
           <span>·</span>
           <span>Registered in Kenya</span>
           <span>·</span>

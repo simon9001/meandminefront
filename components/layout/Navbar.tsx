@@ -270,7 +270,7 @@ export function Navbar() {
                 priority
               />
               <span className="hidden sm:inline text-xl lg:text-2xl font-black tracking-tighter" style={{ transition: 'color 0.35s ease' }}>
-                <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+                <span style={{ color: '#c47b2a' }}>MeAnd</span>
                 <span style={{ color: '#111111' }}>Mine.shop</span>
               </span>
             </Link>
@@ -297,7 +297,7 @@ export function Navbar() {
                 rel="noopener noreferrer"
                 className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
                 style={{ color: '#333333', border: '1px solid rgba(0,0,0,0.12)' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.color = '#ff7c2a'; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.color = '#c47b2a'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#333333'; }}
               >
                 <WhatsAppIcon className="h-4 w-4" />
@@ -316,7 +316,7 @@ export function Navbar() {
                 onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.93)'; }}
                 onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.transform = ''; }}
               >
-                <ShoppingCart className="h-5 w-5" style={{ color: '#ff7c2a' }} />
+                <ShoppingCart className="h-5 w-5" style={{ color: '#c47b2a' }} />
                 {itemCount > 0 && (
                   <span
                     className="absolute -top-0.5 -right-0.5 flex items-center justify-center h-4 min-w-[1rem] px-1 rounded-full text-white text-[9px] font-black"
@@ -450,8 +450,8 @@ export function Navbar() {
                 aria-label="Toggle menu"
               >
                 {menuOpen
-                  ? <X    className="h-5 w-5" style={{ color: '#ff7c2a' }} />
-                  : <Menu className="h-5 w-5" style={{ color: '#ff7c2a' }} />
+                  ? <X    className="h-5 w-5" style={{ color: '#c47b2a' }} />
+                  : <Menu className="h-5 w-5" style={{ color: '#c47b2a' }} />
                 }
               </button>
             </div>
@@ -474,8 +474,8 @@ export function Navbar() {
               <Link
                 href="/products"
                 className="flex-shrink-0 px-4 py-1 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all"
-                style={{ color: '#ff7c2a' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,124,42,0.12)'; }}
+                style={{ color: '#c47b2a' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,123,42,0.12)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
                 All
@@ -487,7 +487,7 @@ export function Navbar() {
                   href={`/products?category=${cat.slug}`}
                   className="flex-shrink-0 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider rounded-lg whitespace-nowrap"
                   style={{ color: 'rgba(0,0,0,0.6)' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,124,42,0.1)'; (e.currentTarget as HTMLElement).style.color = '#ff7c2a'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,123,42,0.1)'; (e.currentTarget as HTMLElement).style.color = '#c47b2a'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.6)'; }}
                 >
                   {cat.name}
@@ -503,8 +503,9 @@ export function Navbar() {
         <div
           className="md:hidden py-4 px-4 space-y-4"
           style={{
-            background: 'linear-gradient(180deg, #3a2418, #2e1c10)',
-            borderBottom: '2px solid rgba(0,0,0,0.4)',
+            background: 'rgba(255,255,255,0.98)',
+            borderBottom: '1px solid rgba(0,0,0,0.08)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
           }}
         >
           <form onSubmit={handleSearch} className="flex gap-2">
@@ -531,9 +532,9 @@ export function Navbar() {
                 onClick={() => setMenuOpen(false)}
                 className="text-center py-3 px-1 text-[11px] font-semibold rounded-xl transition-all leading-tight"
                 style={{
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.85)',
+                  background: '#f5ece0',
+                  border: '1px solid rgba(196,123,42,0.18)',
+                  color: '#5c4a38',
                 }}
               >
                 {cat.name}
@@ -566,17 +567,17 @@ export function Navbar() {
           </div>
 
           {mounted && user ? (
-            <div className="pt-3 space-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="pt-3 space-y-1" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
               <div className="flex items-center gap-3 px-2 py-2 mb-1">
                 <div
                   className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
-                  style={{ background: 'linear-gradient(145deg, #111111, #333333)', color: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
+                  style={{ background: 'linear-gradient(145deg, #1a3828, #255c3d)', color: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
                 >
                   {user.firstName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? '?'}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: '#ffffff' }}>{user.firstName} {user.lastName}</p>
-                  <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{user.email}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: '#1a3828' }}>{user.firstName} {user.lastName}</p>
+                  <p className="text-xs truncate" style={{ color: '#9c8068' }}>{user.email}</p>
                 </div>
               </div>
               {[
@@ -588,7 +589,9 @@ export function Navbar() {
                   href={href}
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all"
-                  style={{ color: 'rgba(255,255,255,0.85)', border: '1px solid transparent' }}
+                  style={{ color: '#4a3728' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,123,42,0.08)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
                 >
                   <Icon className="h-4 w-4" /> {label}
                 </Link>
@@ -596,7 +599,9 @@ export function Navbar() {
               <button
                 onClick={() => { setMenuOpen(false); handleLogout(); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all"
-                style={{ color: 'rgba(220,120,100,0.9)' }}
+                style={{ color: '#c4351f' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(196,53,31,0.06)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
               >
                 <LogOut className="h-4 w-4" /> Sign Out
               </button>

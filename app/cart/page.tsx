@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, ArrowRight, Loader2, Package } from 'lucide-react';
 import {
   useGetCartQuery,
   useUpdateCartItemMutation,
@@ -70,7 +70,7 @@ export default function CartPage() {
                   <div className="relative h-24 w-24 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50">
                     {img
                       ? <Image src={img} alt={item.products.name} fill className="object-cover" sizes="96px" />
-                      : <div className="w-full h-full flex items-center justify-center text-gray-300 text-3xl">🛍️</div>
+                      : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-8 w-8" /></div>
                     }
                   </div>
                   <div className="flex-1 min-w-0">

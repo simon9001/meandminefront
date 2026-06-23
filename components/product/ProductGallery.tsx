@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useState, useRef } from 'react';
-import { ZoomIn, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ZoomIn, ChevronLeft, ChevronRight, Play, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ProductMedia } from '@/lib/types';
 
@@ -72,7 +72,7 @@ export function ProductGallery({ media, productName }: Props) {
             )}
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300 text-6xl">🛍️</div>
+          <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-16 w-16" /></div>
         )}
 
         {/* Zoom hint */}

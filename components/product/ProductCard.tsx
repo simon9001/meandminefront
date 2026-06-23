@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Loader2, Star } from 'lucide-react';
+import { ShoppingCart, Loader2, Star, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/lib/cart-store';
 import { useAddToCartMutation } from '@/lib/redux/api/cartApi';
@@ -70,7 +70,7 @@ export function ProductCard({ product, className }: Props) {
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl opacity-30">🛍️</div>
+          <div className="w-full h-full flex items-center justify-center text-bark-200"><Package className="h-12 w-12" /></div>
         )}
 
         {/* Out of stock overlay */}
@@ -106,7 +106,7 @@ export function ProductCard({ product, className }: Props) {
           {badge === 'bestseller' && (
             <span
               className="px-2.5 py-0.5 text-[10px] font-black text-white rounded-full"
-              style={{ background: 'linear-gradient(135deg, #d96a2a, #c4551f)', boxShadow: '0 2px 5px rgba(196,85,31,0.4), inset 0 1px 0 rgba(255,255,255,0.2)', textShadow: '0 1px 1px rgba(0,0,0,0.3)' }}
+              style={{ background: 'linear-gradient(135deg, #d49340, #a8641c)', boxShadow: '0 2px 5px rgba(196,123,42,0.4), inset 0 1px 0 rgba(255,255,255,0.2)', textShadow: '0 1px 1px rgba(0,0,0,0.3)' }}
             >
               Best Seller
             </span>
@@ -119,7 +119,7 @@ export function ProductCard({ product, className }: Props) {
         {product.category?.name && (
           <span
             className="text-[9px] font-black uppercase tracking-[0.18em]"
-            style={{ color: '#c4551f' }}
+            style={{ color: '#c47b2a' }}
           >
             {product.category.name}
           </span>
@@ -187,10 +187,10 @@ export function ProductCard({ product, className }: Props) {
           style={{
             background: outOfStock
               ? 'linear-gradient(180deg, #b89f8a, #9c8068)'
-              : 'linear-gradient(180deg, #ff8c3a 0%, #ff7c2a 45%, #e06920 100%)',
+              : 'linear-gradient(180deg, #d49340 0%, #c47b2a 45%, #a8641c 100%)',
             boxShadow: outOfStock
               ? '0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)'
-              : '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(224,105,32,0.38)',
+              : '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(196,123,42,0.38)',
             border: '1px solid rgba(0,0,0,0.2)',
             textShadow: '0 1px 2px rgba(0,0,0,0.3)',
           }}
@@ -202,7 +202,7 @@ export function ProductCard({ product, className }: Props) {
           }}
           onMouseUp={(e) => {
             (e.currentTarget as HTMLElement).style.transform = '';
-            (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(224,105,32,0.38)';
+            (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.22) inset, 0 -2px 0 rgba(0,0,0,0.18) inset, 0 3px 8px rgba(196,123,42,0.38)';
           }}
         >
           {isLoading
