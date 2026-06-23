@@ -8,7 +8,7 @@ import { z } from 'zod';
 import Image from 'next/image';
 import { Loader2, Eye, EyeOff, ArrowLeft, UserCircle2 } from 'lucide-react';
 import { useLoginMutation } from '@/lib/redux/api/authApi';
-import { useMergeCartMutation } from '@/lib/redux/api/cartApi';
+import { useMergeCartMutation, useGetCartQuery } from '@/lib/redux/api/cartApi';
 import { persistor } from '@/lib/redux/store';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ function LoginForm() {
 
   const [loginMutation, { isLoading }] = useLoginMutation();
   const [mergeCart] = useMergeCartMutation();
+  const { refetch: refetchCart } = useGetCartQuery();
 
   const { register, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
@@ -46,11 +47,13 @@ function LoginForm() {
       if (sid) {
         try {
           await mergeCart({ sessionId: sid }).unwrap();
-          localStorage.removeItem('session_id'); // prevent stale session from creating ghost carts
+          localStorage.removeItem('session_id');
         } catch {
           toast.error('Could not restore your cart. Some items may be missing.');
         }
       }
+      // Wait for the merged cart to load before navigating so checkout doesn't see an empty cache
+      try { await refetchCart(); } catch { /* non-critical */ }
       await persistor.flush();
       toast.success('Welcome back!');
       const role = result.user?.role;
@@ -92,15 +95,15 @@ function LoginForm() {
         <Link href="/" className="relative z-10 flex items-center gap-2 w-fit">
           <Image
             src="/images/logoMaschonpo.png"
-            alt="Maschon"
+            alt="MeAndMine.shop"
             width={52}
             height={36}
             className="h-10 w-auto object-contain drop-shadow-md"
             priority
           />
           <span className="text-2xl font-black tracking-tighter" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-            <span style={{ color: '#ff7c2a' }}>Ma</span>
-            <span style={{ color: '#f0e8d8' }}>schon</span>
+            <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+            <span style={{ color: '#f0e8d8' }}>Mine.shop</span>
           </span>
         </Link>
 
@@ -144,7 +147,7 @@ function LoginForm() {
         </div>
 
         <p className="relative z-10 text-xs" style={{ color: 'rgba(240,220,180,0.2)' }}>
-          © {new Date().getFullYear()} Maschon · Nairobi, Kenya
+          © {new Date().getFullYear()} MeAndMine.shop · Nairobi, Kenya
         </p>
       </div>
 
@@ -190,14 +193,14 @@ function LoginForm() {
             <Link href="/" className="lg:hidden flex items-center gap-2 mb-8">
               <Image
                 src="/images/logoMaschonpo.png"
-                alt="Maschon"
+                alt="MeAndMine.shop"
                 width={44}
                 height={30}
                 className="h-9 w-auto object-contain"
               />
               <span className="text-xl font-black tracking-tighter">
-                <span style={{ color: '#ff7c2a' }}>Ma</span>
-                <span style={{ color: '#111111' }}>schon</span>
+                <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+                <span style={{ color: '#111111' }}>Mine.shop</span>
               </span>
             </Link>
 
@@ -228,7 +231,7 @@ function LoginForm() {
               >
                 Welcome back
               </h1>
-              <p className="text-sm" style={{ color: '#9c8068' }}>Sign in to your Maschon account</p>
+              <p className="text-sm" style={{ color: '#9c8068' }}>Sign in to your MeAndMine.shop account</p>
             </div>
 
             {/* Divider under header */}

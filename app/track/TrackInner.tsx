@@ -79,7 +79,7 @@ function estimatedDelivery(zone?: string): string {
 function OrderDetail({ order }: { order: TrackedOrder }) {
   const displayStatus = mapDbStatus(order.status);
   const isCancelled   = displayStatus === 'cancelled';
-  const waText        = encodeURIComponent(`Hi Maschon, I need help with order ${order.order_number}. Please assist.`);
+  const waText        = encodeURIComponent(`Hi MeAndMine.shop, I need help with order ${order.order_number}. Please assist.`);
   const zone          = order.metadata?.zone as string | undefined;
   const paymentMethod = order.metadata?.payment_method as string | undefined;
   const addr          = order.shipping_address;

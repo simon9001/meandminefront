@@ -80,7 +80,8 @@ export default function CheckoutPage() {
     if (!isLoggedIn) router.push('/auth/login?redirect=/checkout');
   }, [isLoggedIn, router]);
 
-  const { data: cart, isLoading: cartLoading } = useGetCartQuery();
+  const { data: cart, isLoading, isFetching } = useGetCartQuery();
+  const cartLoading = isLoading || isFetching;
   const { data: productsPage }                 = useListProductsQuery({ limit: 12 });
   const { data: savedAddresses = [] }          = useListAddressesQuery(undefined, { skip: !isLoggedIn });
 
@@ -176,7 +177,7 @@ export default function CheckoutPage() {
         label:        'Home',
       };
     }
-    sessionStorage.setItem('maschon_pending_checkout', JSON.stringify(pending));
+    sessionStorage.setItem('meandmine_pending_checkout', JSON.stringify(pending));
   }
 
   async function applyDiscountCode() {
@@ -553,9 +554,8 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Maschon branding below card */}
           <p className="text-center mt-5 text-xs" style={{ color: 'rgba(90,60,30,0.5)' }}>
-            Secured by Paystack · Maschon Kenya
+            Secured by Paystack · MeAndMine.shop
           </p>
         </div>
       </div>

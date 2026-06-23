@@ -263,15 +263,15 @@ export function Navbar() {
             <Link href="/" className="flex-shrink-0 flex items-center gap-2 mr-2">
               <Image
                 src="/images/logoMaschonpo.png"
-                alt="Maschon"
+                alt="MeAndMine.shop"
                 width={60}
                 height={40}
                 className="h-9 sm:h-10 w-auto object-contain drop-shadow-md"
                 priority
               />
               <span className="hidden sm:inline text-xl lg:text-2xl font-black tracking-tighter" style={{ transition: 'color 0.35s ease' }}>
-                <span style={{ color: '#ff7c2a' }}>Ma</span>
-                <span style={{ color: '#111111' }}>schon</span>
+                <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+                <span style={{ color: '#111111' }}>Mine.shop</span>
               </span>
             </Link>
 

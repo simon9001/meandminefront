@@ -174,7 +174,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <p className="text-xs text-gray-400">
           Your data is processed in accordance with Kenya&apos;s Data Protection Act 2019.
-          Email <a href="mailto:support@maschon.co.ke" className="text-forest-600 hover:underline">support@maschon.co.ke</a> to request deletion or export.
+          Email <a href="mailto:support@meandmine.shop" className="text-forest-600 hover:underline">support@meandmine.shop</a> to request deletion or export.
         </p>
       </div>
     </div>

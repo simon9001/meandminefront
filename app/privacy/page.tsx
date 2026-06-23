@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How Maschon Home collects, uses, and protects your personal data under Kenya\'s Data Protection Act 2019.',
+  description: 'How MeAndMine.shop collects, uses, and protects your personal data under Kenya\'s Data Protection Act 2019.',
 };
 
 const LAST_UPDATED = '9 June 2026';
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
           <h1 className="text-3xl font-black text-forest-900 mb-3">Privacy Policy</h1>
           <p className="text-sm text-bark-500">Last updated: {LAST_UPDATED}</p>
           <p className="mt-4 text-sm text-bark-600 leading-relaxed bg-earth-50 border border-earth-200 rounded-2xl p-4">
-            Maschon Home is committed to protecting your personal data in accordance with
+            MeAndMine.shop is committed to protecting your personal data in accordance with
             Kenya&apos;s <strong>Data Protection Act No. 24 of 2019</strong> and its subsidiary regulations.
             This Policy explains what data we collect, why we collect it, and your rights as a data subject.
           </p>
@@ -28,12 +28,12 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-bark-700 text-sm leading-relaxed">
 
           <Section title="1. Data Controller">
-            <p><strong>Maschon Home</strong> (hereinafter &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is the data controller
+            <p><strong>MeAndMine.shop</strong> (hereinafter &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is the data controller
             responsible for your personal data. We are registered with the
             <strong> Office of the Data Protection Commissioner (ODPC)</strong> of Kenya.</p>
             <div className="mt-3 bg-white border border-bark-100 rounded-xl p-4 text-sm space-y-1">
-              <p><strong>Maschon Home</strong> — Nairobi, Kenya</p>
-              <p>Email: <a href="mailto:privacy@maschon.co.ke" className="text-forest-700 underline">privacy@maschon.co.ke</a></p>
+              <p><strong>MeAndMine.shop</strong> — Nairobi, Kenya</p>
+              <p>Email: <a href="mailto:privacy@meandmine.shop" className="text-forest-700 underline">privacy@meandmine.shop</a></p>
               <p>Tel / WhatsApp: +254 700 000 000</p>
             </div>
           </Section>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
               ['Improve our platform (analytics)',     'Legitimate interest'],
             ]} />
             <p className="mt-3">You may withdraw consent for marketing communications at any time by emailing
-            <a href="mailto:privacy@maschon.co.ke" className="text-forest-700 underline ml-1">privacy@maschon.co.ke</a> or using
+            <a href="mailto:privacy@meandmine.shop" className="text-forest-700 underline ml-1">privacy@meandmine.shop</a> or using
             the unsubscribe link in any email we send.</p>
           </Section>
 
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
               ['Right to withdraw consent',        'Withdraw consent for any processing based on consent at any time'],
             ]} />
             <p className="mt-3">To exercise any of these rights, please contact our Data Protection Officer at{' '}
-            <a href="mailto:privacy@maschon.co.ke" className="text-forest-700 underline">privacy@maschon.co.ke</a>.
+            <a href="mailto:privacy@meandmine.shop" className="text-forest-700 underline">privacy@meandmine.shop</a>.
             We will respond within <strong>21 days</strong> as required by law.</p>
             <p className="mt-3">If you are unsatisfied with our response, you may lodge a complaint with the
             <strong> Office of the Data Protection Commissioner (ODPC)</strong> at{' '}
@@ -156,8 +156,8 @@ export default function PrivacyPage() {
 
           <Section title="13. Contact Us">
             <div className="bg-white border border-bark-100 rounded-2xl p-5 space-y-2">
-              <p><strong>Data Protection Officer — Maschon Home</strong></p>
-              <p>Email: <a href="mailto:privacy@maschon.co.ke" className="text-forest-700 underline">privacy@maschon.co.ke</a></p>
+              <p><strong>Data Protection Officer — MeAndMine.shop</strong></p>
+              <p>Email: <a href="mailto:privacy@meandmine.shop" className="text-forest-700 underline">privacy@meandmine.shop</a></p>
               <p>WhatsApp: +254 700 000 000</p>
               <p>Physical address: Nairobi, Kenya</p>
             </div>

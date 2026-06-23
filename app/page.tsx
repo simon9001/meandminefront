@@ -222,7 +222,7 @@ export default function HomePage() {
       {/* ── Home Décor & Storage — live from backend ── */}
       <HomeDecorSection />
 
-      {/* ── Why Maschon ── */}
+      {/* ── Why MeAndMine.shop ── */}
       <section className="mt-16 bg-white border-t border-b border-bark-100 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

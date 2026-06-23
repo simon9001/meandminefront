@@ -46,7 +46,7 @@ export function AddToCartSection({ product }: Props) {
   }
 
   const waText = encodeURIComponent(
-    `Hi Maschon, I'd like to order: ${product.name} (KES ${displayPrice.toLocaleString()}). Please confirm availability.`
+    `Hi MeAndMine.shop, I'd like to order: ${product.name} (KES ${displayPrice.toLocaleString()}). Please confirm availability.`
   );
   const waUrl = `https://wa.me/254757568845?text=${waText}`;
 

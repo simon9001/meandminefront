@@ -49,7 +49,7 @@ export function PaystackButton({ email, amountKobo, reference, onSuccess, onCanc
       amount:    amountKobo,
       ref:       reference,
       currency:  'KES',
-      label:     'Maschon Order',
+      label:     'MeAndMine.shop Order',
       metadata:  { custom_fields: [] },
       onSuccess: async (transaction: PaystackReference) => {
         setVerifying(true);

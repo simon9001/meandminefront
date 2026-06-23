@@ -60,6 +60,6 @@ export const useOrders = create<OrdersState>()(
       addOrderRef: (ref) => set((state) => ({ orders: [ref, ...state.orders] })),
       clearOrders:  ()   => set({ orders: [] }),
     }),
-    { name: 'maschon-orders' }
+    { name: 'meandmine-orders' }
   )
 );

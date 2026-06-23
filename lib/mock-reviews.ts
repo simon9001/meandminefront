@@ -19,7 +19,7 @@ type ReviewTemplate = {
 
 const KITCHENWARE_TEMPLATES: ReviewTemplate[] = [
   { author: 'Wanjiru Kamau', initials: 'WK', rating: 5, date: '14 May 2025', text: 'Absolutely love this! The quality is outstanding and it has made my cooking so much easier. Highly recommend to anyone looking to upgrade their kitchen.', verified: true },
-  { author: 'Otieno Mwangi', initials: 'OM', rating: 4, date: '2 Apr 2025', text: 'Great product, good value for money. Arrived well-packaged and exactly as described. Will definitely order again from Maschon.', verified: true },
+  { author: 'Otieno Mwangi', initials: 'OM', rating: 4, date: '2 Apr 2025', text: 'Great product, good value for money. Arrived well-packaged and exactly as described. Will definitely order again from MeAndMine.shop.', verified: true },
   { author: 'Aisha Oduya', initials: 'AO', rating: 5, date: '19 Mar 2025', text: 'I was skeptical at first but this exceeded my expectations. The finish is beautiful and it feels very sturdy. My family is impressed!', verified: false },
   { author: 'Muthoni Kariuki', initials: 'MK', rating: 4, date: '8 Jun 2025', text: 'Solid kitchen item. Delivery was prompt — received it the next day in Nairobi. The product looks even better in person than in the photos.', verified: true },
   { author: 'Kamau Njoroge', initials: 'KN', rating: 5, date: '27 Jan 2025', text: 'Best purchase I have made this year. Easy to clean, durable and the design fits perfectly with my kitchen décor. Five stars without hesitation.', verified: true },
@@ -27,10 +27,10 @@ const KITCHENWARE_TEMPLATES: ReviewTemplate[] = [
 
 const APPLIANCES_TEMPLATES: ReviewTemplate[] = [
   { author: 'Beatrice Adhiambo', initials: 'BA', rating: 5, date: '3 Jun 2025', text: 'This appliance has been a game changer in my home. It works perfectly, is energy efficient and the build quality is impressive. Worth every shilling.', verified: true },
-  { author: 'James Kipkoech', initials: 'JK', rating: 4, date: '15 Apr 2025', text: 'Good appliance overall. Setup was straightforward and it works as advertised. The warranty process with Maschon was smooth when I had a question.', verified: true },
+  { author: 'James Kipkoech', initials: 'JK', rating: 4, date: '15 Apr 2025', text: 'Good appliance overall. Setup was straightforward and it works as advertised. The warranty process with MeAndMine.shop was smooth when I had a question.', verified: true },
   { author: 'Fatuma Hassan', initials: 'FH', rating: 5, date: '22 Feb 2025', text: 'Excellent quality. I have had similar products from other brands and this is by far the best. Silent, efficient and looks premium. Very happy with my purchase.', verified: false },
-  { author: 'Njeri Wachira', initials: 'NW', rating: 4, date: '11 May 2025', text: 'Arrived in perfect condition. The performance is great and it saves me a lot of time. Customer service at Maschon was very helpful when I had questions.', verified: true },
-  { author: 'Peter Ochieng', initials: 'PO', rating: 5, date: '30 Mar 2025', text: 'Wow, this is incredible value! I shopped around for weeks and Maschon had the best price. The product itself is top-notch. Delivered on time too.', verified: true },
+  { author: 'Njeri Wachira', initials: 'NW', rating: 4, date: '11 May 2025', text: 'Arrived in perfect condition. The performance is great and it saves me a lot of time. Customer service at MeAndMine.shop was very helpful when I had questions.', verified: true },
+  { author: 'Peter Ochieng', initials: 'PO', rating: 5, date: '30 Mar 2025', text: 'Wow, this is incredible value! I shopped around for weeks and MeAndMine.shop had the best price. The product itself is top-notch. Delivered on time too.', verified: true },
 ];
 
 const BEDDING_TEMPLATES: ReviewTemplate[] = [
@@ -53,7 +53,7 @@ const DECOR_TEMPLATES: ReviewTemplate[] = [
   { author: 'Lucy Wairimu', initials: 'LW', rating: 5, date: '4 Jun 2025', text: 'Perfect for refreshing our living room. The quality is wonderful and the colours are just as vibrant as in the photos. Arrived quickly and well-wrapped.', verified: true },
   { author: 'Emmanuel Opiyo', initials: 'EO', rating: 4, date: '17 Apr 2025', text: 'Nice product, good value. It has added a lovely touch to our home décor. The material feels quality and it was very easy to work with.', verified: true },
   { author: 'Violet Auma', initials: 'VA', rating: 5, date: '9 Mar 2025', text: 'I am really pleased with this. It looks so much more expensive than it is. Everyone who visits asks where I got it from. Definitely ordering more!', verified: false },
-  { author: 'Christine Njoki', initials: 'CN', rating: 4, date: '1 May 2025', text: 'Exactly what I needed to update my home without spending a fortune. Good quality, fast shipping and excellent customer service from Maschon.', verified: true },
+  { author: 'Christine Njoki', initials: 'CN', rating: 4, date: '1 May 2025', text: 'Exactly what I needed to update my home without spending a fortune. Good quality, fast shipping and excellent customer service from MeAndMine.shop.', verified: true },
   { author: 'Brian Onyango', initials: 'BO', rating: 5, date: '25 Feb 2025', text: 'Fantastic product! It does exactly what it promises and the quality is noticeably better than similar items I have bought elsewhere. Very satisfied.', verified: true },
 ];
 

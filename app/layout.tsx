@@ -9,7 +9,7 @@ import { TokenExpiryWatcher } from '@/components/auth/TokenExpiryWatcher';
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
 
 export const metadata: Metadata = {
-  title: { default: 'Maschon — Premium Products', template: '%s | Maschon' },
+  title: { default: 'MeAndMine.shop — Premium Products', template: '%s | MeAndMine.shop' },
   description: 'Quality home goods and lifestyle products at the best prices in Kenya.',
   keywords: ['shopping', 'Kenya', 'home goods', 'online store'],
 };

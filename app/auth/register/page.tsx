@@ -60,10 +60,10 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <Link href="/" className="relative z-10 flex items-center gap-2 w-fit">
-          <Image src="/images/logoMaschonpo.png" alt="Maschon" width={52} height={36} className="h-10 w-auto object-contain drop-shadow-md" priority />
+          <Image src="/images/logoMaschonpo.png" alt="MeAndMine.shop" width={52} height={36} className="h-10 w-auto object-contain drop-shadow-md" priority />
           <span className="text-2xl font-black tracking-tighter" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
-            <span style={{ color: '#ff7c2a' }}>Ma</span>
-            <span style={{ color: '#f0e8d8' }}>schon</span>
+            <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+            <span style={{ color: '#f0e8d8' }}>Mine.shop</span>
           </span>
         </Link>
 
@@ -73,7 +73,7 @@ export default function RegisterPage() {
             className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.15em] mb-5"
             style={{ background: 'rgba(255,124,42,0.15)', border: '1px solid rgba(255,124,42,0.25)', color: '#ff9c5a', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
           >
-            Join Maschon Today
+            Join MeAndMine.shop Today
           </div>
           <h2 className="text-[2.4rem] font-black leading-[1.15] mb-5" style={{ color: '#f0e8d8', textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
             Your home,<br />elevated.
@@ -95,7 +95,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="relative z-10 text-xs" style={{ color: 'rgba(240,220,180,0.2)' }}>
-          © {new Date().getFullYear()} Maschon · Nairobi, Kenya
+          © {new Date().getFullYear()} MeAndMine.shop · Nairobi, Kenya
         </p>
       </div>
 
@@ -136,10 +136,10 @@ export default function RegisterPage() {
           >
             {/* Mobile logo */}
             <Link href="/" className="lg:hidden flex items-center gap-2 mb-6">
-              <Image src="/images/logoMaschonpo.png" alt="Maschon" width={44} height={30} className="h-9 w-auto object-contain" />
+              <Image src="/images/logoMaschonpo.png" alt="MeAndMine.shop" width={44} height={30} className="h-9 w-auto object-contain" />
               <span className="text-xl font-black tracking-tighter">
-                <span style={{ color: '#ff7c2a' }}>Ma</span>
-                <span style={{ color: '#111111' }}>schon</span>
+                <span style={{ color: '#ff7c2a' }}>MeAnd</span>
+                <span style={{ color: '#111111' }}>Mine.shop</span>
               </span>
             </Link>
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
               <h1 className="text-2xl font-black mb-1" style={{ color: '#1a3828', textShadow: '0 1px 0 rgba(255,255,255,0.8)' }}>
                 Create account
               </h1>
-              <p className="text-sm" style={{ color: '#9c8068' }}>Join Maschon and start shopping</p>
+              <p className="text-sm" style={{ color: '#9c8068' }}>Join MeAndMine.shop and start shopping</p>
             </div>
 
             <hr className="skeu-divider mb-6" />

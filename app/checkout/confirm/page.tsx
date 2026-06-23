@@ -28,12 +28,12 @@ function ConfirmContent() {
         await verifyPayment(reference!).unwrap();
 
         try {
-          const raw = sessionStorage.getItem('maschon_pending_checkout');
+          const raw = sessionStorage.getItem('meandmine_pending_checkout');
           if (raw) {
             const pending = JSON.parse(raw) as { orderNumber?: string; address?: Omit<Address, 'id'> };
             if (pending.orderNumber) setOrderNumber(pending.orderNumber);
             if (pending.address)     saveAddress({ ...pending.address, phone: pending.address.phone ?? '' }).catch(() => {});
-            sessionStorage.removeItem('maschon_pending_checkout');
+            sessionStorage.removeItem('meandmine_pending_checkout');
           }
         } catch {
           // sessionStorage failure is non-critical

@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <div>
           <span className="font-black text-sm tracking-tight" style={{ color: '#f0e8d8', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-            Maschon
+            MeAndMine.shop
           </span>
           <p className="text-[9px] font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(240,220,180,0.4)' }}>
             Admin Console

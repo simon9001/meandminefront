@@ -23,14 +23,14 @@ export function ShareButtons({ productName, slug }: Props) {
   }
 
   function shareWhatsApp() {
-    const text = encodeURIComponent(`Check out "${productName}" on Maschon: ${getUrl()}`);
+    const text = encodeURIComponent(`Check out "${productName}" on MeAndMine.shop: ${getUrl()}`);
     window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
   }
 
   function shareEmail() {
     const subject = encodeURIComponent(`Check out: ${productName}`);
     const body = encodeURIComponent(
-      `Hi,\n\nI found this on Maschon and thought you'd love it!\n\n${productName}\n${getUrl()}\n\nShop more at Maschon.`
+      `Hi,\n\nI found this on MeAndMine.shop and thought you'd love it!\n\n${productName}\n${getUrl()}\n\nShop more at MeAndMine.shop.`
     );
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   }

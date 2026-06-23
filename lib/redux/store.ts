@@ -18,7 +18,7 @@ function createStorage() {
 }
 
 const persistConfig = {
-  key:       'maschon',
+  key:       'meandmine',
   storage:   createStorage(),
   whitelist: ['auth'],          // only auth state is persisted; API cache is always fresh
 };
