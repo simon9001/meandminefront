@@ -1,0 +1,17 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /admin
+Disallow: /auth
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /api
+
+# Host
+Host: https://meandmine.shop
+
+# Sitemaps
+Sitemap: https://meandmine.shop/sitemap.xml
+Sitemap: https://meandmine.shop/server-sitemap.xml

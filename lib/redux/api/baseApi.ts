@@ -15,11 +15,17 @@ function getSessionId(): string {
 const rawBaseQuery = fetchBaseQuery({
   baseUrl:     (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, ''),
   credentials: 'include', // sends httpOnly cookies automatically on every request
-  prepareHeaders: (headers) => {
-    // No token injection — auth cookie is sent automatically by the browser.
-    // X-Session-Id is kept for guest cart merging (not a secret).
-    const sid = getSessionId();
-    if (sid) headers.set('X-Session-Id', sid);
+  prepareHeaders: (headers, { getState }) => {
+    // Only send X-Session-Id for unauthenticated (guest) requests so the backend
+    // can identify the guest cart. Once logged in, the httpOnly auth cookie
+    // identifies the user and the backend must use that to return the user's cart.
+    // Sending a new session ID after login would cause the backend to return the
+    // empty new-session cart instead of the authenticated user's merged cart.
+    const state = getState() as { auth: { user: AuthUser | null } };
+    if (!state.auth.user) {
+      const sid = getSessionId();
+      if (sid) headers.set('X-Session-Id', sid);
+    }
     return headers;
   },
 });

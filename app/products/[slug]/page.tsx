@@ -69,9 +69,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = await resolveProduct(slug);
   if (!resolved) return { title: 'Product Not Found' };
   const { product } = resolved;
+
+  const description = product.shortDescription ?? `Buy ${product.name} at the best price in Kenya. Fast delivery & M-Pesa accepted.`;
+  const image = product.images?.[0]?.url ?? '/og-image.jpg';
+  const url = `https://meandmine.shop/products/${slug}`;
+
   return {
     title: product.name,
-    description: product.shortDescription ?? `Buy ${product.name} at the best price in Kenya.`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'website',
+      url,
+      title: `${product.name} | MeAndMine.shop`,
+      description,
+      images: [{ url: image, width: 800, height: 800, alt: product.name }],
+      siteName: 'MeAndMine.shop',
+      locale: 'en_KE',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} | MeAndMine.shop`,
+      description,
+      images: [image],
+    },
   };
 }
 
