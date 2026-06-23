@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { product } = resolved;
 
   const description = product.shortDescription ?? `Buy ${product.name} at the best price in Kenya. Fast delivery & M-Pesa accepted.`;
-  const image = product.images?.[0]?.url ?? '/og-image.jpg';
+  const image = product.primaryImageUrl ?? '/og-image.jpg';
   const url = `https://meandmine.shop/products/${slug}`;
 
   return {
