@@ -1,7 +1,5 @@
-import Link from 'next/link';
-import { ArrowRight, Truck, ShieldCheck, Clock, MessageCircle, RotateCcw } from 'lucide-react';
+import { Truck, ShieldCheck, Clock, MessageCircle, RotateCcw } from 'lucide-react';
 import { HeroSection } from '@/components/hero/HeroSection';
-import { CategoryBanner } from '@/components/home/CategoryBanner';
 import {
   CategoriesSection,
   InStockSection,
@@ -9,7 +7,10 @@ import {
   BestSellersSection,
   NewArrivalsSection,
   HomeDecorSection,
+  AppliancesSpotlightSection,
+  CarpetsBeddingSection,
 } from '@/components/home/HomeSections';
+import { Footer } from '@/components/layout/Footer';
 
 export default function HomePage() {
   return (
@@ -44,100 +45,11 @@ export default function HomePage() {
       {/* ── New Arrivals — live from backend ── */}
       <NewArrivalsSection />
 
-      {/* ── Appliances Spotlight ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14">
-        <div className="flex items-end justify-between mb-7">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-earth-600 mb-1">Hot Sellers</p>
-            <h2 className="text-2xl font-black text-forest-900">Appliances & Dispensers</h2>
-          </div>
-          <Link href="/products?category=appliances" className="text-sm font-semibold text-forest-700 hover:text-forest-900 flex items-center gap-1 transition-colors">
-            Shop all <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <CategoryBanner
-            href="/products?category=appliances"
-            category="appliances"
-            productIndex={0}
-            overlayClass="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"
-            fallbackGradient="bg-forest-900"
-            className="md:row-span-2 aspect-[3/4] md:aspect-auto"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          >
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <span className="text-earth-300 text-xs font-bold uppercase tracking-widest">Appliances</span>
-              <h3 className="text-white font-black text-xl mt-1">Hot &amp; Cold Dispensers</h3>
-              <p className="text-white/70 text-sm mt-1">Sonar · Ailyons · Signature · 12 Month Warranty</p>
-              <span className="mt-3 inline-flex items-center gap-1.5 text-white font-semibold text-sm group-hover:gap-2.5 transition-all">View products <ArrowRight className="h-4 w-4" /></span>
-            </div>
-          </CategoryBanner>
-          <CategoryBanner
-            href="/products?category=appliances"
-            category="appliances"
-            productIndex={1}
-            overlayClass="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"
-            fallbackGradient="bg-bark-800"
-            className="aspect-[4/3]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          >
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="text-earth-300 text-xs font-bold uppercase tracking-widest">Appliances</span>
-              <h3 className="text-white font-bold text-base mt-0.5">Microwave Ovens</h3>
-            </div>
-          </CategoryBanner>
-          <CategoryBanner
-            href="/products?category=appliances"
-            category="appliances"
-            productIndex={2}
-            overlayClass="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"
-            fallbackGradient="bg-earth-800"
-            className="aspect-[4/3]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          >
-            <div className="absolute bottom-0 left-0 right-0 p-5">
-              <span className="text-earth-300 text-xs font-bold uppercase tracking-widest">Appliances</span>
-              <h3 className="text-white font-bold text-base mt-0.5">Fridges &amp; Freezers</h3>
-            </div>
-          </CategoryBanner>
-        </div>
-      </section>
+      {/* ── Appliances Spotlight — hides when no products in backend ── */}
+      <AppliancesSpotlightSection />
 
-      {/* ── Carpets & Bedding Banner ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14">
-        <div className="grid md:grid-cols-2 gap-4">
-          <CategoryBanner
-            href="/products?category=carpets"
-            category="carpets"
-            productIndex={0}
-            overlayClass="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"
-            fallbackGradient="bg-earth-800"
-            className="aspect-[16/9]"
-          >
-            <div className="absolute inset-0 flex flex-col justify-center p-8">
-              <p className="text-earth-300 text-xs font-bold uppercase tracking-widest">New Collection</p>
-              <h3 className="text-white font-black text-3xl mt-2 leading-tight">Premium<br />Carpets</h3>
-              <p className="text-white/70 text-sm mt-2">Geometric, abstract &amp; art deco styles</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">Shop Carpets <ArrowRight className="h-4 w-4" /></span>
-            </div>
-          </CategoryBanner>
-          <CategoryBanner
-            href="/products?category=bedding"
-            category="bedding"
-            productIndex={0}
-            overlayClass="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"
-            fallbackGradient="bg-forest-800"
-            className="aspect-[16/9]"
-          >
-            <div className="absolute inset-0 flex flex-col justify-center p-8">
-              <p className="text-earth-300 text-xs font-bold uppercase tracking-widest">Bedroom Essentials</p>
-              <h3 className="text-white font-black text-3xl mt-2 leading-tight">Bed Canopies<br />&amp; Nets</h3>
-              <p className="text-white/70 text-sm mt-2">Princess, four-post &amp; ceiling styles</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">Shop Bedding <ArrowRight className="h-4 w-4" /></span>
-            </div>
-          </CategoryBanner>
-        </div>
-      </section>
+      {/* ── Carpets & Bedding — hides when no products in backend ── */}
+      <CarpetsBeddingSection />
 
       {/* ── Home Décor & Storage — live from backend ── */}
       <HomeDecorSection />
@@ -166,7 +78,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div className="pb-16" />
+      <Footer />
     </div>
   );
 }

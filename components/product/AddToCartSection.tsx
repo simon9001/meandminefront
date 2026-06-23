@@ -23,22 +23,24 @@ interface Props {
     showSalePrice?: boolean;
     status?: string;
   };
+  variantId?: string;
 }
 
-export function AddToCartSection({ product }: Props) {
+export function AddToCartSection({ product, variantId }: Props) {
   const [addToCart, { isLoading }] = useAddToCartMutation();
   const { openCart } = useCart();
   const [qty, setQty] = useState(1);
 
   const base         = product.basePrice ?? product.price ?? 0;
-  const showSale     = !!(product.salePrice && product.salePrice < base);
+  const showSale     = !!(product.showSalePrice && product.salePrice && product.salePrice < base);
   const displayPrice = showSale ? product.salePrice! : base;
   const savings      = showSale ? base - product.salePrice! : 0;
   const discount     = showSale ? Math.round((1 - product.salePrice! / base) * 100) : 0;
+  const isOutOfStock = product.status === 'out_of_stock';
 
   async function handleAddToCart() {
     try {
-      await addToCart({ productId: product.id, quantity: qty }).unwrap();
+      await addToCart({ productId: product.id, quantity: qty, variantId }).unwrap();
       openCart();
     } catch {
       toast.error('Failed to add to cart. Try again.');
@@ -50,79 +52,104 @@ export function AddToCartSection({ product }: Props) {
   );
   const waUrl = `https://wa.me/254757568845?text=${waText}`;
 
-  const isOutOfStock = product.status === 'out_of_stock';
-
   return (
-    <div className="flex flex-col gap-4">
-      {/* Price — always visible */}
-      <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-5">
+
+      {/* Price */}
+      <div className="flex flex-col gap-1.5">
         <div className="flex items-baseline gap-3 flex-wrap">
-          <span className="text-3xl font-black text-forest-900">KES {displayPrice.toLocaleString()}</span>
+          <span className="text-4xl font-black text-forest-900 tracking-tight">
+            KES {displayPrice.toLocaleString()}
+          </span>
           {showSale && (
-            <span className="text-lg text-bark-400 line-through">KES {base.toLocaleString()}</span>
+            <span className="text-xl text-bark-400 line-through font-medium">
+              KES {base.toLocaleString()}
+            </span>
           )}
           {showSale && discount >= 5 && (
-            <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-sm font-bold">-{discount}%</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-sm font-bold border border-red-100">
+              -{discount}%
+            </span>
           )}
         </div>
         {showSale && savings > 0 && (
-          <span className="inline-flex items-center gap-1 self-start px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-sm font-bold">
+          <span className="self-start inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-bold">
             🏷 You save KES {savings.toLocaleString()}
           </span>
         )}
       </div>
 
-      {/* Stock status */}
-      <div className="flex items-center gap-2">
+      {/* Stock + Qty on one row */}
+      <div className="flex items-center justify-between gap-4">
         {isOutOfStock ? (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />
             Out of Stock
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
             In Stock
           </span>
         )}
-      </div>
 
-      {/* Quantity selector */}
-      {!isOutOfStock && (
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-bark-600">Qty:</span>
-          <div className="flex items-center border border-bark-200 rounded-xl overflow-hidden">
-            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-2 hover:bg-gray-50 transition-colors text-bark-600 hover:text-forest-900">
-              <Minus className="h-4 w-4" />
+        {!isOutOfStock && (
+          <div className="flex items-center gap-0 rounded-xl border border-bark-200 overflow-hidden bg-white">
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              className="w-10 h-10 flex items-center justify-center text-bark-500 hover:bg-bark-50 hover:text-forest-900 transition-colors"
+            >
+              <Minus className="h-3.5 w-3.5" />
             </button>
-            <span className="px-4 py-2 text-sm font-bold text-forest-900 min-w-[3rem] text-center border-x border-bark-200">{qty}</span>
-            <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-2 hover:bg-gray-50 transition-colors text-bark-600 hover:text-forest-900">
-              <Plus className="h-4 w-4" />
+            <span className="w-12 h-10 flex items-center justify-center text-sm font-bold text-forest-900 border-x border-bark-200 bg-cream-50">
+              {qty}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQty((q) => q + 1)}
+              className="w-10 h-10 flex items-center justify-center text-bark-500 hover:bg-bark-50 hover:text-forest-900 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      {/* Buttons — each full width on its own row */}
+      <div className="flex flex-col gap-3">
         <button
           type="button"
           onClick={handleAddToCart}
           disabled={isLoading || isOutOfStock}
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#ff7c2a] text-white font-bold text-sm hover:bg-[#e06920] active:scale-[0.98] transition-all disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl text-white font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50"
+          style={{
+            background: isOutOfStock
+              ? '#9ca3af'
+              : 'linear-gradient(180deg, #ff9248 0%, #e85f00 100%)',
+            boxShadow: isOutOfStock
+              ? 'none'
+              : '0 4px 14px rgba(232,95,0,0.35), 0 1px 0 rgba(255,255,255,0.15) inset',
+          }}
         >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-          {isLoading ? 'Adding…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          {isLoading
+            ? <Loader2 className="h-5 w-5 animate-spin" />
+            : <ShoppingCart className="h-5 w-5" />
+          }
+          {isLoading ? 'Adding to Cart…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
         </button>
 
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 active:scale-[0.98]"
-          style={{ backgroundColor: '#25D366' }}
+          className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl text-white font-bold text-[15px] active:scale-[0.98] transition-all hover:opacity-95"
+          style={{
+            background: 'linear-gradient(180deg, #3de07a 0%, #1aad4e 100%)',
+            boxShadow: '0 4px 14px rgba(26,173,78,0.3), 0 1px 0 rgba(255,255,255,0.15) inset',
+          }}
         >
-          <WhatsAppIcon className="h-4 w-4" />
+          <WhatsAppIcon className="h-5 w-5" />
           Order on WhatsApp
         </a>
       </div>

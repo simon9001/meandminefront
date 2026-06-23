@@ -147,7 +147,7 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     addProductMedia: builder.mutation<{ id: string; url: string; isPrimary: boolean }, {
-      productId: string; url: string; isPrimary?: boolean; mediaType?: string; altText?: string; displayOrder?: number;
+      productId: string; url: string; isPrimary?: boolean; mediaType?: string; altText?: string; displayOrder?: number; variantId?: string;
     }>({
       query: ({ productId, ...body }) => ({ url: `/products/${productId}/media`, method: 'POST', body }),
       transformResponse: (res: ApiWrap<{ id: string; url: string; isPrimary: boolean }>) => res.data,
@@ -161,6 +161,19 @@ export const adminApi = baseApi.injectEndpoints({
 
     deleteUploadedImage: builder.mutation<void, { publicId: string }>({
       query: (body) => ({ url: '/upload/image', method: 'DELETE', body }),
+    }),
+
+    createProductVariant: builder.mutation<{ id: string; name: string; options: Record<string, string>; additionalPrice: number }, {
+      productId: string; name: string; sku?: string; options: Record<string, string>; additionalPrice?: number; stockQuantity?: number;
+    }>({
+      query: ({ productId, ...body }) => ({ url: `/products/${productId}/variants`, method: 'POST', body }),
+      transformResponse: (res: ApiWrap<{ id: string; name: string; options: Record<string, string>; additionalPrice: number }>) => res.data,
+      invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
+    }),
+
+    deleteProductVariant: builder.mutation<void, { productId: string; variantId: string }>({
+      query: ({ productId, variantId }) => ({ url: `/products/${productId}/variants/${variantId}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
     }),
 
     // ── Categories (admin) ──
@@ -402,4 +415,6 @@ export const {
   useCreateShipmentMutation,
   useAddShipmentEventMutation,
   useRefreshMaterializedViewsMutation,
+  useCreateProductVariantMutation,
+  useDeleteProductVariantMutation,
 } = adminApi;

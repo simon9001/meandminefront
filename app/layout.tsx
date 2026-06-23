@@ -3,7 +3,6 @@ import { Geist } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { TokenExpiryWatcher } from '@/components/auth/TokenExpiryWatcher';
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
@@ -48,7 +47,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <TokenExpiryWatcher />
           <Navbar />
           <main className="flex-1">{children}</main>
-          <Footer />
           <CartDrawer />
         </Providers>
       </body>

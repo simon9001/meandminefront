@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, ShoppingBag, Package, BarChart2, LogOut, Menu, ChevronRight,
-  Tag, Layers, Users, Truck, Boxes, Megaphone, Loader2,
+  LayoutDashboard, ShoppingBag, Package, LogOut, Menu, X,
+  Tag, Layers, Users, Truck, Boxes, Megaphone, Loader2, BarChart2,
 } from 'lucide-react';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { selectCurrentUser, selectIsAdmin } from '@/lib/redux/slices/authSlice';
@@ -12,15 +12,15 @@ import { useLogoutMutation } from '@/lib/redux/api/authApi';
 import { toast } from 'sonner';
 
 const nav = [
-  { href: '/admin',            label: 'Dashboard',      icon: LayoutDashboard, exact: true },
-  { href: '/admin/orders',     label: 'Orders',         icon: ShoppingBag },
-  { href: '/admin/products',   label: 'Products',       icon: Package },
-  { href: '/admin/categories', label: 'Categories',     icon: Layers },
-  { href: '/admin/inventory',  label: 'Inventory',      icon: Boxes },
-  { href: '/admin/users',      label: 'Users',          icon: Users },
-  { href: '/admin/discounts',  label: 'Discounts',      icon: Tag },
-  { href: '/admin/shipments',  label: 'Shipments',      icon: Truck },
-  { href: '/admin/promotions', label: 'Promotions',     icon: Megaphone },
+  { href: '/admin',            label: 'Dashboard',  icon: LayoutDashboard, exact: true },
+  { href: '/admin/orders',     label: 'Orders',     icon: ShoppingBag },
+  { href: '/admin/products',   label: 'Products',   icon: Package },
+  { href: '/admin/categories', label: 'Categories', icon: Layers },
+  { href: '/admin/inventory',  label: 'Inventory',  icon: Boxes },
+  { href: '/admin/users',      label: 'Users',      icon: Users },
+  { href: '/admin/discounts',  label: 'Discounts',  icon: Tag },
+  { href: '/admin/shipments',  label: 'Shipments',  icon: Truck },
+  { href: '/admin/promotions', label: 'Promotions', icon: Megaphone },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -47,41 +47,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname === href || pathname.startsWith(href + '/');
 
-  const Sidebar = () => (
-    <nav className="flex flex-col h-full skeu-sidebar">
-      {/* Logo area */}
-      <div
-        className="p-4 flex items-center gap-2.5 flex-shrink-0"
-        style={{
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 1px 0 rgba(0,0,0,0.4)',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)',
-        }}
-      >
-        <div
-          className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{
-            background: 'linear-gradient(145deg, #3a9166, #2d7350)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
-          }}
-        >
+  const SidebarContent = () => (
+    <nav className="flex flex-col h-full bg-white border-r border-gray-100">
+      {/* Brand */}
+      <div className="h-14 flex items-center gap-2.5 px-5 border-b border-gray-100 flex-shrink-0">
+        <div className="h-7 w-7 rounded-lg bg-gray-900 flex items-center justify-center flex-shrink-0">
           <BarChart2 className="h-4 w-4 text-white" />
         </div>
         <div>
-          <span className="font-black text-sm tracking-tight" style={{ color: '#f0e8d8', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-            MeAndMine.shop
-          </span>
-          <p className="text-[9px] font-bold uppercase tracking-[0.15em]" style={{ color: 'rgba(240,220,180,0.4)' }}>
-            Admin Console
-          </p>
+          <p className="text-sm font-bold text-gray-900 leading-none">MeAndMine</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Admin</p>
         </div>
+        <button
+          className="ml-auto md:hidden p-1 text-gray-400 hover:text-gray-700"
+          onClick={() => setOpen(false)}
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       {/* Nav items */}
-      <div className="flex-1 p-2.5 space-y-0.5 overflow-y-auto">
-        <p className="px-3 pt-2 pb-1 text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: 'rgba(200,170,130,0.45)' }}>
-          Navigation
-        </p>
+      <div className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {nav.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
           return (
@@ -89,138 +75,76 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 relative group"
-              style={active ? {
-                background: 'linear-gradient(135deg, rgba(45,115,80,0.4), rgba(37,92,61,0.5))',
-                boxShadow: '0 1px 0 rgba(255,255,255,0.08) inset, 0 1px 4px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(45,115,80,0.4)',
-                color: '#f0e8d8',
-              } : {
-                color: 'rgba(220,200,168,0.92)',
-                border: '1px solid transparent',
-              }}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                active
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+              }`}
             >
-              <Icon
-                className="h-4 w-4 flex-shrink-0"
-                style={{ color: active ? '#7dc4a0' : 'rgba(190,165,130,0.88)' }}
-              />
-              <span className="flex-1">{label}</span>
-              {active && (
-                <ChevronRight className="h-3.5 w-3.5 opacity-60" style={{ color: '#7dc4a0' }} />
-              )}
+              <Icon className="h-4 w-4 flex-shrink-0" />
+              {label}
             </Link>
           );
         })}
       </div>
 
       {/* User footer */}
-      <div
-        className="p-3 flex-shrink-0"
-        style={{
-          borderTop: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 -1px 0 rgba(0,0,0,0.3)',
-          background: 'linear-gradient(0deg, rgba(0,0,0,0.2) 0%, transparent 100%)',
-        }}
-      >
-        <div className="flex items-center gap-2 px-3 py-2 mb-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
-          <div
-            className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
-            style={{
-              background: 'linear-gradient(145deg, #3a9166, #255c3d)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-              color: '#fff',
-              textShadow: '0 1px 1px rgba(0,0,0,0.4)',
-            }}
-          >
+      <div className="px-3 py-4 border-t border-gray-100 flex-shrink-0 space-y-1">
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="h-7 w-7 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
             {user?.firstName?.[0]?.toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold truncate" style={{ color: '#e8d8c0', textShadow: '0 1px 1px rgba(0,0,0,0.4)' }}>
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(200,170,130,0.5)' }}>
-              {user?.role}
-            </p>
+            <p className="text-xs font-semibold text-gray-900 truncate">{user?.firstName} {user?.lastName}</p>
+            <p className="text-[10px] text-gray-400 capitalize">{user?.role}</p>
           </div>
         </div>
-
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150"
-          style={{ color: 'rgba(220,120,100,0.8)', border: '1px solid transparent' }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(200,50,30,0.15)';
-            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(200,50,30,0.2)';
-            (e.currentTarget as HTMLElement).style.color = 'rgba(240,140,120,1)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background = 'transparent';
-            (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
-            (e.currentTarget as HTMLElement).style.color = 'rgba(220,120,100,0.8)';
-          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
         >
-          <LogOut className="h-3.5 w-3.5" /> Sign Out
+          <LogOut className="h-4 w-4" /> Sign Out
         </button>
       </div>
     </nav>
   );
 
   return (
-    <div className="flex h-screen" style={{ background: '#c8b89a' }}>
+    <div className="flex h-screen bg-gray-50">
       {mounted && user && isAdmin ? (
         <>
           {/* Desktop sidebar */}
-          <aside className="hidden md:flex flex-col w-56 flex-shrink-0 h-full">
-            <Sidebar />
+          <aside className="hidden md:flex flex-col w-52 flex-shrink-0 h-full">
+            <SidebarContent />
           </aside>
 
-          {/* Mobile sidebar overlay */}
+          {/* Mobile overlay */}
           {open && (
             <div className="md:hidden fixed inset-0 z-50 flex">
-              <div className="w-56 flex flex-col"><Sidebar /></div>
-              <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+              <div className="w-52 flex flex-col shadow-xl"><SidebarContent /></div>
+              <div className="flex-1 bg-black/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
             </div>
           )}
 
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {/* Mobile topbar */}
-            <header
-              className="md:hidden flex items-center gap-3 px-4 py-3 flex-shrink-0"
-              style={{
-                background: 'linear-gradient(180deg, #4a3020 0%, #3a2418 100%)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
-                borderBottom: '1px solid rgba(0,0,0,0.4)',
-              }}
-            >
-              <button onClick={() => setOpen(true)}>
-                <Menu className="h-5 w-5" style={{ color: '#e8d8c0' }} />
+            <header className="md:hidden h-14 flex items-center gap-3 px-4 bg-white border-b border-gray-100 flex-shrink-0">
+              <button onClick={() => setOpen(true)} className="text-gray-500 hover:text-gray-900 transition-colors">
+                <Menu className="h-5 w-5" />
               </button>
-              <span className="font-black text-sm" style={{ color: '#e8d8c0', textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
-                Admin Console
-              </span>
+              <span className="text-sm font-bold text-gray-900">Admin</span>
             </header>
 
-            {/* Main content area */}
-            <main
-              className="flex-1 overflow-y-auto p-4 md:p-6"
-              style={{ background: 'linear-gradient(160deg, #d8ccb4 0%, #cabea4 100%)' }}
-            >
+            {/* Main content */}
+            <main className="flex-1 overflow-y-auto p-5 md:p-8">
               {children}
             </main>
           </div>
         </>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center gap-3">
-          <div
-            className="h-14 w-14 rounded-2xl flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(145deg, #3a9166, #2d7350)',
-              boxShadow: '0 4px 12px rgba(45,115,80,0.4), inset 0 1px 0 rgba(255,255,255,0.25)',
-            }}
-          >
-            <Loader2 className="h-7 w-7 animate-spin text-white" />
-          </div>
-          <p className="text-xs font-bold text-bark-500 uppercase tracking-widest">Authenticating…</p>
+        <div className="flex-1 flex items-center justify-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+          <span className="text-sm text-gray-400">Authenticating…</span>
         </div>
       )}
     </div>

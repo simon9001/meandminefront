@@ -33,6 +33,7 @@ export interface ProductMedia {
   mediaType: 'image' | 'video' | '360_view';
   isPrimary: boolean;
   displayOrder: number;
+  variantId?: string;
 }
 
 export interface ProductVariant {

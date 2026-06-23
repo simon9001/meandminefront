@@ -336,217 +336,113 @@ export default function CheckoutPage() {
 
   if (step === 'mpesa_pending') {
     const DURATION   = 60;
-    const radius     = 52;
+    const radius     = 44;
     const circ       = 2 * Math.PI * radius;
-    const progress   = countdown / DURATION;
-    const dashOffset = circ * (1 - progress);
+    const dashOffset = circ * (1 - countdown / DURATION);
     const isExpiring = countdown <= 15 && !timedOut;
 
     return (
-      <div
-        className="min-h-screen flex items-center justify-center px-4 py-12"
-        style={{ background: 'linear-gradient(160deg, #f0e8d8 0%, #e8dcc8 50%, #ddd0b8 100%)' }}
-      >
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
         <Script src="https://js.paystack.co/v2/inline.js" strategy="afterInteractive" />
 
-        {/* Dot-grid texture overlay (matching hero) */}
-        <div className="fixed inset-0 pointer-events-none opacity-[0.04]"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='1' fill='%232a1810'/%3E%3C/svg%3E")` }}
-        />
+        <div className="w-full max-w-sm">
+          <div className="bg-white border border-gray-100 rounded-2xl p-8 flex flex-col items-center text-center shadow-sm">
 
-        <div className="w-full max-w-md">
-          {/* Main card */}
-          <div
-            className="rounded-3xl p-8 flex flex-col items-center text-center"
-            style={{
-              background: 'linear-gradient(160deg, #fdf8f0 0%, #f5ece0 60%, #ede4d0 100%)',
-              boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.06) inset, 0 20px 60px rgba(90,60,30,0.22), 0 4px 12px rgba(90,60,30,0.14)',
-              border: '1px solid rgba(140,100,60,0.18)',
-            }}
-          >
-            {/* ── Timed out state ──────────────────────────────────────── */}
             {timedOut ? (
               <>
-                <div
-                  className="h-24 w-24 rounded-full flex items-center justify-center mb-5"
-                  style={{
-                    background: 'linear-gradient(180deg, #f5e0d8 0%, #e8c8bc 100%)',
-                    boxShadow: '0 2px 0 rgba(255,255,255,0.7) inset, 0 -1px 0 rgba(0,0,0,0.1) inset, 0 6px 20px rgba(196,53,31,0.25)',
-                    border: '1px solid rgba(196,53,31,0.2)',
-                  }}
-                >
-                  <Clock className="h-10 w-10" style={{ color: '#c4351f' }} />
+                <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center mb-5">
+                  <Clock className="h-8 w-8 text-red-400" />
                 </div>
-
-                <h1 className="text-2xl font-black mb-2" style={{ color: '#2a1810', textShadow: '0 1px 0 rgba(255,255,255,0.7)' }}>
-                  Payment Expired
-                </h1>
-                <p className="text-sm mb-6" style={{ color: '#9c8068' }}>
+                <h2 className="text-lg font-bold text-gray-900 mb-2">Payment Expired</h2>
+                <p className="text-sm text-gray-500 mb-6">
                   The M-Pesa request timed out. Your order is still reserved — you can try again.
                 </p>
-
-                <div
-                  className="w-full rounded-2xl p-4 mb-6 text-sm text-left"
-                  style={{
-                    background: 'linear-gradient(180deg, #e0d4c0 0%, #ede4d4 40%, #f0e8da 100%)',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.16) inset, 0 1px 0 rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(140,100,60,0.15)',
-                  }}
-                >
-                  <p style={{ color: '#6b4c30' }}>
-                    <strong>Tip:</strong> Make sure your M-Pesa is active and has sufficient balance before retrying.
-                  </p>
-                </div>
-
+                <p className="text-xs text-gray-400 bg-gray-50 rounded-xl p-3 mb-6 text-left w-full">
+                  <strong className="text-gray-600">Tip:</strong> Make sure your M-Pesa is active and has sufficient balance before retrying.
+                </p>
                 <button
                   type="button"
                   onClick={() => { stopAll(); setMpesaError(''); setTimedOut(false); setStep('payment'); }}
-                  className="skeu-btn-primary w-full py-4 rounded-2xl font-black text-white text-sm"
+                  className="w-full py-3 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
                 >
                   Try Again
                 </button>
               </>
             ) : (
               <>
-                {/* ── Active waiting state ─────────────────────────────── */}
-
-                {/* SVG countdown ring + phone icon */}
-                <div className="relative mb-6" style={{ width: 140, height: 140 }}>
-                  <svg width="140" height="140" className="absolute inset-0 -rotate-90">
-                    {/* Track */}
+                {/* Countdown ring */}
+                <div className="relative mb-6" style={{ width: 110, height: 110 }}>
+                  <svg width="110" height="110" className="absolute inset-0 -rotate-90">
+                    <circle cx="55" cy="55" r={radius} fill="none" strokeWidth="5" stroke="#f1f5f9" />
                     <circle
-                      cx="70" cy="70" r={radius}
-                      fill="none"
-                      strokeWidth="7"
-                      stroke="rgba(140,100,60,0.15)"
-                    />
-                    {/* Progress arc */}
-                    <circle
-                      cx="70" cy="70" r={radius}
-                      fill="none"
-                      strokeWidth="7"
-                      stroke={isExpiring ? '#c4351f' : '#2d7350'}
+                      cx="55" cy="55" r={radius} fill="none" strokeWidth="5"
+                      stroke={isExpiring ? '#ef4444' : '#111827'}
                       strokeLinecap="round"
                       strokeDasharray={circ}
                       strokeDashoffset={dashOffset}
-                      style={{ transition: 'stroke-dashoffset 0.9s linear, stroke 0.3s ease', filter: `drop-shadow(0 0 4px ${isExpiring ? 'rgba(196,53,31,0.5)' : 'rgba(45,115,80,0.5)'})` }}
+                      style={{ transition: 'stroke-dashoffset 0.9s linear, stroke 0.3s' }}
                     />
                   </svg>
-
-                  {/* Phone icon disc */}
-                  <div
-                    className="absolute inset-0 m-4 rounded-full flex flex-col items-center justify-center"
-                    style={{
-                      background: 'linear-gradient(160deg, #fdf8f0 0%, #f0e8d8 100%)',
-                      boxShadow: '0 2px 0 rgba(255,255,255,0.8) inset, 0 -1px 0 rgba(0,0,0,0.08) inset, 0 4px 12px rgba(90,60,30,0.18)',
-                      border: '1px solid rgba(140,100,60,0.2)',
-                    }}
-                  >
-                    <Smartphone className="h-8 w-8 mb-0.5" style={{ color: '#2d7350' }} />
-                    <span
-                      className="text-xs font-black tabular-nums"
-                      style={{ color: isExpiring ? '#c4351f' : '#2d7350', lineHeight: 1 }}
-                    >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Smartphone className="h-6 w-6 text-gray-700 mb-0.5" />
+                    <span className={`text-sm font-bold tabular-nums ${isExpiring ? 'text-red-500' : 'text-gray-700'}`}>
                       {countdown}s
                     </span>
                   </div>
                 </div>
 
-                {/* Heading */}
-                <h1 className="text-2xl font-black mb-1" style={{ color: '#2a1810', textShadow: '0 1px 0 rgba(255,255,255,0.7)' }}>
-                  Check Your Phone
-                </h1>
-                <p className="text-sm mb-1" style={{ color: '#6b4c30' }}>
-                  M-Pesa prompt sent to <strong style={{ color: '#2a1810' }}>{mpesaPhone}</strong>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">Check Your Phone</h2>
+                <p className="text-sm text-gray-500 mb-0.5">
+                  M-Pesa prompt sent to <span className="font-semibold text-gray-800">{mpesaPhone}</span>
                 </p>
-                <p className="text-xs mb-6" style={{ color: '#9c8068' }}>
-                  Amount: <strong style={{ color: '#1a3828' }}>{formatPrice(total)}</strong>
-                </p>
+                <p className="text-sm font-bold text-gray-900 mb-6">{formatPrice(total)}</p>
 
-                {/* Steps — inset panel */}
-                <div
-                  className="w-full rounded-2xl p-5 mb-5 text-left space-y-3"
-                  style={{
-                    background: 'linear-gradient(180deg, #e0d4c0 0%, #ede4d4 40%, #f0e8da 100%)',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.16) inset, 0 1px 0 rgba(255,255,255,0.5)',
-                    border: '1px solid rgba(140,100,60,0.15)',
-                  }}
-                >
+                {/* Steps */}
+                <div className="w-full bg-gray-50 rounded-xl p-4 mb-5 text-left space-y-3">
                   {[
                     { done: true,  label: 'STK push sent to your phone' },
                     { done: false, label: 'Enter your M-Pesa PIN when prompted' },
                     { done: false, label: 'Waiting for payment confirmation…', loading: true },
                   ].map((s, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <div
-                        className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center"
-                        style={{
-                          background: s.done
-                            ? 'linear-gradient(180deg, #3a9166 0%, #255c3d 100%)'
-                            : 'linear-gradient(180deg, #e8dcc8 0%, #d4c4b0 100%)',
-                          boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 1px 3px rgba(0,0,0,0.2)',
-                          border: '1px solid rgba(0,0,0,0.15)',
-                        }}
-                      >
-                        {s.done ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 text-white" />
-                        ) : s.loading ? (
-                          <Loader2 className="h-3 w-3 animate-spin" style={{ color: '#9c8068' }} />
-                        ) : (
-                          <span className="text-[9px] font-black" style={{ color: '#9c8068' }}>{i + 1}</span>
-                        )}
+                      <div className={`h-5 w-5 rounded-full flex-shrink-0 flex items-center justify-center ${s.done ? 'bg-gray-900' : 'bg-gray-200'}`}>
+                        {s.done
+                          ? <CheckCircle2 className="h-3 w-3 text-white" />
+                          : s.loading
+                            ? <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
+                            : <span className="text-[9px] font-bold text-gray-400">{i + 1}</span>
+                        }
                       </div>
-                      <span className="text-sm font-medium" style={{ color: s.done ? '#1a3828' : '#6b4c30' }}>
-                        {s.label}
-                      </span>
+                      <span className={`text-xs font-medium ${s.done ? 'text-gray-800' : 'text-gray-400'}`}>{s.label}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Progress bar */}
-                <div
-                  className="w-full rounded-full h-2 mb-5 overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(180deg, #d0c4b0 0%, #e0d4c0 100%)',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.15) inset',
-                    border: '1px solid rgba(0,0,0,0.1)',
-                  }}
-                >
+                <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden mb-5">
                   <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(countdown / DURATION) * 100}%`,
-                      background: isExpiring
-                        ? 'linear-gradient(90deg, #e8503a, #c4351f)'
-                        : 'linear-gradient(90deg, #3a9166, #255c3d)',
-                      boxShadow: isExpiring
-                        ? '0 1px 0 rgba(255,255,255,0.3) inset, 0 0 6px rgba(196,53,31,0.4)'
-                        : '0 1px 0 rgba(255,255,255,0.3) inset, 0 0 6px rgba(45,115,80,0.4)',
-                      transition: 'width 0.9s linear, background 0.3s ease',
-                    }}
+                    className={`h-full rounded-full transition-all duration-1000 ${isExpiring ? 'bg-red-400' : 'bg-gray-900'}`}
+                    style={{ width: `${(countdown / DURATION) * 100}%` }}
                   />
                 </div>
 
                 {isExpiring && (
-                  <p className="text-xs font-semibold mb-4" style={{ color: '#c4351f' }}>
-                    Hurry — {countdown} second{countdown !== 1 ? 's' : ''} remaining
+                  <p className="text-xs text-red-500 font-medium mb-4">
+                    {countdown} second{countdown !== 1 ? 's' : ''} remaining
                   </p>
                 )}
 
                 {mpesaError && (
-                  <div
-                    className="w-full rounded-xl p-3 mb-4 flex items-start gap-2 text-sm"
-                    style={{ background: 'rgba(196,53,31,0.08)', border: '1px solid rgba(196,53,31,0.25)' }}
-                  >
-                    <XCircle className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: '#c4351f' }} />
-                    <span style={{ color: '#7a1a0a' }}>{mpesaError}</span>
+                  <div className="w-full bg-red-50 border border-red-100 rounded-xl p-3 mb-4 flex items-start gap-2 text-xs text-red-600 text-left">
+                    <XCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    {mpesaError}
                   </div>
                 )}
 
                 <button
                   type="button"
                   onClick={() => { stopAll(); setMpesaError(''); setStep('payment'); }}
-                  className="skeu-btn-secondary w-full py-3 rounded-2xl font-bold text-sm"
+                  className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   Didn&apos;t get a push? Go back
                 </button>
@@ -554,9 +450,7 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          <p className="text-center mt-5 text-xs" style={{ color: 'rgba(90,60,30,0.5)' }}>
-            Secured by Paystack · MeAndMine.shop
-          </p>
+          <p className="text-center mt-4 text-xs text-gray-400">Secured by Paystack · MeAndMine.shop</p>
         </div>
       </div>
     );

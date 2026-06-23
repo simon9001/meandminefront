@@ -1,13 +1,14 @@
 'use client';
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Save, ImagePlus } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, ImagePlus, Plus, Trash2, Palette, Ruler } from 'lucide-react';
 import Link from 'next/link';
 import {
   useCreateProductMutation,
   useAdminListCategoriesQuery,
   useAddProductMediaMutation,
   useDeleteUploadedImageMutation,
+  useCreateProductVariantMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
 import { toast } from 'sonner';
@@ -31,23 +32,57 @@ const INITIAL: Omit<CreateProductPayload, 'isBestSeller'> = {
 
 type UploadedImage = { url: string; publicId: string; isPrimary: boolean };
 
+type ColorVariant = {
+  tempId:    string;
+  name:      string;
+  hex:       string;
+  images:    UploadedImage[];
+  uploading: boolean;
+};
+
+type SizeVariant = {
+  tempId:          string;
+  name:            string;
+  additionalPrice: number;
+  images:          UploadedImage[];
+  uploading:       boolean;
+};
+
+function uid() {
+  return Math.random().toString(36).slice(2);
+}
+
 function autoSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
 export default function NewProductPage() {
   const router = useRouter();
-  const [createProduct, { isLoading }] = useCreateProductMutation();
-  const [addProductMedia]              = useAddProductMediaMutation();
-  const [deleteUploadedImage]          = useDeleteUploadedImageMutation();
-  const { data: cats = [] }            = useAdminListCategoriesQuery();
+  const [createProduct,       { isLoading }]   = useCreateProductMutation();
+  const [addProductMedia]                       = useAddProductMediaMutation();
+  const [deleteUploadedImage]                   = useDeleteUploadedImageMutation();
+  const [createProductVariant]                  = useCreateProductVariantMutation();
+  const { data: cats = [] }                     = useAdminListCategoriesQuery();
 
   const [form, setForm]         = useState(INITIAL);
   const [tagInput, setTagInput] = useState('');
   const [catId, setCatId]       = useState('');
+
+  // General images (no color association)
   const [images, setImages]     = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef                 = useRef<HTMLInputElement>(null);
+
+  // Color variants
+  const [colorVariants, setColorVariants] = useState<ColorVariant[]>([]);
+  const colorFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Size variants
+  const [sizeVariants, setSizeVariants] = useState<SizeVariant[]>([]);
+  const sizeFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Active variant tab
+  const [variantTab, setVariantTab] = useState<'colors' | 'sizes'>('colors');
 
   function set<K extends keyof typeof INITIAL>(key: K, val: (typeof INITIAL)[K]) {
     setForm((f) => ({ ...f, [key]: val }));
@@ -58,10 +93,11 @@ export default function NewProductPage() {
     if (t && !(form.tags ?? []).includes(t)) set('tags', [...(form.tags ?? []), t]);
     setTagInput('');
   }
-
   function removeTag(t: string) {
     set('tags', (form.tags ?? []).filter((x) => x !== t));
   }
+
+  // ── General image upload ─────────────────────────────────────────────────────
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -71,17 +107,10 @@ export default function NewProductPage() {
       for (const file of files) {
         const fd = new FormData();
         fd.append('file', file);
-        const res = await fetch(`${API}/upload/product`, {
-          method:      'POST',
-          credentials: 'include',
-          body:        fd,
-        });
+        const res  = await fetch(`${API}/upload/product`, { method: 'POST', credentials: 'include', body: fd });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');
-        setImages((prev) => [
-          ...prev,
-          { url: json.data.url, publicId: json.data.publicId, isPrimary: prev.length === 0 },
-        ]);
+        setImages((prev) => [...prev, { url: json.data.url, publicId: json.data.publicId, isPrimary: prev.length === 0 }]);
       }
       toast.success(`${files.length} image${files.length > 1 ? 's' : ''} uploaded`);
     } catch (err) {
@@ -106,6 +135,110 @@ export default function NewProductPage() {
     });
   }
 
+  // ── Color variants ───────────────────────────────────────────────────────────
+
+  function addColor() {
+    setColorVariants((prev) => [...prev, { tempId: uid(), name: '', hex: '#c47b2a', images: [], uploading: false }]);
+  }
+
+  function updateColor(tempId: string, patch: Partial<Omit<ColorVariant, 'tempId'>>) {
+    setColorVariants((prev) => prev.map((c) => c.tempId === tempId ? { ...c, ...patch } : c));
+  }
+
+  function removeColor(tempId: string) {
+    const cv = colorVariants.find((c) => c.tempId === tempId);
+    if (cv) cv.images.forEach((img) => deleteUploadedImage({ publicId: img.publicId }).catch(() => {}));
+    setColorVariants((prev) => prev.filter((c) => c.tempId !== tempId));
+  }
+
+  async function handleColorImageUpload(tempId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    updateColor(tempId, { uploading: true });
+    try {
+      const newImages: UploadedImage[] = [];
+      for (const file of files) {
+        const fd  = new FormData();
+        fd.append('file', file);
+        const res  = await fetch(`${API}/upload/product`, { method: 'POST', credentials: 'include', body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');
+        newImages.push({ url: json.data.url, publicId: json.data.publicId, isPrimary: false });
+      }
+      setColorVariants((prev) => prev.map((c) =>
+        c.tempId === tempId
+          ? { ...c, images: [...c.images, ...newImages], uploading: false }
+          : c
+      ));
+      toast.success(`${files.length} image${files.length > 1 ? 's' : ''} added to color`);
+    } catch (err) {
+      toast.error((err as Error).message ?? 'Upload failed');
+      updateColor(tempId, { uploading: false });
+    } finally {
+      const ref = colorFileRefs.current[tempId];
+      if (ref) ref.value = '';
+    }
+  }
+
+  function removeColorImage(colorTempId: string, imgIdx: number) {
+    const cv  = colorVariants.find((c) => c.tempId === colorTempId);
+    if (!cv) return;
+    deleteUploadedImage({ publicId: cv.images[imgIdx].publicId }).catch(() => {});
+    updateColor(colorTempId, { images: cv.images.filter((_, i) => i !== imgIdx) });
+  }
+
+  // ── Size variants ────────────────────────────────────────────────────────────
+
+  function addSize() {
+    setSizeVariants((prev) => [...prev, { tempId: uid(), name: '', additionalPrice: 0, images: [], uploading: false }]);
+  }
+
+  function updateSize(tempId: string, patch: Partial<Omit<SizeVariant, 'tempId'>>) {
+    setSizeVariants((prev) => prev.map((s) => s.tempId === tempId ? { ...s, ...patch } : s));
+  }
+
+  function removeSize(tempId: string) {
+    const sv = sizeVariants.find((s) => s.tempId === tempId);
+    if (sv) sv.images.forEach((img) => deleteUploadedImage({ publicId: img.publicId }).catch(() => {}));
+    setSizeVariants((prev) => prev.filter((s) => s.tempId !== tempId));
+  }
+
+  async function handleSizeImageUpload(tempId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    updateSize(tempId, { uploading: true });
+    try {
+      const newImages: UploadedImage[] = [];
+      for (const file of files) {
+        const fd  = new FormData();
+        fd.append('file', file);
+        const res  = await fetch(`${API}/upload/product`, { method: 'POST', credentials: 'include', body: fd });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? json.message ?? 'Upload failed');
+        newImages.push({ url: json.data.url, publicId: json.data.publicId, isPrimary: false });
+      }
+      setSizeVariants((prev) => prev.map((s) =>
+        s.tempId === tempId ? { ...s, images: [...s.images, ...newImages], uploading: false } : s
+      ));
+      toast.success(`${files.length} image${files.length > 1 ? 's' : ''} added to size`);
+    } catch (err) {
+      toast.error((err as Error).message ?? 'Upload failed');
+      updateSize(tempId, { uploading: false });
+    } finally {
+      const ref = sizeFileRefs.current[tempId];
+      if (ref) ref.value = '';
+    }
+  }
+
+  function removeSizeImage(sizeTempId: string, imgIdx: number) {
+    const sv = sizeVariants.find((s) => s.tempId === sizeTempId);
+    if (!sv) return;
+    deleteUploadedImage({ publicId: sv.images[imgIdx].publicId }).catch(() => {});
+    updateSize(sizeTempId, { images: sv.images.filter((_, i) => i !== imgIdx) });
+  }
+
+  // ── Save ─────────────────────────────────────────────────────────────────────
+
   async function handleSave() {
     if (!form.name.trim() || !form.slug.trim() || form.basePrice <= 0) {
       toast.error('Name, slug, and base price are required');
@@ -115,25 +248,73 @@ export default function NewProductPage() {
       toast.error('Sale price must be less than base price');
       return;
     }
+
     try {
       const payload: CreateProductPayload = {
         ...form,
-        categoryId: catId || undefined,
-        shortDescription:  form.shortDescription  || undefined,
-        fullDescription:   form.fullDescription   || undefined,
+        categoryId:       catId || undefined,
+        shortDescription: form.shortDescription || undefined,
+        fullDescription:  form.fullDescription  || undefined,
       };
-      const product = await createProduct(payload).unwrap();
+      const product   = await createProduct(payload).unwrap();
       const productId = (product as unknown as { id: string }).id;
 
-      // Attach uploaded images as product media
+      // 1 — Attach general images
       for (let i = 0; i < images.length; i++) {
         await addProductMedia({
           productId,
-          url:         images[i].url,
-          isPrimary:   images[i].isPrimary,
-          mediaType:   'image',
+          url:          images[i].url,
+          isPrimary:    images[i].isPrimary,
+          mediaType:    'image',
           displayOrder: i,
         }).unwrap().catch(() => {});
+      }
+
+      // 2 — Create color variants + attach color images
+      for (const cv of colorVariants) {
+        if (!cv.name.trim()) continue;
+        const variant = await createProductVariant({
+          productId,
+          name:    cv.name,
+          options: { color: cv.name, colorHex: cv.hex },
+        }).unwrap().catch(() => null);
+
+        if (variant) {
+          for (let i = 0; i < cv.images.length; i++) {
+            await addProductMedia({
+              productId,
+              url:          cv.images[i].url,
+              isPrimary:    i === 0,
+              mediaType:    'image',
+              displayOrder: i,
+              variantId:    variant.id,
+            }).unwrap().catch(() => {});
+          }
+        }
+      }
+
+      // 3 — Create size variants + their images
+      for (const sv of sizeVariants) {
+        if (!sv.name.trim()) continue;
+        const sizeVariant = await createProductVariant({
+          productId,
+          name:            sv.name,
+          options:         { size: sv.name },
+          additionalPrice: sv.additionalPrice,
+        }).unwrap().catch(() => null);
+
+        if (sizeVariant) {
+          for (let i = 0; i < sv.images.length; i++) {
+            await addProductMedia({
+              productId,
+              url:          sv.images[i].url,
+              isPrimary:    i === 0,
+              mediaType:    'image',
+              displayOrder: i,
+              variantId:    sizeVariant.id,
+            }).unwrap().catch(() => {});
+          }
+        }
       }
 
       toast.success('Product created!');
@@ -144,6 +325,8 @@ export default function NewProductPage() {
     }
   }
 
+  const isBusy = isLoading || uploading || colorVariants.some((c) => c.uploading) || sizeVariants.some((s) => s.uploading);
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center gap-3">
@@ -153,23 +336,18 @@ export default function NewProductPage() {
         <h1 className="text-xl font-bold text-gray-900">New Product</h1>
       </div>
 
-      {/* Basic Info */}
+      {/* ── Basic Info ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
         <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Basic Info</h2>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Name *</label>
           <input
             value={form.name}
-            onChange={(e) => {
-              set('name', e.target.value);
-              if (!form.slug) set('slug', autoSlug(e.target.value));
-            }}
+            onChange={(e) => { set('name', e.target.value); if (!form.slug) set('slug', autoSlug(e.target.value)); }}
             placeholder="Product name"
             className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Slug *</label>
           <input
@@ -179,7 +357,6 @@ export default function NewProductPage() {
             className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Short Description</label>
           <input
@@ -189,7 +366,6 @@ export default function NewProductPage() {
             className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
           />
         </div>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Full Description</label>
           <textarea
@@ -202,9 +378,12 @@ export default function NewProductPage() {
         </div>
       </div>
 
-      {/* Images */}
+      {/* ── General Images ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Product Images</h2>
+        <div>
+          <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Product Images</h2>
+          <p className="text-xs text-gray-500 mt-1">These appear on the product page for all variants. Upload color-specific images in the Variants section below.</p>
+        </div>
 
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
 
@@ -227,27 +406,13 @@ export default function NewProductPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.url} alt={`Product ${idx + 1}`} className="w-full h-28 object-cover rounded-xl border border-gray-200" />
                 {img.isPrimary && (
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-forest-600 text-white text-[10px] font-bold">
-                    Primary
-                  </span>
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-forest-600 text-white text-[10px] font-bold">Primary</span>
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex flex-col items-center justify-center gap-2">
                   {!img.isPrimary && (
-                    <button
-                      type="button"
-                      onClick={() => setPrimary(idx)}
-                      className="px-2.5 py-1 rounded-lg bg-forest-600 text-white text-[10px] font-semibold hover:bg-forest-700"
-                    >
-                      Set Primary
-                    </button>
+                    <button type="button" onClick={() => setPrimary(idx)} className="px-2.5 py-1 rounded-lg bg-forest-600 text-white text-[10px] font-semibold hover:bg-forest-700">Set Primary</button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => removeImage(idx)}
-                    className="px-2.5 py-1 rounded-lg bg-red-500 text-white text-[10px] font-semibold hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
+                  <button type="button" onClick={() => removeImage(idx)} className="px-2.5 py-1 rounded-lg bg-red-500 text-white text-[10px] font-semibold hover:bg-red-600">Remove</button>
                 </div>
               </div>
             ))}
@@ -255,10 +420,204 @@ export default function NewProductPage() {
         )}
       </div>
 
-      {/* Pricing & Status */}
+      {/* ── Variants ── */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Variants</h2>
+          <p className="text-xs text-gray-500 mt-1">Add colors (with per-color images) and/or sizes (with price differences). Both are optional.</p>
+        </div>
+
+        {/* Tab switcher */}
+        <div className="flex gap-2 border-b border-gray-100 pb-0">
+          {(['colors', 'sizes'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setVariantTab(tab)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors border-b-2 -mb-px ${
+                variantTab === tab
+                  ? 'border-forest-600 text-forest-700 bg-forest-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab === 'colors' ? <Palette className="h-3.5 w-3.5" /> : <Ruler className="h-3.5 w-3.5" />}
+              {tab === 'colors' ? `Colors (${colorVariants.length})` : `Sizes (${sizeVariants.length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Colors tab ── */}
+        {variantTab === 'colors' && (
+          <div className="space-y-4">
+            {colorVariants.map((cv) => (
+              <div key={cv.tempId} className="border border-gray-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  {/* Color picker */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-gray-600">Color</label>
+                    <input
+                      type="color"
+                      value={cv.hex}
+                      onChange={(e) => updateColor(cv.tempId, { hex: e.target.value })}
+                      className="h-8 w-10 rounded-lg cursor-pointer border border-gray-200 p-0.5"
+                      title="Pick color"
+                    />
+                  </div>
+                  {/* Name */}
+                  <input
+                    value={cv.name}
+                    onChange={(e) => updateColor(cv.tempId, { name: e.target.value })}
+                    placeholder="Color name (e.g. Burgundy)"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+                  />
+                  <button type="button" onClick={() => removeColor(cv.tempId)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Color images */}
+                <div>
+                  <p className="text-xs font-medium text-gray-600 mb-2">Images for this color</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    ref={(el) => { colorFileRefs.current[cv.tempId] = el; }}
+                    onChange={(e) => handleColorImageUpload(cv.tempId, e)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {cv.images.map((img, imgIdx) => (
+                      <div key={img.url} className="relative group w-20 h-20">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt="" className="w-full h-full object-cover rounded-lg border border-gray-200" />
+                        <button
+                          type="button"
+                          onClick={() => removeColorImage(cv.tempId, imgIdx)}
+                          className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span className="text-[10px] font-bold">✕</span>
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      disabled={cv.uploading}
+                      onClick={() => colorFileRefs.current[cv.tempId]?.click()}
+                      className="w-20 h-20 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-forest-400 hover:text-forest-600 transition-colors disabled:opacity-50"
+                    >
+                      {cv.uploading
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <><ImagePlus className="h-4 w-4" /><span className="text-[10px] mt-0.5">Add</span></>
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addColor}
+              className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:border-forest-400 hover:text-forest-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> Add Color
+            </button>
+          </div>
+        )}
+
+        {/* ── Sizes tab ── */}
+        {variantTab === 'sizes' && (
+          <div className="space-y-4">
+            {sizeVariants.length > 0 && (
+              <p className="text-xs text-gray-500 px-1">
+                Base price: <strong>KES {form.basePrice.toLocaleString()}</strong>. Additional price is added on top. You can also attach images for each size.
+              </p>
+            )}
+            {sizeVariants.map((sv) => (
+              <div key={sv.tempId} className="border border-gray-200 rounded-xl p-4 space-y-3">
+                {/* Name + price row */}
+                <div className="flex items-center gap-3">
+                  <input
+                    value={sv.name}
+                    onChange={(e) => updateSize(sv.tempId, { name: e.target.value })}
+                    placeholder="Size name (e.g. King Size, 200×230cm)"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-xs text-gray-500">+ KES</span>
+                    <input
+                      type="number"
+                      value={sv.additionalPrice}
+                      onChange={(e) => updateSize(sv.tempId, { additionalPrice: Number(e.target.value) })}
+                      className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 text-right"
+                    />
+                  </div>
+                  {form.basePrice > 0 && (
+                    <span className="text-xs font-bold text-forest-700 flex-shrink-0 w-28 text-right">
+                      = KES {(form.basePrice + sv.additionalPrice).toLocaleString()}
+                    </span>
+                  )}
+                  <button type="button" onClick={() => removeSize(sv.tempId)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Size images */}
+                <div>
+                  <p className="text-xs font-medium text-gray-600 mb-2">Images for this size <span className="text-gray-400 font-normal">(optional)</span></p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    ref={(el) => { sizeFileRefs.current[sv.tempId] = el; }}
+                    onChange={(e) => handleSizeImageUpload(sv.tempId, e)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {sv.images.map((img, imgIdx) => (
+                      <div key={img.url} className="relative group w-20 h-20">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt="" className="w-full h-full object-cover rounded-lg border border-gray-200" />
+                        <button
+                          type="button"
+                          onClick={() => removeSizeImage(sv.tempId, imgIdx)}
+                          className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span className="text-[10px] font-bold">✕</span>
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      disabled={sv.uploading}
+                      onClick={() => sizeFileRefs.current[sv.tempId]?.click()}
+                      className="w-20 h-20 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-forest-400 hover:text-forest-600 transition-colors disabled:opacity-50"
+                    >
+                      {sv.uploading
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <><ImagePlus className="h-4 w-4" /><span className="text-[10px] mt-0.5">Add</span></>
+                      }
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addSize}
+              className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm font-medium text-gray-500 hover:border-forest-400 hover:text-forest-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> Add Size
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Pricing & Status ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
         <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Pricing & Status</h2>
-
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1.5">Base Price (KES) *</label>
@@ -316,12 +675,8 @@ export default function NewProductPage() {
             />
           </div>
         </div>
-
         <div className="flex flex-wrap gap-4">
-          {([
-            ['isFeatured',   'Featured'],
-            ['isNewArrival', 'New Arrival'],
-          ] as [keyof typeof INITIAL, string][]).map(([key, label]) => (
+          {([['isFeatured', 'Featured'], ['isNewArrival', 'New Arrival']] as [keyof typeof INITIAL, string][]).map(([key, label]) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer select-none text-sm">
               <input
                 type="checkbox"
@@ -335,10 +690,9 @@ export default function NewProductPage() {
         </div>
       </div>
 
-      {/* Category & Tags */}
+      {/* ── Category & Tags ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
         <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Category & Tags</h2>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Category</label>
           <select
@@ -350,7 +704,6 @@ export default function NewProductPage() {
             {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1.5">Tags</label>
           <div className="flex gap-2 mb-2">
@@ -361,9 +714,7 @@ export default function NewProductPage() {
               placeholder="Type a tag and press Enter"
               className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
-            <button type="button" onClick={addTag} className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">
-              Add
-            </button>
+            <button type="button" onClick={addTag} className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors">Add</button>
           </div>
           {(form.tags ?? []).length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -384,7 +735,7 @@ export default function NewProductPage() {
         </Link>
         <button
           onClick={handleSave}
-          disabled={isLoading || uploading}
+          disabled={isBusy}
           className="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-forest-900 text-white text-sm font-bold hover:bg-forest-700 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
