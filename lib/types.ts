@@ -17,6 +17,20 @@ export interface AuthUser {
   isEmailVerified: boolean;
 }
 
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string | null;
+  isEmailVerified: boolean;
+  phone?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt?: string | null;
+}
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, ShoppingBag, Package, LogOut, Menu, X,
   Tag, Layers, Users, Truck, Boxes, Megaphone, Loader2, BarChart2,
+  ShieldAlert, ScrollText, TrendingUp,
 } from 'lucide-react';
 import { useAppSelector } from '@/lib/redux/hooks';
 import { selectCurrentUser, selectIsAdmin } from '@/lib/redux/slices/authSlice';
@@ -21,6 +22,11 @@ const nav = [
   { href: '/admin/discounts',  label: 'Discounts',  icon: Tag },
   { href: '/admin/shipments',  label: 'Shipments',  icon: Truck },
   { href: '/admin/promotions', label: 'Promotions', icon: Megaphone },
+];
+
+const superAdminNav = [
+  { href: '/admin/superadmin', label: 'Deep Analytics', icon: TrendingUp },
+  { href: '/admin/audit',      label: 'Audit Logs',     icon: ScrollText },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -86,6 +92,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
           );
         })}
+
+        {/* Super admin exclusive section */}
+        {user?.role === 'superadmin' && (
+          <div className="pt-3 mt-3 border-t border-gray-100">
+            <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-purple-400 flex items-center gap-1.5">
+              <ShieldAlert className="h-3 w-3" /> Super Admin
+            </p>
+            {superAdminNav.map(({ href, label, icon: Icon }) => {
+              const active = isActive(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    active
+                      ? 'bg-purple-700 text-white'
+                      : 'text-purple-500 hover:text-purple-800 hover:bg-purple-50'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* User footer */}

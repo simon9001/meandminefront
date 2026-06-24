@@ -12,13 +12,16 @@ import { CategoryBanner } from '@/components/home/CategoryBanner';
 
 function CardSkeleton() {
   return (
-    <div className="flex flex-col bg-white rounded-2xl border border-bark-100 overflow-hidden animate-pulse">
-      <div className="aspect-[4/3] bg-bark-100" />
-      <div className="p-4 flex flex-col gap-2">
-        <div className="h-2.5 bg-bark-100 rounded w-16" />
-        <div className="h-4 bg-bark-100 rounded w-full" />
-        <div className="h-4 bg-bark-100 rounded w-3/4" />
-        <div className="h-6 bg-bark-100 rounded w-24 mt-2" />
+    <div className="flex flex-col rounded-[14px] border border-bark-100 overflow-hidden animate-pulse"
+      style={{ background: 'linear-gradient(160deg, #fdf8f0 0%, #f5ece0 60%, #ede4d0 100%)' }}>
+      <div className="relative w-full flex-shrink-0" style={{ paddingTop: '75%' }}>
+        <div className="absolute inset-0 bg-bark-100" />
+      </div>
+      <div className="p-3 flex flex-col gap-2">
+        <div className="h-2 bg-bark-100 rounded w-14" />
+        <div className="h-3.5 bg-bark-100 rounded w-full" />
+        <div className="h-3.5 bg-bark-100 rounded w-3/4" />
+        <div className="h-5 bg-bark-100 rounded w-20 mt-1.5" />
         <div className="h-9 bg-bark-100 rounded-xl mt-1" />
       </div>
     </div>
@@ -180,7 +183,7 @@ export function BestSellersSection() {
           View all <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 5 }).map((_, i) => <CardSkeleton key={i} />)
           : products.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -208,7 +211,7 @@ export function NewArrivalsSection() {
           View all <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 5 }).map((_, i) => <CardSkeleton key={i} />)
           : products.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -474,7 +477,7 @@ export function HomeDecorSection() {
           View all <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
           : products.slice(0, 8).map((p) => <ProductCard key={p.id} product={p} />)}

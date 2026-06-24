@@ -5,6 +5,7 @@ import type {
   Order,
   Address,
   AuthUser,
+  AdminUser,
   Paginated,
   DashboardStats,
   DailyRevenue,
@@ -12,6 +13,30 @@ import type {
 } from '@/lib/types';
 
 interface ApiWrap<T> { data: T; success: boolean; }
+
+export interface AuditLog {
+  id: string;
+  actor_id:      string | null;
+  actor_email:   string | null;
+  actor_role:    string | null;
+  action:        string;
+  resource_type: string | null;
+  resource_id:   string | null;
+  details:       Record<string, unknown>;
+  ip_address:    string | null;
+  created_at:    string;
+}
+
+export interface SuperAdminAnalytics {
+  revenue: { allTime: number; last7d: number; last30d: number; last90d: number };
+  orders:  { total: number; paid: number; failedPayments: number; conversionRate: number };
+  users:   { total: number; newLast7d: number; newLast30d: number; byRole: Record<string, number> };
+  paymentMethods:    { method: string; count: number; revenue: number }[];
+  revenueByCategory: { category: string; revenue: number }[];
+  topCustomers:      { id: string; name: string; totalSpend: number }[];
+  dailyRevenue:      { date: string; revenue: number }[];
+  weeklyNewUsers:    { week: string; count: number }[];
+}
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
@@ -372,14 +397,30 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     // ── Users (admin) ──
-    listUsers: builder.query<AuthUser[], { page?: number; role?: string; search?: string }>({
+    listUsers: builder.query<AdminUser[], { page?: number; role?: string; search?: string }>({
       query: (params) => ({ url: '/users', params }),
-      transformResponse: (res: ApiWrap<AuthUser[]>) => res.data,
+      transformResponse: (res: ApiWrap<AdminUser[]>) => res.data,
       providesTags: ['Admin'],
     }),
 
     setUserRole: builder.mutation<void, { userId: string; role: string }>({
       query: ({ userId, role }) => ({ url: `/users/${userId}/role`, method: 'PATCH', body: { role } }),
+      invalidatesTags: ['Admin'],
+    }),
+
+    updateUser: builder.mutation<void, { userId: string; firstName?: string; lastName?: string; phone?: string | null; isActive?: boolean; role?: string }>({
+      query: ({ userId, ...body }) => ({ url: `/users/${userId}`, method: 'PATCH', body }),
+      invalidatesTags: ['Admin'],
+    }),
+
+    deleteUser: builder.mutation<void, string>({
+      query: (userId) => ({ url: `/users/${userId}`, method: 'DELETE' }),
+      invalidatesTags: ['Admin'],
+    }),
+
+    createUser: builder.mutation<{ id: string; email: string }, { email: string; password: string; firstName: string; lastName: string; role: string; phone?: string }>({
+      query: (body) => ({ url: '/users', method: 'POST', body }),
+      transformResponse: (res: ApiWrap<{ id: string; email: string }>) => res.data,
       invalidatesTags: ['Admin'],
     }),
 
@@ -429,6 +470,22 @@ export const adminApi = baseApi.injectEndpoints({
       query: () => ({ url: '/admin/refresh-views', method: 'POST' }),
       invalidatesTags: ['Admin'],
     }),
+
+    // ── Super Admin ──
+    getSuperAdminAnalytics: builder.query<SuperAdminAnalytics, void>({
+      query: () => '/superadmin/analytics',
+      transformResponse: (res: ApiWrap<SuperAdminAnalytics>) => res.data,
+    }),
+
+    listAuditLogs: builder.query<{ data: AuditLog[]; meta: { total: number; page: number; limit: number } }, { page?: number; action?: string; resourceType?: string; actorRole?: string; search?: string }>({
+      query: (params) => ({ url: '/superadmin/audit-logs', params }),
+      transformResponse: (res: { data: AuditLog[]; meta: { total: number; page: number; limit: number } }) => res,
+    }),
+
+    superAdminDeleteUser: builder.mutation<void, string>({
+      query: (userId) => ({ url: `/superadmin/users/${userId}`, method: 'DELETE' }),
+      invalidatesTags: ['Admin'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -458,6 +515,9 @@ export const {
   useSetInventoryMutation,
   useListUsersQuery,
   useSetUserRoleMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useCreateUserMutation,
   useListDiscountCodesQuery,
   useCreateDiscountCodeMutation,
   useUpdateDiscountCodeMutation,
@@ -469,4 +529,7 @@ export const {
   useCreateProductVariantMutation,
   useUpdateProductVariantMutation,
   useDeleteProductVariantMutation,
+  useGetSuperAdminAnalyticsQuery,
+  useListAuditLogsQuery,
+  useSuperAdminDeleteUserMutation,
 } = adminApi;

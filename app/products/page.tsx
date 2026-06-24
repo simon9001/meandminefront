@@ -30,13 +30,17 @@ const DEFAULT_CFG = { icon: <Package className="h-7 w-7" />, gradient: 'from-bar
 
 function CardSkeleton() {
   return (
-    <div className="flex flex-col bg-white rounded-2xl border border-bark-100 overflow-hidden animate-pulse">
-      <div className="aspect-[4/3] bg-bark-100" />
-      <div className="p-4 flex flex-col gap-2">
-        <div className="h-2.5 bg-bark-100 rounded w-16" />
-        <div className="h-4 bg-bark-100 rounded w-full" />
-        <div className="h-4 bg-bark-100 rounded w-3/4" />
-        <div className="h-6 bg-bark-100 rounded w-24 mt-2" />
+    <div className="flex flex-col rounded-[14px] border border-bark-100 overflow-hidden animate-pulse"
+      style={{ background: 'linear-gradient(160deg, #fdf8f0 0%, #f5ece0 60%, #ede4d0 100%)' }}>
+      {/* mirrors ProductCard's paddingTop: 75% image frame */}
+      <div className="relative w-full flex-shrink-0" style={{ paddingTop: '75%' }}>
+        <div className="absolute inset-0 bg-bark-100" />
+      </div>
+      <div className="p-3 flex flex-col gap-2">
+        <div className="h-2 bg-bark-100 rounded w-14" />
+        <div className="h-3.5 bg-bark-100 rounded w-full" />
+        <div className="h-3.5 bg-bark-100 rounded w-3/4" />
+        <div className="h-5 bg-bark-100 rounded w-20 mt-1.5" />
         <div className="h-9 bg-bark-100 rounded-xl mt-1" />
       </div>
     </div>
@@ -148,7 +152,7 @@ function RecommendedSection() {
         <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
         <h2 className="text-xl font-black text-gray-900">Recommended items</h2>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 5 }).map((_, i) => <CardSkeleton key={i} />)
           : products.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -227,7 +231,7 @@ function BrowseView({
       </p>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
       ) : products.length === 0 ? (
@@ -242,7 +246,7 @@ function BrowseView({
         </div>
       ) : (
         <div className={cn(
-          'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 transition-opacity duration-200',
+          'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 transition-opacity duration-200',
           isFetching ? 'opacity-60' : 'opacity-100',
         )}>
           {products.map((p) => <ProductCard key={p.id} product={p} />)}
@@ -318,16 +322,16 @@ function ProductsPageContent() {
         )}
       </div>
 
-      {/* Category filter chips */}
-      <div className="flex flex-wrap gap-2 mb-7">
+      {/* Category filter chips — horizontal scroll on mobile, wrap on sm+ */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
         <button onClick={() => setParam('category', '')}
-          className={cn('px-4 py-2 rounded-xl text-xs font-bold transition-colors',
+          className={cn('flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-colors',
             !category ? 'bg-forest-900 text-white' : 'bg-white border border-bark-200 text-bark-600 hover:bg-forest-50 hover:text-forest-800')}>
           All
         </button>
         {categories.map((cat) => (
           <button key={cat.slug} onClick={() => setParam('category', cat.slug)}
-            className={cn('px-4 py-2 rounded-xl text-xs font-bold transition-colors',
+            className={cn('flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-colors',
               category === cat.slug ? 'bg-forest-900 text-white' : 'bg-white border border-bark-200 text-bark-600 hover:bg-forest-50 hover:text-forest-800')}>
             {cat.name}
           </button>
