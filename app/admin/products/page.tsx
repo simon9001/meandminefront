@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 
 export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('active');
+  const [status, setStatus] = useState('all');
   const [page, setPage]     = useState(1);
   const dispatch            = useAppDispatch();
 

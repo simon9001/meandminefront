@@ -81,7 +81,7 @@ export function CategoriesSection() {
                 <Link
                   key={cat.slug}
                   href={`/products?category=${cat.slug}`}
-                  className="group flex flex-col items-center gap-2.5 py-5 px-2 rounded-2xl bg-white border border-bark-100 hover:border-forest-300 hover:bg-forest-50 transition-all text-center shadow-sm hover:shadow-md"
+                  className="group flex flex-col items-center gap-2.5 py-5 px-2 rounded-2xl bg-white border border-bark-100 hover:border-forest-300 hover:bg-forest-50 transition-colors text-center shadow-sm"
                 >
                   <div className="relative h-12 w-12 rounded-xl overflow-hidden flex-shrink-0">
                     {img ? (
@@ -128,7 +128,7 @@ export function InStockSection() {
               <Link
                 key={item.id}
                 href={`/products/${item.slug}`}
-                className="group flex flex-col bg-white rounded-2xl border border-bark-100 hover:border-forest-200 hover:shadow-md transition-all overflow-hidden"
+                className="group flex flex-col bg-white rounded-2xl border border-bark-100 hover:border-forest-200 transition-colors overflow-hidden"
               >
                 <div className="relative aspect-square overflow-hidden bg-cream-50">
                   {item.primaryImageUrl ? (
@@ -136,7 +136,7 @@ export function InStockSection() {
                       src={item.primaryImageUrl}
                       alt={item.name}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                     />
                   ) : (
@@ -315,7 +315,7 @@ export function DealsSection() {
                         {p.primaryImageUrl ? (
                           <Image
                             src={p.primaryImageUrl} alt={p.name} fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="object-cover"
                             sizes="140px"
                           />
                         ) : (

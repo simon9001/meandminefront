@@ -36,7 +36,7 @@ export function ProductCard({ product, className }: Props) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className={cn('group relative flex flex-col overflow-hidden transition-all duration-200', className)}
+      className={cn('group relative flex flex-col overflow-hidden', className)}
       style={{
         background: 'linear-gradient(160deg, #fdf8f0 0%, #f5ece0 60%, #ede4d0 100%)',
         boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.06) inset, 1px 0 0 rgba(255,255,255,0.6) inset, 0 4px 16px rgba(90,60,30,0.14), 0 1px 4px rgba(90,60,30,0.1)',
@@ -45,11 +45,9 @@ export function ProductCard({ product, className }: Props) {
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.06) inset, 1px 0 0 rgba(255,255,255,0.6) inset, 0 8px 28px rgba(90,60,30,0.22), 0 2px 8px rgba(90,60,30,0.14)';
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(0,0,0,0.06) inset, 1px 0 0 rgba(255,255,255,0.6) inset, 0 4px 16px rgba(90,60,30,0.14), 0 1px 4px rgba(90,60,30,0.1)';
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
       }}
     >
       {/* Image frame */}
@@ -66,7 +64,7 @@ export function ProductCard({ product, className }: Props) {
             src={product.primaryImageUrl}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-400"
+            className="object-cover"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (
