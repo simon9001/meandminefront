@@ -24,9 +24,10 @@ interface Props {
     status?: string;
   };
   variantId?: string;
+  variantRequiredMessage?: string;
 }
 
-export function AddToCartSection({ product, variantId }: Props) {
+export function AddToCartSection({ product, variantId, variantRequiredMessage }: Props) {
   const [addToCart, { isLoading }] = useAddToCartMutation();
   const { openCart } = useCart();
   const [qty, setQty] = useState(1);
@@ -121,22 +122,27 @@ export function AddToCartSection({ product, variantId }: Props) {
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={isLoading || isOutOfStock}
-          className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl text-white font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50"
+          disabled={isLoading || isOutOfStock || !!variantRequiredMessage}
+          className="w-full flex flex-col items-center justify-center gap-1 py-4 px-6 rounded-2xl text-white font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-60"
           style={{
-            background: isOutOfStock
+            background: isOutOfStock || variantRequiredMessage
               ? '#9ca3af'
               : 'linear-gradient(180deg, #ff9248 0%, #e85f00 100%)',
-            boxShadow: isOutOfStock
+            boxShadow: isOutOfStock || variantRequiredMessage
               ? 'none'
               : '0 4px 14px rgba(232,95,0,0.35), 0 1px 0 rgba(255,255,255,0.15) inset',
           }}
         >
-          {isLoading
-            ? <Loader2 className="h-5 w-5 animate-spin" />
-            : <ShoppingCart className="h-5 w-5" />
-          }
-          {isLoading ? 'Adding to Cart…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          <span className="flex items-center gap-2.5">
+            {isLoading
+              ? <Loader2 className="h-5 w-5 animate-spin" />
+              : <ShoppingCart className="h-5 w-5" />
+            }
+            {isLoading ? 'Adding to Cart…' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          </span>
+          {variantRequiredMessage && !isOutOfStock && (
+            <span className="text-[11px] font-medium opacity-90">{variantRequiredMessage}</span>
+          )}
         </button>
 
         <a

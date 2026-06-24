@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Save, ImagePlus, Plus, Trash2, Palette, Ruler } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, ImagePlus, Plus, Trash2, Palette, Ruler, Tag } from 'lucide-react';
 import Link from 'next/link';
 import {
   useCreateProductMutation,
@@ -9,6 +9,7 @@ import {
   useAddProductMediaMutation,
   useDeleteUploadedImageMutation,
   useCreateProductVariantMutation,
+  useSetInventoryMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
 import { toast } from 'sonner';
@@ -43,7 +44,9 @@ type ColorVariant = {
 type SizeVariant = {
   tempId:          string;
   name:            string;
+  sku:             string;
   additionalPrice: number;
+  stockQuantity:   number;
   images:          UploadedImage[];
   uploading:       boolean;
 };
@@ -62,11 +65,13 @@ export default function NewProductPage() {
   const [addProductMedia]                       = useAddProductMediaMutation();
   const [deleteUploadedImage]                   = useDeleteUploadedImageMutation();
   const [createProductVariant]                  = useCreateProductVariantMutation();
+  const [setInventory]                          = useSetInventoryMutation();
   const { data: cats = [] }                     = useAdminListCategoriesQuery();
 
   const [form, setForm]         = useState(INITIAL);
   const [tagInput, setTagInput] = useState('');
   const [catId, setCatId]       = useState('');
+  const [stockQty, setStockQty] = useState(0);
 
   // General images (no color association)
   const [images, setImages]     = useState<UploadedImage[]>([]);
@@ -80,6 +85,9 @@ export default function NewProductPage() {
   // Size variants
   const [sizeVariants, setSizeVariants] = useState<SizeVariant[]>([]);
   const sizeFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Variants enabled toggle
+  const [variantsEnabled, setVariantsEnabled] = useState(false);
 
   // Active variant tab
   const [variantTab, setVariantTab] = useState<'colors' | 'sizes'>('colors');
@@ -190,7 +198,7 @@ export default function NewProductPage() {
   // ── Size variants ────────────────────────────────────────────────────────────
 
   function addSize() {
-    setSizeVariants((prev) => [...prev, { tempId: uid(), name: '', additionalPrice: 0, images: [], uploading: false }]);
+    setSizeVariants((prev) => [...prev, { tempId: uid(), name: '', sku: '', additionalPrice: 0, stockQuantity: 0, images: [], uploading: false }]);
   }
 
   function updateSize(tempId: string, patch: Partial<Omit<SizeVariant, 'tempId'>>) {
@@ -259,7 +267,12 @@ export default function NewProductPage() {
       const product   = await createProduct(payload).unwrap();
       const productId = (product as unknown as { id: string }).id;
 
-      // 1 — Attach general images
+      // 1 — Set base stock (only when no variants — per-variant stock is set in step 3)
+      if (!variantsEnabled && stockQty > 0) {
+        await setInventory({ productId, quantity: stockQty }).unwrap().catch(() => {});
+      }
+
+      // 2 — Attach general images
       for (let i = 0; i < images.length; i++) {
         await addProductMedia({
           productId,
@@ -270,7 +283,7 @@ export default function NewProductPage() {
         }).unwrap().catch(() => {});
       }
 
-      // 2 — Create color variants + attach color images
+      // 3 — Create color variants + attach color images
       for (const cv of colorVariants) {
         if (!cv.name.trim()) continue;
         const variant = await createProductVariant({
@@ -293,14 +306,16 @@ export default function NewProductPage() {
         }
       }
 
-      // 3 — Create size variants + their images
+      // 4 — Create size variants + their images
       for (const sv of sizeVariants) {
         if (!sv.name.trim()) continue;
         const sizeVariant = await createProductVariant({
           productId,
           name:            sv.name,
+          sku:             sv.sku || undefined,
           options:         { size: sv.name },
           additionalPrice: sv.additionalPrice,
+          stockQuantity:   sv.stockQuantity,
         }).unwrap().catch(() => null);
 
         if (sizeVariant) {
@@ -422,12 +437,30 @@ export default function NewProductPage() {
 
       {/* ── Variants ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <div>
-          <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Variants</h2>
-          <p className="text-xs text-gray-500 mt-1">Add colors (with per-color images) and/or sizes (with price differences). Both are optional.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Variants</h2>
+            <p className="text-xs text-gray-500 mt-1">Enable if this product comes in multiple sizes, colors, or options.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setVariantsEnabled((v) => !v)}
+            className={`flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${variantsEnabled ? 'bg-forest-600' : 'bg-gray-200'}`}
+            role="switch"
+            aria-checked={variantsEnabled}
+          >
+            <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${variantsEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+          </button>
         </div>
 
-        {/* Tab switcher */}
+        {!variantsEnabled && (
+          <p className="text-xs text-gray-400 italic">
+            Toggle on to add sizes (e.g. 3×6, 4×6) or colors — each with their own price and images.
+          </p>
+        )}
+
+        {variantsEnabled && (
+        <>{/* Tab switcher */}
         <div className="flex gap-2 border-b border-gray-100 pb-0">
           {(['colors', 'sizes'] as const).map((tab) => (
             <button
@@ -537,14 +570,14 @@ export default function NewProductPage() {
             {sizeVariants.map((sv) => (
               <div key={sv.tempId} className="border border-gray-200 rounded-xl p-4 space-y-3">
                 {/* Name + price row */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <input
                     value={sv.name}
                     onChange={(e) => updateSize(sv.tempId, { name: e.target.value })}
-                    placeholder="Size name (e.g. King Size, 200×230cm)"
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+                    placeholder="Size name (e.g. 4×6, King Size)"
+                    className="flex-1 min-w-[140px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
                   />
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <span className="text-xs text-gray-500">+ KES</span>
                     <input
                       type="number"
@@ -554,13 +587,36 @@ export default function NewProductPage() {
                     />
                   </div>
                   {form.basePrice > 0 && (
-                    <span className="text-xs font-bold text-forest-700 flex-shrink-0 w-28 text-right">
+                    <span className="text-xs font-bold text-forest-700 flex-shrink-0">
                       = KES {(form.basePrice + sv.additionalPrice).toLocaleString()}
                     </span>
                   )}
                   <button type="button" onClick={() => removeSize(sv.tempId)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
+                </div>
+                {/* SKU + stock row */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Tag className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                    <input
+                      value={sv.sku}
+                      onChange={(e) => updateSize(sv.tempId, { sku: e.target.value })}
+                      placeholder="SKU (optional)"
+                      className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-forest-500 text-gray-600"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-xs text-gray-500">Stock</span>
+                    <input
+                      type="number"
+                      value={sv.stockQuantity}
+                      onChange={(e) => updateSize(sv.tempId, { stockQuantity: Math.max(0, Number(e.target.value)) })}
+                      onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
+                      min={0}
+                      className="w-20 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-forest-500 text-right"
+                    />
+                  </div>
                 </div>
 
                 {/* Size images */}
@@ -613,6 +669,7 @@ export default function NewProductPage() {
             </button>
           </div>
         )}
+        </>)}
       </div>
 
       {/* ── Pricing & Status ── */}
@@ -674,6 +731,20 @@ export default function NewProductPage() {
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
             />
           </div>
+          {!variantsEnabled && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1.5">Stock Quantity</label>
+              <input
+                type="number"
+                value={stockQty}
+                onChange={(e) => setStockQty(Math.max(0, Number(e.target.value)))}
+                onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
+                min={0}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">How many units you currently have in stock.</p>
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap gap-4">
           {([['isFeatured', 'Featured'], ['isNewArrival', 'New Arrival']] as [keyof typeof INITIAL, string][]).map(([key, label]) => (

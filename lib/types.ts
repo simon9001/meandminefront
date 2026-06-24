@@ -41,6 +41,7 @@ export interface ProductVariant {
   name: string;
   options: Record<string, string>;
   additionalPrice: number;
+  stockQuantity?: number;
   isActive: boolean;
   sku?: string;
 }

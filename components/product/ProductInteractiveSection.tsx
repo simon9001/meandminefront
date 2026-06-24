@@ -62,6 +62,10 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
   );
 
   const cartVariantId  = selectedSize?.id ?? selectedColor?.id;
+
+  const allSizesOos = sizeVariants.length > 0 && sizeVariants.every((sv) => sv.stockQuantity === 0);
+  const effectiveStatus = allSizesOos ? 'out_of_stock' : product.status;
+
   const categoryName   = product.category?.name ?? '';
   const categorySlug   = product.category?.slug ?? categoryName.toLowerCase().replace(/\s+/g, '-');
   const categoryHref   = `/products?category=${categorySlug}`;
@@ -154,23 +158,25 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
             <p className="text-xs font-bold text-bark-500 uppercase tracking-wider mb-2.5">Size</p>
             <div className="flex flex-wrap gap-2">
               {sizeVariants.map((sv) => {
-                const isSelected = selectedSize?.id === sv.id;
+                const isSelected   = selectedSize?.id === sv.id;
+                const isSizeOos    = sv.stockQuantity === 0;
                 return (
                   <button
                     key={sv.id}
                     type="button"
-                    onClick={() => setSelectedSize(isSelected ? null : sv)}
-                    className="flex flex-col items-center px-4 py-2 rounded-xl border-2 text-sm transition-all"
+                    disabled={isSizeOos}
+                    onClick={() => !isSizeOos && setSelectedSize(isSelected ? null : sv)}
+                    className="flex flex-col items-center px-4 py-2 rounded-xl border-2 text-sm transition-all disabled:cursor-not-allowed relative"
                     style={{
-                      borderColor: isSelected ? '#2d5016' : 'rgba(0,0,0,0.10)',
-                      background:  isSelected ? '#f0f7e8' : 'rgba(255,255,255,0.7)',
-                      color:       isSelected ? '#2d5016' : '#374151',
+                      borderColor: isSelected ? '#2d5016' : isSizeOos ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.10)',
+                      background:  isSelected ? '#f0f7e8' : isSizeOos ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.7)',
+                      color:       isSelected ? '#2d5016' : isSizeOos ? '#9ca3af' : '#374151',
                       boxShadow:   isSelected ? '0 0 0 2px rgba(45,80,22,0.15)' : 'none',
                     }}
                   >
-                    <span className="font-semibold">{sv.options.size}</span>
+                    <span className={`font-semibold ${isSizeOos ? 'line-through' : ''}`}>{sv.options.size}</span>
                     <span className="text-[10px] opacity-60 mt-0.5">
-                      KES {(basePrice + sv.additionalPrice).toLocaleString()}
+                      {isSizeOos ? 'Sold out' : `KES ${(basePrice + sv.additionalPrice).toLocaleString()}`}
                     </span>
                   </button>
                 );
@@ -188,9 +194,10 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
               basePrice:     effectivePrice,
               salePrice:     undefined,
               showSalePrice: false,
-              status:        product.status,
+              status:        effectiveStatus,
             }}
             variantId={cartVariantId}
+            variantRequiredMessage={sizeVariants.length > 0 && !selectedSize ? 'Please select a size to continue' : undefined}
           />
         </div>
 

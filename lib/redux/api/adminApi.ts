@@ -16,14 +16,42 @@ interface ApiWrap<T> { data: T; success: boolean; }
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
 export interface InventoryItem {
-  productId:      string;
-  variantId?:     string;
-  productName:    string;
-  sku?:           string;
-  availableStock: number;
-  totalStock:     number;
-  reservedStock:  number;
+  productId:        string;
+  variantId?:       string;
+  productName:      string;
+  variantName?:     string;
+  sku?:             string;
+  availableStock:   number;
+  totalStock:       number;
+  reservedStock:    number;
   warningThreshold: number;
+}
+
+type RawInventoryRow = {
+  product_id:      string;
+  variant_id:      string | null;
+  available_stock: number;
+  total_stock:     number;
+  reserved_stock:  number;
+  reorder_point:   number | null;
+  products: { name: string; sku: string | null; stock_warning_threshold?: number } | null;
+  product_variants: { name: string; options: Record<string, string> } | null;
+};
+
+function mapInventoryRow(r: RawInventoryRow): InventoryItem {
+  const variantOpts = r.product_variants?.options ?? {};
+  const variantLabel = variantOpts.size ?? variantOpts.color ?? r.product_variants?.name;
+  return {
+    productId:        r.product_id,
+    variantId:        r.variant_id ?? undefined,
+    productName:      r.products?.name ?? 'Unknown',
+    variantName:      variantLabel,
+    sku:              r.products?.sku ?? undefined,
+    availableStock:   r.available_stock ?? 0,
+    totalStock:       r.total_stock ?? 0,
+    reservedStock:    r.reserved_stock ?? 0,
+    warningThreshold: r.reorder_point ?? r.products?.stock_warning_threshold ?? 10,
+  };
 }
 
 export interface DiscountCode {
@@ -171,6 +199,15 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
     }),
 
+    updateProductVariant: builder.mutation<void, {
+      productId: string; variantId: string;
+      name?: string; sku?: string | null; options?: Record<string, string>;
+      additionalPrice?: number; stockQuantity?: number; isActive?: boolean;
+    }>({
+      query: ({ productId, variantId, ...body }) => ({ url: `/products/${productId}/variants/${variantId}`, method: 'PATCH', body }),
+      invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
+    }),
+
     deleteProductVariant: builder.mutation<void, { productId: string; variantId: string }>({
       query: ({ productId, variantId }) => ({ url: `/products/${productId}/variants/${variantId}`, method: 'DELETE' }),
       invalidatesTags: (_r, _e, { productId }) => [{ type: 'Product', id: productId }, 'Product'],
@@ -232,6 +269,7 @@ export const adminApi = baseApi.injectEndpoints({
               id:                i.id as string,
               productId:         (i.product_id ?? i.productId ?? '') as string,
               productName:       (i.product_name ?? i.productName) as string,
+              variantOptions:    (i.variant_options ?? i.variantOptions) as Record<string, string> | undefined,
               quantity:          Number(i.quantity),
               unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
               totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
@@ -275,6 +313,7 @@ export const adminApi = baseApi.injectEndpoints({
             id:                i.id as string,
             productId:         (i.product_id ?? i.productId ?? '') as string,
             productName:       (i.product_name ?? i.productName) as string,
+            variantOptions:    (i.variant_options ?? i.variantOptions) as Record<string, string> | undefined,
             quantity:          Number(i.quantity),
             unitPrice:         Number(i.unit_price ?? i.unitPrice ?? 0),
             totalPrice:        Number(i.total_price ?? i.totalPrice ?? 0),
@@ -298,25 +337,37 @@ export const adminApi = baseApi.injectEndpoints({
     }),
 
     // ── Inventory (admin) ──
-    listInventory: builder.query<InventoryItem[], { search?: string; lowStock?: boolean }>({
-      query: (params) => ({ url: '/inventory', params }),
-      transformResponse: (res: ApiWrap<InventoryItem[]>) => res.data,
+    listInventory: builder.query<InventoryItem[], void>({
+      query: () => ({ url: '/inventory', params: { limit: 200 } }),
+      transformResponse: (res: unknown) => {
+        const r = res as { data: { data: RawInventoryRow[] } };
+        return (r.data?.data ?? []).map(mapInventoryRow);
+      },
       providesTags: ['Admin'],
     }),
 
     listLowStock: builder.query<InventoryItem[], { threshold?: number }>({
       query: (params) => ({ url: '/inventory/low-stock', params }),
-      transformResponse: (res: ApiWrap<InventoryItem[]>) => res.data,
+      transformResponse: (res: unknown) => {
+        const r = res as { data: RawInventoryRow[] };
+        return (r.data ?? []).map(mapInventoryRow);
+      },
       providesTags: ['Admin'],
     }),
 
     adjustInventory: builder.mutation<void, { productId: string; variantId?: string; delta: number; reason?: string }>({
-      query: (body) => ({ url: '/inventory/adjust', method: 'POST', body }),
+      query: ({ productId, variantId, delta, reason }) => ({
+        url: '/inventory/adjust', method: 'POST',
+        body: { productId, variantId, qty: delta, reason },
+      }),
       invalidatesTags: ['Admin'],
     }),
 
-    setInventory: builder.mutation<void, { productId: string; variantId?: string; quantity: number; reason?: string }>({
-      query: (body) => ({ url: '/inventory/set', method: 'PUT', body }),
+    setInventory: builder.mutation<void, { productId: string; variantId?: string; quantity: number }>({
+      query: ({ productId, variantId, quantity }) => ({
+        url: '/inventory/set', method: 'PUT',
+        body: { productId, variantId, totalStock: quantity },
+      }),
       invalidatesTags: ['Admin'],
     }),
 
@@ -416,5 +467,6 @@ export const {
   useAddShipmentEventMutation,
   useRefreshMaterializedViewsMutation,
   useCreateProductVariantMutation,
+  useUpdateProductVariantMutation,
   useDeleteProductVariantMutation,
 } = adminApi;

@@ -1,7 +1,7 @@
 'use client';
 import { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ImagePlus, Loader2, Palette, Plus, Ruler, Save, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, ImagePlus, Loader2, Palette, Pencil, Plus, Ruler, Save, Star, Tag, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import {
   useAdminListProductsQuery,
@@ -10,7 +10,10 @@ import {
   useAddProductMediaMutation,
   useDeleteProductMediaMutation,
   useCreateProductVariantMutation,
+  useUpdateProductVariantMutation,
   useDeleteProductVariantMutation,
+  useListInventoryQuery,
+  useSetInventoryMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
 import { useGetProductQuery } from '@/lib/redux/api/productsApi';
@@ -41,7 +44,9 @@ type ExistingColor = {
 type ExistingSize = {
   id:              string;
   name:            string;
+  sku:             string;
   additionalPrice: number;
+  stockQuantity:   number;
   images:          SavedMedia[];
   uploading:       boolean;
 };
@@ -57,7 +62,9 @@ type NewColor = {
 type NewSize = {
   tempId:          string;
   name:            string;
+  sku:             string;
   additionalPrice: number;
+  stockQuantity:   number;
   images:          { url: string; publicId: string }[];
   uploading:       boolean;
 };
@@ -74,7 +81,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [addProductMedia]                   = useAddProductMediaMutation();
   const [deleteProductMedia]                = useDeleteProductMediaMutation();
   const [createProductVariant]              = useCreateProductVariantMutation();
+  const [updateProductVariant]              = useUpdateProductVariantMutation();
   const [deleteProductVariant]              = useDeleteProductVariantMutation();
+  const [setInventory]                      = useSetInventoryMutation();
+
+  const { data: inventoryItems = [] } = useListInventoryQuery();
 
   const listProduct = productsPage?.data.find((p) => p.id === id);
 
@@ -89,7 +100,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [catId, setCatId]       = useState('');
   const [tagInput, setTagInput] = useState('');
   const [ready, setReady]       = useState(false);
+  const [variantsEnabled, setVariantsEnabled] = useState(false);
   const [variantTab, setVariantTab] = useState<'colors' | 'sizes'>('colors');
+  const [stockQty, setStockQty] = useState(0);
+
+  // Tracks which existing variant is being inline-edited
+  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<{ name: string; additionalPrice: number; sku: string; stockQuantity: number }>({ name: '', additionalPrice: 0, sku: '', stockQuantity: 0 });
 
   // General (non-variant) images
   const [media, setMedia]           = useState<SavedMedia[]>([]);
@@ -153,10 +170,16 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         setExistingSizes(sizeVars.map((v) => ({
           id:              v.id,
           name:            v.options.size ?? v.name,
+          sku:             v.sku ?? '',
           additionalPrice: v.additionalPrice ?? 0,
+          stockQuantity:   v.stockQuantity ?? 0,
           images:          allMedia.filter((m) => m.variantId === v.id),
           uploading:       false,
         })));
+
+        if (colorVars.length > 0 || sizeVars.length > 0) {
+          setVariantsEnabled(true);
+        }
 
         setReady(true);
       } else if (listProduct && !fullProduct) {
@@ -164,6 +187,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       }
     }
   }, [fullProduct, listProduct, ready]);
+
+  // Seed base stock once when inventory data arrives (separate from main seed to avoid loop)
+  const stockSeededRef = useRef(false);
+  useEffect(() => {
+    if (stockSeededRef.current || !ready || variantsEnabled) return;
+    const baseInv = inventoryItems.find((i) => i.productId === id && !i.variantId);
+    if (baseInv !== undefined) {
+      setStockQty(baseInv.availableStock);
+      stockSeededRef.current = true;
+    }
+  }, [inventoryItems, id, ready, variantsEnabled]);
 
   // ── Field helpers ──────────────────────────────────────────────────────────
 
@@ -375,7 +409,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   // ── New size variant management ─────────────────────────────────────────────
 
   function addNewSize() {
-    setNewSizes((prev) => [...prev, { tempId: uid(), name: '', additionalPrice: 0, images: [], uploading: false }]);
+    setNewSizes((prev) => [...prev, { tempId: uid(), name: '', sku: '', additionalPrice: 0, stockQuantity: 0, images: [], uploading: false }]);
   }
   function updateNewSize(tempId: string, patch: Partial<Omit<NewSize, 'tempId'>>) {
     setNewSizes((prev) => prev.map((s) => s.tempId === tempId ? { ...s, ...patch } : s));
@@ -408,6 +442,36 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  // ── Inline variant edit ─────────────────────────────────────────────────────
+
+  function startEditVariant(sv: ExistingSize) {
+    setEditingVariantId(sv.id);
+    setEditDraft({ name: sv.name, additionalPrice: sv.additionalPrice, sku: sv.sku, stockQuantity: sv.stockQuantity });
+  }
+
+  async function saveInlineEdit(sv: ExistingSize) {
+    try {
+      await updateProductVariant({
+        productId:       id,
+        variantId:       sv.id,
+        name:            editDraft.name || undefined,
+        options:         editDraft.name ? { size: editDraft.name } : undefined,
+        additionalPrice: editDraft.additionalPrice,
+        sku:             editDraft.sku || undefined,
+        stockQuantity:   editDraft.stockQuantity,
+      }).unwrap();
+      setExistingSizes((prev) => prev.map((s) =>
+        s.id === sv.id
+          ? { ...s, name: editDraft.name || s.name, additionalPrice: editDraft.additionalPrice, sku: editDraft.sku, stockQuantity: editDraft.stockQuantity }
+          : s
+      ));
+      setEditingVariantId(null);
+      toast.success('Variant updated');
+    } catch {
+      toast.error('Failed to update variant');
+    }
+  }
+
   // ── Save ────────────────────────────────────────────────────────────────────
 
   async function handleSave() {
@@ -422,6 +486,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     try {
       // 1 — Update core product fields
       await updateProduct({ id, ...form, categoryId: catId || undefined }).unwrap();
+
+      // 1b — Set base stock when no variants
+      if (!variantsEnabled && stockQty >= 0) {
+        await setInventory({ productId: id, quantity: stockQty }).unwrap().catch(() => {});
+      }
 
       // 2 — Create new color variants + their images
       for (const cv of newColors) {
@@ -453,6 +522,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           name:            sv.name,
           options:         { size: sv.name },
           additionalPrice: sv.additionalPrice,
+          sku:             sv.sku || undefined,
+          stockQuantity:   sv.stockQuantity,
         }).unwrap().catch(() => null);
         if (variant) {
           for (let i = 0; i < sv.images.length; i++) {
@@ -580,10 +651,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
       {/* ── Variants ── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-        <div>
-          <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Variants</h2>
-          <p className="text-xs text-gray-500 mt-1">Manage existing colors/sizes or add new ones. Deleting an existing variant is immediate.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wider">Variants</h2>
+            <p className="text-xs text-gray-500 mt-1">Manage existing colors/sizes or add new ones. Deleting an existing variant is immediate.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setVariantsEnabled((v) => !v)}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${
+              variantsEnabled ? 'bg-forest-600' : 'bg-gray-200'
+            }`}
+            role="switch"
+            aria-checked={variantsEnabled}
+          >
+            <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform ${
+              variantsEnabled ? 'translate-x-5' : 'translate-x-0'
+            }`} />
+          </button>
         </div>
+
+        {variantsEnabled && <>
 
         {/* Tab switcher */}
         <div className="flex gap-2 border-b border-gray-100">
@@ -711,22 +799,83 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             {existingSizes.map((sv) => (
               <div key={sv.id} className="border border-gray-200 rounded-xl p-4 space-y-3">
                 {/* Header row */}
-                <div className="flex items-center gap-3">
-                  <span className="flex-1 text-sm font-semibold text-gray-800">{sv.name}</span>
-                  <span className="text-xs text-gray-400">
-                    {sv.additionalPrice !== 0 ? `${sv.additionalPrice > 0 ? '+' : ''}KES ${sv.additionalPrice.toLocaleString()}` : 'same price'}
-                  </span>
-                  {form.basePrice && (
-                    <span className="text-xs font-bold text-forest-700 w-28 text-right">
-                      = KES {((form.basePrice ?? 0) + sv.additionalPrice).toLocaleString()}
+                {editingVariantId === sv.id ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={editDraft.name}
+                        onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))}
+                        placeholder="Size name"
+                        className="flex-1 px-3 py-1.5 border border-forest-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+                      />
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <span className="text-xs text-gray-500">+ KES</span>
+                        <input
+                          type="number"
+                          value={editDraft.additionalPrice}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, additionalPrice: Number(e.target.value) }))}
+                          className="w-20 px-2 py-1.5 border border-forest-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 text-right"
+                        />
+                      </div>
+                      <button type="button" onClick={() => saveInlineEdit(sv)}
+                        className="p-1.5 text-forest-600 hover:bg-forest-50 rounded-lg transition-colors" title="Save">
+                        <Check className="h-4 w-4" />
+                      </button>
+                      <button type="button" onClick={() => setEditingVariantId(null)}
+                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors" title="Cancel">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-1">
+                        <Tag className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                        <input
+                          value={editDraft.sku}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, sku: e.target.value }))}
+                          placeholder="SKU (optional)"
+                          className="flex-1 px-3 py-1.5 border border-forest-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-forest-500"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className="text-xs text-gray-500">Stock</span>
+                        <input
+                          type="number"
+                          value={editDraft.stockQuantity}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, stockQuantity: Math.max(0, Number(e.target.value)) }))}
+                          onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
+                          min={0}
+                          className="w-20 px-2 py-1.5 border border-forest-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 text-right"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <span className="text-sm font-semibold text-gray-800">{sv.name}</span>
+                      {sv.sku && <span className="ml-2 text-xs text-gray-400 font-mono">SKU: {sv.sku}</span>}
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {sv.additionalPrice !== 0 ? `${sv.additionalPrice > 0 ? '+' : ''}KES ${sv.additionalPrice.toLocaleString()}` : 'same price'}
                     </span>
-                  )}
-                  <span className="text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">saved</span>
-                  <button type="button" onClick={() => handleDeleteExistingSize(sv.id)}
-                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                    {form.basePrice && (
+                      <span className="text-xs font-bold text-forest-700 w-28 text-right">
+                        = KES {((form.basePrice ?? 0) + sv.additionalPrice).toLocaleString()}
+                      </span>
+                    )}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${sv.stockQuantity === 0 ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-500'}`}>
+                      {sv.stockQuantity} in stock
+                    </span>
+                    <button type="button" onClick={() => startEditVariant(sv)}
+                      className="p-1.5 text-gray-400 hover:text-forest-600 hover:bg-forest-50 rounded-lg transition-colors" title="Edit">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button type="button" onClick={() => handleDeleteExistingSize(sv.id)}
+                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
                 {/* Size images */}
                 <div>
                   <p className="text-xs font-medium text-gray-600 mb-2">Images for this size <span className="text-gray-400 font-normal">(optional)</span></p>
@@ -781,6 +930,26 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
+                {/* SKU + stock row */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Tag className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                    <input value={sv.sku} onChange={(e) => updateNewSize(sv.tempId, { sku: e.target.value })}
+                      placeholder="SKU (optional)"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-forest-500" />
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-xs text-gray-500">Stock</span>
+                    <input
+                      type="number"
+                      value={sv.stockQuantity}
+                      onChange={(e) => updateNewSize(sv.tempId, { stockQuantity: Math.max(0, Number(e.target.value)) })}
+                      onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
+                      min={0}
+                      className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 text-right"
+                    />
+                  </div>
+                </div>
                 {/* Size images */}
                 <div>
                   <p className="text-xs font-medium text-gray-600 mb-2">Images for this size <span className="text-gray-400 font-normal">(optional)</span></p>
@@ -817,6 +986,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </button>
           </div>
         )}
+
+        </>}
       </div>
 
       {/* ── Pricing & Status ── */}
@@ -854,6 +1025,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <input type="number" value={form.stockWarningThreshold ?? 5} onChange={(e) => set('stockWarningThreshold', Number(e.target.value))} min={0}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500" />
           </div>
+          {!variantsEnabled && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1.5">Stock Quantity</label>
+              <input
+                type="number"
+                value={stockQty}
+                onChange={(e) => setStockQty(Math.max(0, Number(e.target.value)))}
+                onFocus={(e) => { if (e.target.value === '0') e.target.select(); }}
+                min={0}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-forest-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">Current units in stock. Saved when you click Save Changes.</p>
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap gap-4">
           {([['isFeatured', 'Featured'], ['isNewArrival', 'New Arrival'], ['isBestSeller', 'Best Seller']] as [keyof CreateProductPayload, string][]).map(([key, label]) => (
