@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, ImagePlus, Loader2, Palette, Pencil, Plus, Ruler, Save, Star, Tag, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import {
-  useAdminListProductsQuery,
+  useAdminGetProductQuery,
   useUpdateProductMutation,
   useAdminListCategoriesQuery,
   useAddProductMediaMutation,
@@ -16,7 +16,6 @@ import {
   useSetInventoryMutation,
   type CreateProductPayload,
 } from '@/lib/redux/api/adminApi';
-import { useGetProductQuery } from '@/lib/redux/api/productsApi';
 import { toast } from 'sonner';
 import type { Product, ProductVariant } from '@/lib/types';
 
@@ -75,7 +74,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const { id }   = use(params);
   const router   = useRouter();
 
-  const { data: productsPage }              = useAdminListProductsQuery({ limit: 200, status: 'all' });
   const { data: cats = [] }                 = useAdminListCategoriesQuery();
   const [updateProduct, { isLoading: saving }] = useUpdateProductMutation();
   const [addProductMedia]                   = useAddProductMediaMutation();
@@ -87,14 +85,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   const { data: inventoryItems = [] } = useListInventoryQuery();
 
-  const listProduct = productsPage?.data.find((p) => p.id === id);
+  // Use the admin endpoint — fetches from products table directly (not the view),
+  // so draft / archived / out_of_stock products all load correctly.
+  const { data: fullProduct } = useAdminGetProductQuery(id);
 
-  // Fetch full product details (variants + media) using the detail endpoint
-  const { data: fullProduct } = useGetProductQuery(listProduct?.slug ?? '', {
-    skip: !listProduct?.slug,
-  });
-
-  const product: Product | undefined = fullProduct ?? listProduct;
+  const product: Product | undefined = fullProduct;
 
   const [form, setForm]         = useState<Partial<CreateProductPayload>>({});
   const [catId, setCatId]       = useState('');
@@ -130,63 +125,54 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   // ── Seed state from product ────────────────────────────────────────────────
 
   useEffect(() => {
-    // Wait for fullProduct which has variants + media; fall back to listProduct for basic fields only
-    const source = fullProduct ?? (listProduct && !fullProduct ? listProduct : undefined);
-    if (source && !ready) {
-      setForm({
-        name:                 source.name,
-        slug:                 source.slug,
-        shortDescription:     source.shortDescription,
-        fullDescription:      source.fullDescription,
-        basePrice:            source.basePrice,
-        salePrice:            source.salePrice,
-        showSalePrice:        source.showSalePrice ?? false,
-        status:               source.status,
-        isFeatured:           source.isFeatured,
-        isNewArrival:         source.isNewArrival,
-        isBestSeller:         source.isBestSeller,
-        stockWarningThreshold: source.stockWarningThreshold,
-        tags:                 source.tags ?? [],
-      });
-      setCatId(source.category?.id ?? '');
+    if (!fullProduct || ready) return;
 
-      // Only seed variants + media when we have the full product response
-      if (fullProduct) {
-        const allMedia = (fullProduct.media ?? []) as SavedMedia[];
-        setMedia(allMedia.filter((m) => !m.variantId));
+    setForm({
+      name:                  fullProduct.name,
+      slug:                  fullProduct.slug,
+      shortDescription:      fullProduct.shortDescription,
+      fullDescription:       fullProduct.fullDescription,
+      basePrice:             fullProduct.basePrice,
+      salePrice:             fullProduct.salePrice,
+      showSalePrice:         fullProduct.showSalePrice ?? false,
+      status:                fullProduct.status,
+      isFeatured:            fullProduct.isFeatured,
+      isNewArrival:          fullProduct.isNewArrival,
+      isBestSeller:          fullProduct.isBestSeller,
+      stockWarningThreshold: fullProduct.stockWarningThreshold,
+      tags:                  fullProduct.tags ?? [],
+    });
+    setCatId(fullProduct.category?.id ?? '');
 
-        const variants: ProductVariant[] = fullProduct.variants ?? [];
-        const colorVars = variants.filter((v) => 'color' in v.options);
-        const sizeVars  = variants.filter((v) => 'size'  in v.options);
+    const allMedia = (fullProduct.media ?? []) as SavedMedia[];
+    setMedia(allMedia.filter((m) => !m.variantId));
 
-        setExistingColors(colorVars.map((v) => ({
-          id:        v.id,
-          name:      v.options.color ?? v.name,
-          hex:       v.options.colorHex ?? '#c47b2a',
-          images:    allMedia.filter((m) => m.variantId === v.id),
-          uploading: false,
-        })));
+    const variants: ProductVariant[] = fullProduct.variants ?? [];
+    const colorVars = variants.filter((v) => 'color' in v.options);
+    const sizeVars  = variants.filter((v) => 'size'  in v.options);
 
-        setExistingSizes(sizeVars.map((v) => ({
-          id:              v.id,
-          name:            v.options.size ?? v.name,
-          sku:             v.sku ?? '',
-          additionalPrice: v.additionalPrice ?? 0,
-          stockQuantity:   v.stockQuantity ?? 0,
-          images:          allMedia.filter((m) => m.variantId === v.id),
-          uploading:       false,
-        })));
+    setExistingColors(colorVars.map((v) => ({
+      id:        v.id,
+      name:      v.options.color ?? v.name,
+      hex:       v.options.colorHex ?? '#c47b2a',
+      images:    allMedia.filter((m) => m.variantId === v.id),
+      uploading: false,
+    })));
 
-        if (colorVars.length > 0 || sizeVars.length > 0) {
-          setVariantsEnabled(true);
-        }
+    setExistingSizes(sizeVars.map((v) => ({
+      id:              v.id,
+      name:            v.options.size ?? v.name,
+      sku:             v.sku ?? '',
+      additionalPrice: v.additionalPrice ?? 0,
+      stockQuantity:   v.stockQuantity ?? 0,
+      images:          allMedia.filter((m) => m.variantId === v.id),
+      uploading:       false,
+    })));
 
-        setReady(true);
-      } else if (listProduct && !fullProduct) {
-        // fullProduct still loading — show spinner, don't mark ready yet
-      }
-    }
-  }, [fullProduct, listProduct, ready]);
+    if (colorVars.length > 0 || sizeVars.length > 0) setVariantsEnabled(true);
+
+    setReady(true);
+  }, [fullProduct, ready]);
 
   // Seed base stock once when inventory data arrives (separate from main seed to avoid loop)
   const stockSeededRef = useRef(false);

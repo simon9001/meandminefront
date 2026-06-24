@@ -182,6 +182,14 @@ export const adminApi = baseApi.injectEndpoints({
           : ['Product'],
     }),
 
+    // Fetch full product detail by ID for admin editing — bypasses the public view,
+    // so draft/archived/out_of_stock products are all accessible.
+    adminGetProduct: builder.query<Product, string>({
+      query: (id) => ({ url: `/products/admin/${id}` }),
+      transformResponse: (res: ApiWrap<Product>) => res.data,
+      providesTags: (_r, _e, id) => [{ type: 'Product', id }],
+    }),
+
     createProduct: builder.mutation<Product, CreateProductPayload>({
       query: (body) => ({ url: '/products', method: 'POST', body }),
       transformResponse: (res: ApiWrap<Product>) => res.data,
@@ -495,6 +503,7 @@ export const {
   useGetDailyRevenueQuery,
   useGetTopProductsQuery,
   useAdminListProductsQuery,
+  useAdminGetProductQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,

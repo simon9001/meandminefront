@@ -10,6 +10,9 @@ function mapOrderItem(i: Record<string, unknown>): OrderItem {
     productId:         ((i.product_id ?? i.productId) ?? '') as string,
     productName:       ((i.product_name ?? i.productName) ?? '') as string,
     productSku:        (i.product_sku ?? i.productSku) as string | undefined,
+    // Backend injects these as flat fields after a separate products lookup
+    productSlug:       (i.product_slug ?? i.productSlug) as string | undefined,
+    imageUrl:          (i.primary_image_url ?? i.imageUrl) as string | undefined,
     variantOptions:    (i.variant_options ?? i.variantOptions) as Record<string, string> | undefined,
     quantity:          Number(i.quantity ?? 0),
     unitPrice:         Number((i.unit_price ?? i.unitPrice) ?? 0),

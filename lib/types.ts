@@ -171,6 +171,8 @@ export interface OrderItem {
   productId: string;
   productName: string;
   productSku?: string;
+  productSlug?: string;
+  imageUrl?: string;
   variantOptions?: Record<string, string>;
   quantity: number;
   unitPrice: number;
