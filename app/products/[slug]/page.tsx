@@ -126,7 +126,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const { product, isStatic } = resolved;
 
-  const showSale     = !!(product.showSalePrice && product.salePrice && product.salePrice < product.basePrice);
+  const showSale     = !!(product.salePrice && product.salePrice < product.basePrice);
   const discount     = showSale ? Math.round((1 - product.salePrice! / product.basePrice) * 100) : 0;
   const badge        = product.isNewArrival ? 'new' : product.isBestSeller ? 'bestseller' : null;
   const categoryName = product.category?.name ?? '';

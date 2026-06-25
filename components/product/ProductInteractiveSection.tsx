@@ -51,10 +51,10 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
 
   // The effective base (respects sale price) + size addition
   const basePrice = useMemo(() =>
-    product.salePrice && product.showSalePrice && product.salePrice < product.basePrice
+    product.salePrice && product.salePrice < product.basePrice
       ? product.salePrice
       : product.basePrice,
-  [product.basePrice, product.salePrice, product.showSalePrice]);
+  [product.basePrice, product.salePrice]);
 
   const effectivePrice = useMemo(
     () => basePrice + (selectedSize?.additionalPrice ?? 0),

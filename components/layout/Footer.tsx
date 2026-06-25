@@ -27,7 +27,7 @@ export function Footer() {
                   0757 568 845
                 </a>
                 <a
-                  href="https://chat.whatsapp.com/JlHbNPqsvZVKIExyeSAYsQ"
+                  href="https://wa.me/254757568845"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-forest-400 hover:text-white transition-colors"

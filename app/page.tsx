@@ -62,18 +62,29 @@ export default function HomePage() {
               { icon: <ShieldCheck className="h-6 w-6 text-forest-700" />, title: 'Verified Suppliers',    sub: 'Every product sourced from vetted Kenyan suppliers' },
               { icon: <Truck className="h-6 w-6 text-forest-700" />,       title: 'Fast Delivery',         sub: 'Nairobi same-day · Nationwide 2–4 days' },
               { icon: <RotateCcw className="h-6 w-6 text-forest-700" />,   title: '7-Day Returns',         sub: 'Changed your mind? Easy, no-hassle returns.' },
-              { icon: <MessageCircle className="h-6 w-6 text-forest-700" />, title: '24/7 WhatsApp Support', sub: 'Real humans, not bots. We reply fast.' },
-            ].map((item) => (
-              <div key={item.title} className="flex flex-col items-center text-center gap-3">
-                <div className="h-14 w-14 rounded-2xl bg-forest-50 border border-forest-100 flex items-center justify-center">
-                  {item.icon}
+              { icon: <MessageCircle className="h-6 w-6 text-forest-700" />, title: '24/7 WhatsApp Support', sub: 'Real humans, not bots. We reply fast.', href: 'https://wa.me/254757568845' },
+            ].map((item) => {
+              const inner = (
+                <>
+                  <div className="h-14 w-14 rounded-2xl bg-forest-50 border border-forest-100 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p className="font-bold text-forest-900 text-sm">{item.title}</p>
+                    <p className="text-xs text-bark-500 mt-1 leading-relaxed">{item.sub}</p>
+                  </div>
+                </>
+              );
+              return 'href' in item ? (
+                <a key={item.title} href={item.href} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-center gap-3 hover:opacity-80 transition-opacity">
+                  {inner}
+                </a>
+              ) : (
+                <div key={item.title} className="flex flex-col items-center text-center gap-3">
+                  {inner}
                 </div>
-                <div>
-                  <p className="font-bold text-forest-900 text-sm">{item.title}</p>
-                  <p className="text-xs text-bark-500 mt-1 leading-relaxed">{item.sub}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

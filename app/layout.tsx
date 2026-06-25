@@ -9,6 +9,11 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://meandmine.shop'),
+  icons: {
+    icon:     '/icon.png',
+    shortcut: '/favicon.ico',
+    apple:    '/icon.png',
+  },
   title: { default: 'MeAndMine.shop — Premium Home & Lifestyle Products', template: '%s | MeAndMine.shop' },
   description: 'Shop premium carpets, bedding, kitchenware, appliances & home décor. Trusted Kenya online store with M-Pesa payments & nationwide delivery.',
   keywords: [
