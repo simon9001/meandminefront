@@ -22,7 +22,7 @@ const securityHeaders = [
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://vercel.live`,
       `frame-src ${isDev ? "https://vercel.live" : "'none'"}`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://*.supabase.co https://picsum.photos",
+      "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001").origin} https://api.paystack.co https://vitals.vercel-insights.com`,
       "form-action 'self'",
@@ -38,6 +38,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "picsum.photos" },
+      // Admin-uploaded product images can come from any supplier/vendor URL
+      { protocol: "https", hostname: "**" },
     ],
   },
 

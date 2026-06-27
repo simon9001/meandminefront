@@ -22,11 +22,11 @@ function StarRow({ rating }: { rating: number }) {
 
 export function ProductInteractiveSection({ product, badge, discount }: Props) {
   const colorVariants = useMemo(
-    () => (product.variants ?? []).filter((v) => 'color' in v.options),
+    () => (product.variants ?? []).filter((v) => v.options != null && 'color' in v.options),
     [product.variants]
   );
   const sizeVariants = useMemo(
-    () => (product.variants ?? []).filter((v) => 'size' in v.options),
+    () => (product.variants ?? []).filter((v) => v.options != null && 'size' in v.options),
     [product.variants]
   );
 
@@ -129,18 +129,18 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
         {colorVariants.length > 0 && (
           <div className="mt-4 mb-1">
             <p className="text-xs font-bold text-bark-500 uppercase tracking-wider mb-2.5">
-              Color — <span className="text-forest-900 normal-case font-semibold tracking-normal">{selectedColor?.options.color ?? ''}</span>
+              Color — <span className="text-forest-900 normal-case font-semibold tracking-normal">{selectedColor?.options?.color ?? ''}</span>
             </p>
             <div className="flex flex-wrap gap-2.5">
               {colorVariants.map((cv) => (
                 <button
                   key={cv.id}
                   type="button"
-                  title={cv.options.color}
+                  title={cv.options?.color}
                   onClick={() => setSelectedColor(cv)}
                   className="relative h-9 w-9 rounded-full border-2 transition-all"
                   style={{
-                    backgroundColor: cv.options.colorHex ?? cv.options.color,
+                    backgroundColor: cv.options?.colorHex ?? cv.options?.color,
                     borderColor: selectedColor?.id === cv.id ? '#2d5016' : 'rgba(0,0,0,0.12)',
                     boxShadow: selectedColor?.id === cv.id
                       ? '0 0 0 3px rgba(45,80,22,0.2)'
@@ -174,7 +174,7 @@ export function ProductInteractiveSection({ product, badge, discount }: Props) {
                       boxShadow:   isSelected ? '0 0 0 2px rgba(45,80,22,0.15)' : 'none',
                     }}
                   >
-                    <span className={`font-semibold ${isSizeOos ? 'line-through' : ''}`}>{sv.options.size}</span>
+                    <span className={`font-semibold ${isSizeOos ? 'line-through' : ''}`}>{sv.options?.size}</span>
                     <span className="text-[10px] opacity-60 mt-0.5">
                       {isSizeOos ? 'Sold out' : `KES ${(basePrice + sv.additionalPrice).toLocaleString()}`}
                     </span>
