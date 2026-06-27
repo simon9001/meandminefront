@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, Check } from 'lucide-react';
@@ -75,7 +76,7 @@ async function fetchRelated(categorySlug: string, excludeId: string): Promise<Pr
   }
 }
 
-async function resolveProduct(slug: string): Promise<{ product: Product; isStatic: boolean } | null> {
+const resolveProduct = cache(async (slug: string): Promise<{ product: Product; isStatic: boolean } | null> => {
   const staticEntry = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
   if (staticEntry) return { product: staticToProduct(staticEntry), isStatic: true };
 
@@ -83,7 +84,7 @@ async function resolveProduct(slug: string): Promise<{ product: Product; isStati
   if (liveProduct) return { product: liveProduct, isStatic: false };
 
   return null;
-}
+});
 
 export async function generateStaticParams() {
   return PRODUCTS
