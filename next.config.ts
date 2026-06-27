@@ -39,8 +39,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "picsum.photos" },
-      // Admin-uploaded product images can come from any supplier/vendor URL
+      // Admin-uploaded product images — allow any HTTPS or HTTP supplier URL
       { protocol: "https", hostname: "**" },
+      { protocol: "http",  hostname: "**" },
     ],
   },
 
