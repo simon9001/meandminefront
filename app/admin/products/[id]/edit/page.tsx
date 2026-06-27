@@ -528,6 +528,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       setNewColors([]);
       setNewSizes([]);
       toast.success('Product updated!');
+      router.refresh();
       router.push('/admin/products');
     } catch (e: unknown) {
       toast.error((e as { data?: { message?: string } }).data?.message ?? 'Update failed');

@@ -27,7 +27,11 @@ export const productsApi = baseApi.injectEndpoints({
     getProduct: builder.query<Product, string>({
       query: (slug) => `/products/${slug}`,
       transformResponse: (res: ApiWrap<Product>) => res.data,
-      providesTags: (_r, _e, slug) => [{ type: 'Product', id: slug }],
+      // Tag by both UUID and slug so admin mutations (which invalidate by UUID) and
+      // slug-based cache reads both point to the same entry.
+      providesTags: (result, _e, slug) => result
+        ? [{ type: 'Product', id: result.id }, { type: 'Product', id: slug }]
+        : [{ type: 'Product', id: slug }],
       keepUnusedDataFor: 120,
     }),
 

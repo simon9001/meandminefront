@@ -26,7 +26,7 @@ interface ApiReview {
 
 async function fetchReviews(productId: string): Promise<ApiReview[]> {
   try {
-    const res = await fetch(`${API}/reviews/product/${productId}?limit=10`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API}/reviews/product/${productId}?limit=10`, { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return (json.data ?? []) as ApiReview[];
@@ -37,7 +37,7 @@ async function fetchReviews(productId: string): Promise<ApiReview[]> {
 
 async function fetchProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`${API}/products/${slug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API}/products/${slug}`, { cache: 'no-store' });
     if (!res.ok) return null;
     const json = await res.json();
     return (json.data ?? json) as Product;
@@ -50,7 +50,7 @@ async function fetchRelated(categorySlug: string, excludeId: string): Promise<Pr
   try {
     const res = await fetch(
       `${API}/products?category=${categorySlug}&limit=8&status=active`,
-      { next: { revalidate: 60 } }
+      { cache: 'no-store' }
     );
     if (!res.ok) return [];
     const json = await res.json();
