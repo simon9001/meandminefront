@@ -15,9 +15,6 @@ interface Props {
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1').replace(/\/$/, '');
 
-// Keep all server-side fetches under Vercel's 10 s serverless-function limit.
-// When the backend is cold-starting on Render's free tier this prevents the
-// Vercel function from timing out and serving its own "couldn't load" page.
 const FETCH_TIMEOUT_MS = 8_000;
 
 interface ApiReview {
@@ -33,7 +30,7 @@ interface ApiReview {
 async function fetchReviews(productId: string): Promise<ApiReview[]> {
   try {
     const res = await fetch(`${API}/reviews/product/${productId}?limit=10`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return [];
@@ -47,7 +44,7 @@ async function fetchReviews(productId: string): Promise<ApiReview[]> {
 async function fetchProduct(slug: string): Promise<Product | null> {
   try {
     const res = await fetch(`${API}/products/${slug}`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return null;
@@ -63,7 +60,7 @@ async function fetchRelated(categorySlug: string, excludeId: string): Promise<Pr
     const res = await fetch(
       `${API}/products?category=${categorySlug}&limit=8&status=active`,
       {
-        cache: 'no-store',
+        next: { revalidate: 60 },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       },
     );
