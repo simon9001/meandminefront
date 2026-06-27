@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers';
 import { Navbar } from '@/components/layout/Navbar';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { TokenExpiryWatcher } from '@/components/auth/TokenExpiryWatcher';
+import { InactivityWatcher } from '@/components/auth/InactivityWatcher';
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' });
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-white antialiased">
         <Providers>
           <TokenExpiryWatcher />
+          <InactivityWatcher />
           <Navbar />
           <main className="flex-1">{children}</main>
           <CartDrawer />
