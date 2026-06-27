@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev      = process.env.NODE_ENV === "development";
+const isVercel   = !!process.env.VERCEL; // automatically set in all Vercel deployments
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -20,7 +21,7 @@ const securityHeaders = [
       "default-src 'self'",
       // unsafe-eval: required by React/Turbopack in dev for stack reconstruction; removed in prod
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://vercel.live`,
-      `frame-src ${isDev ? "https://vercel.live" : "'none'"}`,
+      `frame-src ${(isDev || isVercel) ? "https://vercel.live" : "'none'"}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
