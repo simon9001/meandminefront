@@ -20,7 +20,7 @@ const securityHeaders = [
       "default-src 'self'",
       // unsafe-eval: required by React/Turbopack in dev for stack reconstruction; removed in prod
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://vercel.live`,
-      "frame-src 'none'",
+      `frame-src ${isDev ? "https://vercel.live" : "'none'"}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://*.supabase.co https://picsum.photos",
       "font-src 'self' https://fonts.gstatic.com",
